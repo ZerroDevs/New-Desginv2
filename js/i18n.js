@@ -8,7 +8,7 @@ const translations = {
     // Brand & Header
     brandName: "New Desgin",
     navShop: "Shop",
-    navCollections: "Collections",
+    navMain: "Main",
     navAbout: "About",
     navContact: "Contact",
     navLogin: "Login / Sign Up",
@@ -40,6 +40,7 @@ const translations = {
     catalogTag: "CURATED CATALOG",
     catalogTitle: "Our Minimalist Essentials",
     catalogSubtitle: "Engineered with solid shades, precision cuts, and superior comfort.",
+    catalogViewAll: "View All Products",
     tabAll: "All Products",
     tabFeatured: "Featured",
     tabNew: "New Arrivals",
@@ -104,6 +105,10 @@ const translations = {
     descriptionTab: "Description & Details",
     specsTab: "Fabric & Material Care",
     shippingTab: "Shipping & Free Returns",
+    deliveryTripoliLabel: "Delivery (Tripoli):",
+    deliveryOutsideLabel: "Delivery (Outside Tripoli):",
+    returnsLabel: "Returns:",
+    daysText: "Days",
 
     // Feedback & Toasts
     toastAddedToCart: "Added to cart successfully ✓",
@@ -208,7 +213,7 @@ const translations = {
     // Brand & Header
     brandName: "نيو ديزاين",
     navShop: "المتجر",
-    navCollections: "المجموعات",
+    navMain: "الرئيسية",
     navAbout: "من نحن",
     navContact: "اتصل بنا",
     navLogin: "تسجيل الدخول / حساب جديد",
@@ -240,6 +245,7 @@ const translations = {
     catalogTag: "كتالوج المنتجات",
     catalogTitle: "تشكيلة الأزياء العصرية",
     catalogSubtitle: "مختارة بعناية فائقة بألوان الأزرق الداكن والفاتح لتناسب كل الأوقات.",
+    catalogViewAll: "عرض جميع المنتجات",
     tabAll: "جميع المنتجات",
     tabFeatured: "المميزة",
     tabNew: "وصل حديثاً",
@@ -304,6 +310,10 @@ const translations = {
     descriptionTab: "الوصف والتفاصيل",
     specsTab: "الخامات والعناية بالمنتج",
     shippingTab: "الشحن والاسترجاع المجاني",
+    deliveryTripoliLabel: "التوصيل (داخل طرابلس):",
+    deliveryOutsideLabel: "التوصيل (خارج طرابلس):",
+    returnsLabel: "الاسترداد:",
+    daysText: "أيام",
 
     // Feedback & Toasts
     toastAddedToCart: "تمت إضافة المنتج إلى السلة بنجاح ✓",

@@ -28,6 +28,8 @@ const AdminController = {
     this.bindAnnouncementEvents();
     this.bindTicketEvents();
     this.bindAdminEmailEvents();
+    this.loadHomepageContent();
+    this.bindHomepageContentEvents();
   },
 
   initTheme() {
@@ -159,8 +161,20 @@ const AdminController = {
   updateAdminHeader(user) {
     const emailEl = document.getElementById("currentAdminEmail");
     const avatarEl = document.getElementById("currentAdminAvatar");
+    const roleEl = document.getElementById("currentAdminRole");
     if (emailEl) emailEl.textContent = user.email;
     if (avatarEl) avatarEl.textContent = user.email.charAt(0).toUpperCase();
+    if (roleEl) {
+      if (this.ownerEmail && user.email.toLowerCase() === this.ownerEmail.toLowerCase()) {
+        roleEl.textContent = "Owner";
+        roleEl.style.color = "var(--admin-blue)";
+        roleEl.style.fontWeight = "700";
+      } else {
+        roleEl.textContent = "Administrator";
+        roleEl.style.color = "";
+        roleEl.style.fontWeight = "";
+      }
+    }
   },
 
   bindNavigation() {
@@ -286,7 +300,8 @@ const AdminController = {
         currency: "Currency & Exchange Rates",
         "store-info": "Store Info & Policies",
         "support-tickets": "Customer Support Tickets",
-        admins: "Admin Access & Security"
+        admins: "Admin Access & Security",
+        homepage: "Homepage Content"
       };
       pageTitle.textContent = titles[tabName] || "Admin Panel";
     }
@@ -676,7 +691,36 @@ const AdminController = {
 
     const targetId = this.editingProductId || idInput;
     const sizes = sizesStr ? sizesStr.split(",").map(s => s.trim()).filter(Boolean) : ["Standard"];
-    const colors = colorsStr ? colorsStr.split(",").map(c => ({ name: c.trim(), nameAr: c.trim(), hex: "#0f172a" })) : [{ name: "Solid Blue", nameAr: "أزرق صلب", hex: "#0284c7" }];
+    
+    const colorDictionary = {
+      "black": { hex: "#000000", ar: "أسود" },
+      "white": { hex: "#ffffff", ar: "أبيض" },
+      "red": { hex: "#ef4444", ar: "أحمر" },
+      "blue": { hex: "#3b82f6", ar: "أزرق" },
+      "navy": { hex: "#0f172a", ar: "كحلي" },
+      "green": { hex: "#22c55e", ar: "أخضر" },
+      "yellow": { hex: "#eab308", ar: "أصفر" },
+      "gray": { hex: "#6b7280", ar: "رمادي" },
+      "grey": { hex: "#6b7280", ar: "رمادي" },
+      "orange": { hex: "#f97316", ar: "برتقالي" },
+      "purple": { hex: "#a855f7", ar: "بنفسجي" },
+      "pink": { hex: "#ec4899", ar: "وردي" },
+      "brown": { hex: "#78350f", ar: "بني" },
+      "beige": { hex: "#d4d4d8", ar: "بيج" },
+      "gold": { hex: "#fbbf24", ar: "ذهبي" },
+      "silver": { hex: "#9ca3af", ar: "فضي" }
+    };
+
+    const colors = colorsStr ? colorsStr.split(",").map(c => {
+      const trimmed = c.trim();
+      const lower = trimmed.toLowerCase();
+      const match = colorDictionary[lower];
+      return { 
+        name: trimmed, 
+        nameAr: match ? match.ar : trimmed, 
+        hex: match ? match.hex : "#0f172a" 
+      };
+    }) : [{ name: "Solid Blue", nameAr: "أزرق صلب", hex: "#0284c7" }];
 
     const categoryNames = {
       apparel: { en: "Apparel", ar: "ملابس" },
@@ -1162,6 +1206,89 @@ const AdminController = {
         };
         this.db.ref("settings/announcement").set(payload)
           .then(() => this.showNotification("Announcement bar updated! ✓", "success"))
+          .catch(err => this.showNotification(err.message, "error"));
+      });
+    }
+  },
+
+  /* ========================================================================
+     HOMEPAGE CONTENT
+     ======================================================================== */
+  loadHomepageContent() {
+    this.db.ref("settings/homepageContent").on("value", snapshot => {
+      const val = snapshot.val() || {};
+      
+      const fields = [
+        "heroTag_en", "heroTag_ar", "heroTitlePart1_en", "heroTitlePart1_ar", "heroTitlePart2_en", "heroTitlePart2_ar", "heroDesc_en", "heroDesc_ar", "heroBadgeTitle_en", "heroBadgeTitle_ar", "heroBadgeSubtitle_en", "heroBadgeSubtitle_ar",
+        "benefit1Title_en", "benefit1Title_ar", "benefit1Desc_en", "benefit1Desc_ar",
+        "benefit2Title_en", "benefit2Title_ar", "benefit2Desc_en", "benefit2Desc_ar",
+        "benefit3Title_en", "benefit3Title_ar", "benefit3Desc_en", "benefit3Desc_ar",
+        "benefit4Title_en", "benefit4Title_ar", "benefit4Desc_en", "benefit4Desc_ar",
+        "aboutTag_en", "aboutTag_ar", "aboutTitle_en", "aboutTitle_ar", "aboutP1_en", "aboutP1_ar", "aboutP2_en", "aboutP2_ar",
+        "stat1Num", "stat1Label_en", "stat1Label_ar",
+        "stat2Num", "stat2Label_en", "stat2Label_ar",
+        "stat3Num", "stat3Label_en", "stat3Label_ar"
+      ];
+
+      fields.forEach(f => {
+        const el = document.getElementById("hc_" + f);
+        if (el) {
+          el.value = val[f] || "";
+        }
+      });
+
+      const toggles = [
+        "showBenefits", "showPhilosophy", "showStats",
+        "showBenefit1", "showBenefit2", "showBenefit3", "showBenefit4",
+        "showStat1", "showStat2", "showStat3"
+      ];
+      toggles.forEach(t => {
+        const el = document.getElementById("hc_" + t);
+        if (el) {
+          el.checked = val[t] !== false; // Default true
+        }
+      });
+    });
+  },
+
+  bindHomepageContentEvents() {
+    const btnSave = document.getElementById("btnSaveHomepageContent");
+    if (btnSave) {
+      btnSave.addEventListener("click", () => {
+        const fields = [
+          "heroTag_en", "heroTag_ar", "heroTitlePart1_en", "heroTitlePart1_ar", "heroTitlePart2_en", "heroTitlePart2_ar", "heroDesc_en", "heroDesc_ar", "heroBadgeTitle_en", "heroBadgeTitle_ar", "heroBadgeSubtitle_en", "heroBadgeSubtitle_ar",
+          "benefit1Title_en", "benefit1Title_ar", "benefit1Desc_en", "benefit1Desc_ar",
+          "benefit2Title_en", "benefit2Title_ar", "benefit2Desc_en", "benefit2Desc_ar",
+          "benefit3Title_en", "benefit3Title_ar", "benefit3Desc_en", "benefit3Desc_ar",
+          "benefit4Title_en", "benefit4Title_ar", "benefit4Desc_en", "benefit4Desc_ar",
+          "aboutTag_en", "aboutTag_ar", "aboutTitle_en", "aboutTitle_ar", "aboutP1_en", "aboutP1_ar", "aboutP2_en", "aboutP2_ar",
+          "stat1Num", "stat1Label_en", "stat1Label_ar",
+          "stat2Num", "stat2Label_en", "stat2Label_ar",
+          "stat3Num", "stat3Label_en", "stat3Label_ar"
+        ];
+        
+        const payload = { updatedAt: Date.now() };
+        fields.forEach(f => {
+          const el = document.getElementById("hc_" + f);
+          if (el) {
+            payload[f] = el.value.trim();
+          }
+        });
+
+        const toggles = [
+          "showBenefits", "showPhilosophy", "showStats",
+          "showBenefit1", "showBenefit2", "showBenefit3", "showBenefit4",
+          "showStat1", "showStat2", "showStat3"
+        ];
+        toggles.forEach(t => {
+          const el = document.getElementById("hc_" + t);
+          if (el) {
+            payload[t] = el.checked;
+          }
+        });
+
+        this.db.ref("settings/homepageContent").set(payload)
+          .then(() => this.showNotification("Homepage content updated! ✓", "success"))
           .catch(err => this.showNotification(err.message, "error"));
       });
     }

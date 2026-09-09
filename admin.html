@@ -41,7 +41,8 @@
 
       <!-- Login Required Box -->
       <div id="gateLoginBox">
-        <img src="Images/Logo-text.png" alt="New Design" style="width: 76px; height: 76px; object-fit: cover; border-radius: 12px; margin: 0 auto 1.25rem auto; display: block; border: 1px solid var(--admin-border);" />
+        <img src="Images/Logo-text.png" alt="New Design"
+          style="width: 76px; height: 76px; object-fit: cover; border-radius: 12px; margin: 0 auto 1.25rem auto; display: block; border: 1px solid var(--admin-border);" />
         <h2 class="admin-gate-title">Admin Portal Login</h2>
         <p class="admin-gate-desc">Please authenticate with your administrator credentials or Google account to access
           the control panel.</p>
@@ -97,8 +98,10 @@
   <div class="admin-layout">
     <!-- Sidebar -->
     <aside class="admin-sidebar">
-      <a href="index.html" class="sidebar-brand" style="text-decoration: none; display: flex; align-items: center; gap: 0.65rem;" title="View Storefront">
-        <img src="Images/Logo-noBG.png" alt="New Desgin Admin" class="brand-img" style="height: 34px; width: 34px; object-fit: contain;" />
+      <a href="index.html" class="sidebar-brand"
+        style="text-decoration: none; display: flex; align-items: center; gap: 0.65rem;" title="View Storefront">
+        <img src="Images/Logo-noBG.png" alt="New Desgin Admin" class="brand-img"
+          style="height: 34px; width: 34px; object-fit: contain;" />
         <div class="sidebar-brand-title">NEW <span>ADMIN</span></div>
       </a>
 
@@ -161,6 +164,16 @@
           </svg>
           <span>Admin Access</span>
         </button>
+
+        <button type="button" class="nav-item" data-tab="homepage">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="3" y1="9" x2="21" y2="9"></line>
+            <line x1="9" y1="21" x2="9" y2="9"></line>
+          </svg>
+          <span>Homepage Content</span>
+        </button>
       </nav>
 
       <div class="sidebar-footer">
@@ -168,8 +181,24 @@
           <div class="admin-user-avatar" id="currentAdminAvatar">A</div>
           <div class="admin-user-details">
             <div class="admin-user-email" id="currentAdminEmail">admin@store.com</div>
-            <div class="admin-user-role">Administrator</div>
+            <div class="admin-user-role" id="currentAdminRole">Administrator</div>
           </div>
+        </div>
+        <div class="header-controls" style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem;">
+          <a href="index.html" target="_blank" class="btn btn-secondary btn-sm"
+            style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+              <polyline points="15 3 21 3 21 9"></polyline>
+              <line x1="10" y1="14" x2="21" y2="3"></line>
+            </svg>
+            <span>Live Store</span>
+          </a>
+          <button type="button" class="btn btn-secondary btn-sm" id="adminThemeToggle" title="Toggle Theme"
+            style="flex: 1;">
+            <span>Theme Mode</span>
+          </button>
         </div>
         <button type="button" class="btn btn-secondary btn-sm" id="adminLogoutBtn" style="width: 100%;">Log Out</button>
       </div>
@@ -180,25 +209,16 @@
     <main class="admin-main">
       <header class="admin-header">
         <div style="display: flex; align-items: center; gap: 0.75rem;">
-          <button type="button" class="admin-mobile-menu-btn" id="adminMobileToggle" aria-label="Toggle Menu" style="display: none;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+          <button type="button" class="admin-mobile-menu-btn" id="adminMobileToggle" aria-label="Toggle Menu"
+            style="display: none;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
           </button>
           <h1 class="header-page-title" id="headerPageTitle">Dashboard Overview</h1>
-        </div>
-
-        <div class="header-controls">
-          <a href="index.html" target="_blank" class="btn btn-secondary btn-sm">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-              <polyline points="15 3 21 3 21 9"></polyline>
-              <line x1="10" y1="14" x2="21" y2="3"></line>
-            </svg>
-            <span>Live Store</span>
-          </a>
-          <button type="button" class="btn btn-secondary btn-sm" id="adminThemeToggle" title="Toggle Theme">
-            <span>Theme Mode</span>
-          </button>
         </div>
       </header>
 
@@ -304,7 +324,8 @@
 
             <div id="productsEmptyState" style="display: none; text-align: center; padding: 3rem 1rem;">
               <p style="color: var(--text-muted); margin-bottom: 1rem;">No products found in your database.</p>
-              <button type="button" class="btn btn-primary btn-sm" onclick="AdminController.openAddProductModal()">+ Add Your First Product</button>
+              <button type="button" class="btn btn-primary btn-sm" onclick="AdminController.openAddProductModal()">+ Add
+                Your First Product</button>
             </div>
           </div>
         </section>
@@ -385,7 +406,8 @@
               <h2 class="card-title">Store Contact & Delivery Policies</h2>
             </div>
             <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">
-              Configure store contact numbers, return duration, and delivery times. These values sync live across all storefront pages, footer, FAQ, and Support center.
+              Configure store contact numbers, return duration, and delivery times. These values sync live across all
+              storefront pages, footer, FAQ, and Support center.
             </p>
 
             <form id="storeInfoForm">
@@ -403,11 +425,13 @@
               <div class="form-grid-2">
                 <div class="form-group">
                   <label class="form-label" for="storeWhatsapp">WhatsApp Number / رقم الواتساب</label>
-                  <input type="text" id="storeWhatsapp" class="form-input" value="+218 92-4295050" placeholder="+218..." required />
+                  <input type="text" id="storeWhatsapp" class="form-input" value="+218 92-4295050" placeholder="+218..."
+                    required />
                   <small style="color: var(--text-muted); font-size: 0.75rem;">اي تواصل متاح عبر الواتس</small>
                 </div>
                 <div class="form-group">
-                  <label class="form-label" for="storeReturnDays">Return Policy Duration / مدة الاسترداد (بالأيام)</label>
+                  <label class="form-label" for="storeReturnDays">Return Policy Duration / مدة الاسترداد
+                    (بالأيام)</label>
                   <input type="text" id="storeReturnDays" class="form-input" value="3" required />
                   <small style="color: var(--text-muted); font-size: 0.75rem;">مدة الاسترداد تلاتة أيام</small>
                 </div>
@@ -416,17 +440,22 @@
               <div class="form-grid-2">
                 <div class="form-group">
                   <label class="form-label" for="storeDeliveryTripoli">Tripoli Delivery / توصيل طرابلس</label>
-                  <input type="text" id="storeDeliveryTripoli" class="form-input" value="نفس اليوم / Same Day" required />
-                  <small style="color: var(--text-muted); font-size: 0.75rem;">اي طلبية داخل طرابلس توصيل نفس اليوم</small>
+                  <input type="text" id="storeDeliveryTripoli" class="form-input" value="نفس اليوم / Same Day"
+                    required />
+                  <small style="color: var(--text-muted); font-size: 0.75rem;">اي طلبية داخل طرابلس توصيل نفس
+                    اليوم</small>
                 </div>
                 <div class="form-group">
-                  <label class="form-label" for="storeDeliveryOutside">Outside Tripoli Delivery / توصيل خارج طرابلس</label>
-                  <input type="text" id="storeDeliveryOutside" class="form-input" value="2-3 أيام / 2-3 Days" required />
+                  <label class="form-label" for="storeDeliveryOutside">Outside Tripoli Delivery / توصيل خارج
+                    طرابلس</label>
+                  <input type="text" id="storeDeliveryOutside" class="form-input" value="2-3 أيام / 2-3 Days"
+                    required />
                   <small style="color: var(--text-muted); font-size: 0.75rem;">برا طرابلس 2-3 أيام</small>
                 </div>
               </div>
 
-              <button type="submit" class="btn btn-primary" id="saveStoreInfoBtn" style="margin-top: 1rem; padding: 0.75rem 2rem;">
+              <button type="submit" class="btn btn-primary" id="saveStoreInfoBtn"
+                style="margin-top: 1rem; padding: 0.75rem 2rem;">
                 Save Store Settings to Firebase
               </button>
             </form>
@@ -439,24 +468,29 @@
               <span style="font-size: 0.8rem; color: var(--text-muted);">Hidden by default on storefront</span>
             </div>
             <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.25rem;">
-              Control the top announcement bar visibility and text on all storefront pages (index, FAQ, support, terms, product pages). Supports English and Arabic text.
+              Control the top announcement bar visibility and text on all storefront pages (index, FAQ, support, terms,
+              product pages). Supports English and Arabic text.
             </p>
 
             <form id="announcementForm">
               <div class="form-group">
                 <label class="form-label" style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
-                  <input type="checkbox" id="announcementVisible" style="width: 18px; height: 18px; accent-color: var(--admin-blue);" />
+                  <input type="checkbox" id="announcementVisible"
+                    style="width: 18px; height: 18px; accent-color: var(--admin-blue);" />
                   <span>Show Announcement Bar on Storefront / إظهار شريط الإعلان</span>
                 </label>
               </div>
               <div class="form-grid-2">
                 <div class="form-group">
                   <label class="form-label" for="announcementTextEn">Announcement Text (English)</label>
-                  <input type="text" id="announcementTextEn" class="form-input" placeholder="e.g. FREE DELIVERY ON ORDERS OVER $150" />
+                  <input type="text" id="announcementTextEn" class="form-input"
+                    placeholder="e.g. FREE DELIVERY ON ORDERS OVER $150" />
                 </div>
                 <div class="form-group">
-                  <label class="form-label" for="announcementTextAr">Announcement Text (Arabic) / نص الإعلان بالعربية</label>
-                  <input type="text" id="announcementTextAr" class="form-input" placeholder="مثال: توصيل مجاني للطلبات فوق 150$" dir="rtl" />
+                  <label class="form-label" for="announcementTextAr">Announcement Text (Arabic) / نص الإعلان
+                    بالعربية</label>
+                  <input type="text" id="announcementTextAr" class="form-input"
+                    placeholder="مثال: توصيل مجاني للطلبات فوق 150$" dir="rtl" />
                 </div>
               </div>
               <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem; padding: 0.65rem 1.75rem;">
@@ -505,22 +539,265 @@
       <!-- Admin Mobile Bottom Quick Navigation -->
       <nav class="admin-bottom-nav" style="display: none;" aria-label="Mobile Navigation">
         <button type="button" class="admin-bottom-nav-item active" data-tab="dashboard">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
           <span>Overview</span>
         </button>
         <button type="button" class="admin-bottom-nav-item" data-tab="products">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <path d="M16 10a4 4 0 0 1-8 0"></path>
+          </svg>
           <span>Products</span>
         </button>
         <button type="button" class="admin-bottom-nav-item" data-tab="currency">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="1" x2="12" y2="23"></line>
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+          </svg>
           <span>Rates</span>
         </button>
         <button type="button" class="admin-bottom-nav-item" data-tab="admins">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
           <span>Admins</span>
         </button>
       </nav>
+      <!-- HOMEPAGE CONTENT SETTINGS TAB -->
+      <section class="admin-tab-pane" id="tab-homepage">
+        <header class="tab-header">
+          <div>
+            <h2 class="tab-title">Homepage Content</h2>
+            <p class="tab-subtitle">Edit the text for Hero, Benefits, Philosophy, and Stats sections.</p>
+          </div>
+          <button type="button" class="btn btn-primary" id="btnSaveHomepageContent">Save Content</button>
+        </header>
+
+        <div class="admin-card">
+          <form id="homepageContentForm">
+            <!-- Hero Section -->
+            <h3
+              style="margin-top:0; margin-bottom:1rem; padding-bottom:0.5rem; border-bottom:1px solid var(--admin-border);">
+              Hero Section</h3>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
+              <div class="form-group"><label class="form-label">Hero Tag (EN)</label><input type="text"
+                  id="hc_heroTag_en" class="form-input" placeholder="NEW SEASON 2026" /></div>
+              <div class="form-group"><label class="form-label">Hero Tag (AR)</label><input type="text"
+                  id="hc_heroTag_ar" class="form-input" placeholder="موسم جديد 2026" /></div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
+              <div class="form-group"><label class="form-label">Hero Title Part 1 (EN)</label><input type="text"
+                  id="hc_heroTitlePart1_en" class="form-input" placeholder="STYLE WITHOUT" /></div>
+              <div class="form-group"><label class="form-label">Hero Title Part 1 (AR)</label><input type="text"
+                  id="hc_heroTitlePart1_ar" class="form-input" placeholder="أناقة بلا" /></div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
+              <div class="form-group"><label class="form-label">Hero Title Part 2 (EN)</label><input type="text"
+                  id="hc_heroTitlePart2_en" class="form-input" placeholder="LIMITS." /></div>
+              <div class="form-group"><label class="form-label">Hero Title Part 2 (AR)</label><input type="text"
+                  id="hc_heroTitlePart2_ar" class="form-input" placeholder="حدود." /></div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
+              <div class="form-group"><label class="form-label">Hero Description (EN)</label><textarea
+                  id="hc_heroDesc_en" class="form-input" rows="3"
+                  placeholder="Discover modern, minimalist clothing..."></textarea></div>
+              <div class="form-group"><label class="form-label">Hero Description (AR)</label><textarea
+                  id="hc_heroDesc_ar" class="form-input" rows="3" placeholder="اكتشف الملابس العصرية..."></textarea>
+              </div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
+              <div class="form-group"><label class="form-label">Hero Badge Title (EN)</label><input type="text"
+                  id="hc_heroBadgeTitle_en" class="form-input" placeholder="New Arrival" /></div>
+              <div class="form-group"><label class="form-label">Hero Badge Title (AR)</label><input type="text"
+                  id="hc_heroBadgeTitle_ar" class="form-input" placeholder="وصل حديثاً" /></div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:2rem;">
+              <div class="form-group"><label class="form-label">Hero Badge Subtitle (EN)</label><input type="text"
+                  id="hc_heroBadgeSubtitle_en" class="form-input" placeholder="Spring / Summer 26" /></div>
+              <div class="form-group"><label class="form-label">Hero Badge Subtitle (AR)</label><input type="text"
+                  id="hc_heroBadgeSubtitle_ar" class="form-input" placeholder="ربيع / صيف 26" /></div>
+            </div>
+
+            <!-- Benefits Section -->
+            <div
+              style="display: flex; align-items: center; justify-content: space-between; border-bottom:1px solid var(--admin-border); margin-bottom:1rem; padding-bottom:0.5rem;">
+              <h3 style="margin:0;">Benefits Section</h3>
+              <label class="toggle-switch"
+                style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; font-weight:600;">
+                <input type="checkbox" id="hc_showBenefits" checked />
+                <span class="slider round"></span>
+                Show Section
+              </label>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
+              <div class="form-group">
+                <label class="form-label" style="display:flex; justify-content:space-between;">
+                  <span>Benefit 1 Title (EN/AR)</span>
+                  <label style="font-weight:normal; font-size:0.8rem; cursor:pointer;"><input type="checkbox" id="hc_showBenefit1" checked style="margin:0 0.25rem 0 0; vertical-align:middle;">Show</label>
+                </label>
+                <input type="text" id="hc_benefit1Title_en" class="form-input" placeholder="Premium Materials"
+                  style="margin-bottom:0.5rem;" />
+                <input type="text" id="hc_benefit1Title_ar" class="form-input" placeholder="مواد فاخرة" />
+              </div>
+              <div class="form-group"><label class="form-label">Benefit 1 Desc (EN/AR)</label>
+                <input type="text" id="hc_benefit1Desc_en" class="form-input"
+                  placeholder="Crafted from ethically sourced fabrics" style="margin-bottom:0.5rem;" />
+                <input type="text" id="hc_benefit1Desc_ar" class="form-input" placeholder="مصنوعة من أقمشة مستدامة" />
+              </div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
+              <div class="form-group">
+                <label class="form-label" style="display:flex; justify-content:space-between;">
+                  <span>Benefit 2 Title (EN/AR)</span>
+                  <label style="font-weight:normal; font-size:0.8rem; cursor:pointer;"><input type="checkbox" id="hc_showBenefit2" checked style="margin:0 0.25rem 0 0; vertical-align:middle;">Show</label>
+                </label>
+                <input type="text" id="hc_benefit2Title_en" class="form-input" placeholder="Fast Delivery"
+                  style="margin-bottom:0.5rem;" />
+                <input type="text" id="hc_benefit2Title_ar" class="form-input" placeholder="توصيل سريع" />
+              </div>
+              <div class="form-group"><label class="form-label">Benefit 2 Desc (EN/AR)</label>
+                <input type="text" id="hc_benefit2Desc_en" class="form-input"
+                  placeholder="Worldwide tracked shipping within 48h" style="margin-bottom:0.5rem;" />
+                <input type="text" id="hc_benefit2Desc_ar" class="form-input"
+                  placeholder="شحن عالمي متتبع خلال 48 ساعة" />
+              </div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
+              <div class="form-group">
+                <label class="form-label" style="display:flex; justify-content:space-between;">
+                  <span>Benefit 3 Title (EN/AR)</span>
+                  <label style="font-weight:normal; font-size:0.8rem; cursor:pointer;"><input type="checkbox" id="hc_showBenefit3" checked style="margin:0 0.25rem 0 0; vertical-align:middle;">Show</label>
+                </label>
+                <input type="text" id="hc_benefit3Title_en" class="form-input" placeholder="Secure Payments"
+                  style="margin-bottom:0.5rem;" />
+                <input type="text" id="hc_benefit3Title_ar" class="form-input" placeholder="مدفوعات آمنة" />
+              </div>
+              <div class="form-group"><label class="form-label">Benefit 3 Desc (EN/AR)</label>
+                <input type="text" id="hc_benefit3Desc_en" class="form-input"
+                  placeholder="Encrypted & authenticated transactions" style="margin-bottom:0.5rem;" />
+                <input type="text" id="hc_benefit3Desc_ar" class="form-input" placeholder="معاملات مشفرة وموثقة" />
+              </div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:2rem;">
+              <div class="form-group">
+                <label class="form-label" style="display:flex; justify-content:space-between;">
+                  <span>Benefit 4 Title (EN/AR)</span>
+                  <label style="font-weight:normal; font-size:0.8rem; cursor:pointer;"><input type="checkbox" id="hc_showBenefit4" checked style="margin:0 0.25rem 0 0; vertical-align:middle;">Show</label>
+                </label>
+                <input type="text" id="hc_benefit4Title_en" class="form-input" placeholder="Easy Returns"
+                  style="margin-bottom:0.5rem;" />
+                <input type="text" id="hc_benefit4Title_ar" class="form-input" placeholder="إرجاع سهل" />
+              </div>
+              <div class="form-group"><label class="form-label">Benefit 4 Desc (EN/AR)</label>
+                <input type="text" id="hc_benefit4Desc_en" class="form-input"
+                  placeholder="30-day hassle-free exchange policy" style="margin-bottom:0.5rem;" />
+                <input type="text" id="hc_benefit4Desc_ar" class="form-input" placeholder="سياسة استبدال لمدة 30 يوم" />
+              </div>
+            </div>
+
+            <!-- Philosophy Section -->
+            <div
+              style="display: flex; align-items: center; justify-content: space-between; border-bottom:1px solid var(--admin-border); margin-bottom:1rem; padding-bottom:0.5rem;">
+              <h3 style="margin:0;">Philosophy Section</h3>
+              <label class="toggle-switch"
+                style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; font-weight:600;">
+                <input type="checkbox" id="hc_showPhilosophy" checked />
+                <span class="slider round"></span>
+                Show Section
+              </label>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
+              <div class="form-group"><label class="form-label">About Tag (EN)</label><input type="text"
+                  id="hc_aboutTag_en" class="form-input" placeholder="OUR PHILOSOPHY" /></div>
+              <div class="form-group"><label class="form-label">About Tag (AR)</label><input type="text"
+                  id="hc_aboutTag_ar" class="form-input" placeholder="فلسفتنا" /></div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
+              <div class="form-group"><label class="form-label">About Title (EN)</label><input type="text"
+                  id="hc_aboutTitle_en" class="form-input" placeholder="Simplicity In Every Stitch" /></div>
+              <div class="form-group"><label class="form-label">About Title (AR)</label><input type="text"
+                  id="hc_aboutTitle_ar" class="form-input" placeholder="البساطة في كل غرزة" /></div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
+              <div class="form-group"><label class="form-label">About Paragraph 1 (EN)</label><textarea
+                  id="hc_aboutP1_en" class="form-input" rows="3"
+                  placeholder="New Desgin was founded on a simple premise..."></textarea></div>
+              <div class="form-group"><label class="form-label">About Paragraph 1 (AR)</label><textarea
+                  id="hc_aboutP1_ar" class="form-input" rows="3"
+                  placeholder="تأسست نيو ديزاين على فرضية بسيطة..."></textarea></div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:2rem;">
+              <div class="form-group"><label class="form-label">About Paragraph 2 (EN)</label><textarea
+                  id="hc_aboutP2_en" class="form-input" rows="3"
+                  placeholder="Every piece is designed for longevity..."></textarea></div>
+              <div class="form-group"><label class="form-label">About Paragraph 2 (AR)</label><textarea
+                  id="hc_aboutP2_ar" class="form-input" rows="3" placeholder="تم تصميم كل قطعة لتدوم..."></textarea>
+              </div>
+            </div>
+
+            <!-- Stats Section -->
+            <div
+              style="display: flex; align-items: center; justify-content: space-between; border-bottom:1px solid var(--admin-border); margin-bottom:1rem; padding-bottom:0.5rem;">
+              <h3 style="margin:0;">Stats Section</h3>
+              <label class="toggle-switch"
+                style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; font-weight:600;">
+                <input type="checkbox" id="hc_showStats" checked />
+                <span class="slider round"></span>
+                Show Section
+              </label>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; margin-bottom:1rem;">
+              <div class="form-group">
+                <label class="form-label" style="display:flex; justify-content:space-between;">
+                  <span>Stat 1 (Num / EN / AR)</span>
+                  <label style="font-weight:normal; font-size:0.8rem; cursor:pointer;"><input type="checkbox" id="hc_showStat1" checked style="margin:0 0.25rem 0 0; vertical-align:middle;">Show</label>
+                </label>
+                <input type="text" id="hc_stat1Num" class="form-input" placeholder="Number (e.g. 100%)"
+                  style="margin-bottom:0.5rem;" />
+                <input type="text" id="hc_stat1Label_en" class="form-input" placeholder="Label EN"
+                  style="margin-bottom:0.5rem;" />
+                <input type="text" id="hc_stat1Label_ar" class="form-input" placeholder="Label AR" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" style="display:flex; justify-content:space-between;">
+                  <span>Stat 2 (Num / EN / AR)</span>
+                  <label style="font-weight:normal; font-size:0.8rem; cursor:pointer;"><input type="checkbox" id="hc_showStat2" checked style="margin:0 0.25rem 0 0; vertical-align:middle;">Show</label>
+                </label>
+                <input type="text" id="hc_stat2Num" class="form-input" placeholder="Number (e.g. 48H)"
+                  style="margin-bottom:0.5rem;" />
+                <input type="text" id="hc_stat2Label_en" class="form-input" placeholder="Label EN"
+                  style="margin-bottom:0.5rem;" />
+                <input type="text" id="hc_stat2Label_ar" class="form-input" placeholder="Label AR" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" style="display:flex; justify-content:space-between;">
+                  <span>Stat 3 (Num / EN / AR)</span>
+                  <label style="font-weight:normal; font-size:0.8rem; cursor:pointer;"><input type="checkbox" id="hc_showStat3" checked style="margin:0 0.25rem 0 0; vertical-align:middle;">Show</label>
+                </label>
+                <input type="text" id="hc_stat3Num" class="form-input" placeholder="Number (e.g. 25K+)"
+                  style="margin-bottom:0.5rem;" />
+                <input type="text" id="hc_stat3Label_en" class="form-input" placeholder="Label EN"
+                  style="margin-bottom:0.5rem;" />
+                <input type="text" id="hc_stat3Label_ar" class="form-input" placeholder="Label AR" />
+              </div>
+            </div>
+          </form>
+        </div>
+      </section>
+
     </main>
   </div>
 
@@ -539,7 +816,8 @@
               <label class="form-label" for="prodId">Product Unique Key (SKU)*</label>
               <div style="display: flex; gap: 0.5rem;">
                 <input type="text" id="prodId" class="form-input" placeholder="e.g. ND-4821" required />
-                <button type="button" class="btn btn-secondary btn-sm" id="btnRandomizeSku" title="Generate New Random SKU" style="white-space: nowrap;">🎲 Random</button>
+                <button type="button" class="btn btn-secondary btn-sm" id="btnRandomizeSku"
+                  title="Generate New Random SKU" style="white-space: nowrap;">🎲 Random</button>
               </div>
             </div>
             <div class="form-group">
@@ -597,16 +875,20 @@
             <div class="image-upload-zone" id="mainPhotoDropZone">
               <input type="file" id="prodMainFileInput" accept="image/*" style="display: none;" />
               <div id="mainPhotoPlaceholder" class="upload-placeholder">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
                   <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                   <circle cx="8.5" cy="8.5" r="1.5"></circle>
                   <polyline points="21 15 16 10 5 21"></polyline>
                 </svg>
                 <span style="font-weight: 600; font-size: 0.9rem;">Tap / Click to choose Main Photo from Device</span>
-                <small style="color: var(--text-muted); font-size: 0.78rem;">Take a photo or choose from device (Auto-optimized)</small>
+                <small style="color: var(--text-muted); font-size: 0.78rem;">Take a photo or choose from device
+                  (Auto-optimized)</small>
               </div>
-              <div id="mainPhotoPreviewWrapper" style="display: none; align-items: center; gap: 1rem; position: relative;">
-                <img id="mainPhotoPreview" src="" alt="Main Preview" style="width: 74px; height: 74px; object-fit: cover; border-radius: var(--radius-md); border: 2px solid var(--admin-blue); flex-shrink: 0;" />
+              <div id="mainPhotoPreviewWrapper"
+                style="display: none; align-items: center; gap: 1rem; position: relative;">
+                <img id="mainPhotoPreview" src="" alt="Main Preview"
+                  style="width: 74px; height: 74px; object-fit: cover; border-radius: var(--radius-md); border: 2px solid var(--admin-blue); flex-shrink: 0;" />
                 <div style="display: flex; flex-direction: column; gap: 0.35rem; flex: 1; text-align: left;">
                   <span id="mainPhotoMeta" style="font-size: 0.85rem; font-weight: 600;">Main Photo Ready</span>
                   <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
@@ -619,7 +901,8 @@
             <!-- Optional Web URL fallback -->
             <details style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-muted);">
               <summary style="cursor: pointer; user-select: none;">Or paste image Web URL</summary>
-              <input type="url" id="prodImage" class="form-input" placeholder="https://images.unsplash.com/..." style="margin-top: 0.35rem;" />
+              <input type="url" id="prodImage" class="form-input" placeholder="https://images.unsplash.com/..."
+                style="margin-top: 0.35rem;" />
             </details>
           </div>
 
@@ -627,18 +910,22 @@
           <div class="form-group">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.35rem;">
               <label class="form-label" style="margin-bottom: 0;">Additional Photos (Optional, up to 5)</label>
-              <span id="extraPhotosCount" style="font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">0 / 5 photos</span>
+              <span id="extraPhotosCount" style="font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">0 / 5
+                photos</span>
             </div>
             <input type="file" id="prodExtraFilesInput" accept="image/*" multiple style="display: none;" />
             <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
               <button type="button" class="btn btn-secondary btn-sm" id="btnAddExtraPhotos">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg>
                 <span>+ Add Extra Photos from Device</span>
               </button>
             </div>
-            <div id="extraPhotosGrid" class="extra-photos-grid" style="display: flex; gap: 0.65rem; margin-top: 0.75rem; flex-wrap: wrap;">
+            <div id="extraPhotosGrid" class="extra-photos-grid"
+              style="display: flex; gap: 0.65rem; margin-top: 0.75rem; flex-wrap: wrap;">
               <!-- Dynamic preview chips of up to 5 additional photos -->
             </div>
           </div>
@@ -683,16 +970,22 @@
         <button type="button" class="btn btn-secondary btn-sm" onclick="AdminController.closeTicketModal()">✕</button>
       </div>
       <div class="admin-modal-body" style="padding: 1.25rem;">
-        <div id="ticketAdminMeta" style="background-color: var(--bg-input); padding: 0.85rem 1rem; border-radius: var(--radius-md); margin-bottom: 1rem; font-size: 0.88rem;"></div>
-        <div id="ticketAdminMessages" style="display: flex; flex-direction: column; gap: 0.85rem; max-height: 350px; overflow-y: auto; margin-bottom: 1rem; padding-right: 0.5rem;"></div>
+        <div id="ticketAdminMeta"
+          style="background-color: var(--bg-input); padding: 0.85rem 1rem; border-radius: var(--radius-md); margin-bottom: 1rem; font-size: 0.88rem;">
+        </div>
+        <div id="ticketAdminMessages"
+          style="display: flex; flex-direction: column; gap: 0.85rem; max-height: 350px; overflow-y: auto; margin-bottom: 1rem; padding-right: 0.5rem;">
+        </div>
         <form id="ticketAdminReplyForm" style="display: flex; gap: 0.5rem;">
-          <input type="text" id="ticketAdminReplyInput" class="form-input" placeholder="Type official admin response..." required />
+          <input type="text" id="ticketAdminReplyInput" class="form-input" placeholder="Type official admin response..."
+            required />
           <button type="submit" class="btn btn-primary" style="white-space: nowrap;">Send Reply</button>
         </form>
       </div>
       <div class="admin-modal-footer" style="justify-content: space-between;">
         <button type="button" class="btn btn-secondary btn-sm" id="btnToggleTicketStatus">Toggle Status</button>
-        <button type="button" class="btn btn-secondary btn-sm" onclick="AdminController.closeTicketModal()">Close</button>
+        <button type="button" class="btn btn-secondary btn-sm"
+          onclick="AdminController.closeTicketModal()">Close</button>
       </div>
     </div>
   </div>

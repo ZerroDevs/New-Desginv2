@@ -160,16 +160,21 @@ const AppCoordinator = {
       return;
     }
 
-    let filtered = PRODUCTS;
+    let filtered = window.PRODUCTS;
 
     if (this.currentCategory === "featured") {
-      filtered = PRODUCTS.filter(p => p.featured);
+      filtered = window.PRODUCTS.filter(p => p.featured);
     } else if (this.currentCategory === "new") {
-      filtered = PRODUCTS.filter(p => p.newArrival);
+      filtered = window.PRODUCTS.filter(p => p.newArrival);
     } else if (this.currentCategory === "sale") {
-      filtered = PRODUCTS.filter(p => p.sale);
+      filtered = window.PRODUCTS.filter(p => p.sale);
     } else if (this.currentCategory === "apparel" || this.currentCategory === "footwear" || this.currentCategory === "accessories") {
-      filtered = PRODUCTS.filter(p => p.category === this.currentCategory);
+      filtered = window.PRODUCTS.filter(p => p.category === this.currentCategory);
+    }
+
+    const isHomePage = document.querySelector('.hero-section') !== null;
+    if (isHomePage) {
+      filtered = filtered.slice(0, 4);
     }
 
     if (!filtered || filtered.length === 0) {
@@ -229,7 +234,7 @@ const AppCoordinator = {
   },
 
   openQuickView(productId) {
-    const product = PRODUCTS.find(p => p.id === productId);
+    const product = window.PRODUCTS.find(p => p.id === productId);
     if (!product) return;
 
     this.activeQuickViewProduct = product;

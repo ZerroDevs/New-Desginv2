@@ -55,8 +55,8 @@ const SiteHeader = {
 
           <!-- Desktop Navigation Links -->
           <nav class="nav-links" aria-label="Main Navigation">
-            ${navLink("index.html#catalog", '<span data-i18n="navShop">Shop</span>', "shop")}
-            ${navLink("index.html#catalog", '<span data-i18n="navCollections">Collections</span>', "collections")}
+            ${navLink("index.html", '<span data-i18n="navMain">Main</span>', "main")}
+            ${navLink("products.html", '<span data-i18n="navShop">Shop</span>', "shop")}
             ${navLink("faq.html", "FAQ", "faq")}
             ${navLink("support.html", "Support", "support")}
           </nav>
@@ -98,11 +98,11 @@ const SiteHeader = {
         </div>
         <div class="mobile-drawer-body">
           <nav class="mobile-nav-list">
-            ${mobileNavLink("index.html#catalog", '<span data-i18n="navShop">Shop</span>', "shop")}
-            ${mobileNavLink("index.html#catalog", '<span data-i18n="navCollections">Collections</span>', "collections")}
+            ${mobileNavLink("index.html", '<span data-i18n="navMain">Main</span>', "main")}
+            ${mobileNavLink("products.html", '<span data-i18n="navShop">Shop</span>', "shop")}
             ${mobileNavLink("faq.html", "FAQ", "faq")}
-            ${mobileNavLink("terms.html", "Terms &amp; Policies", "terms")}
-            ${mobileNavLink("support.html", "Support &amp; Tickets", "support")}
+            ${mobileNavLink("terms.html", "Terms & Policies", "terms")}
+            ${mobileNavLink("support.html", "Support & Tickets", "support")}
           </nav>
 
           <div class="mobile-settings-block">

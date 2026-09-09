@@ -5,8 +5,7 @@
    ========================================================================== */
 
 // Initial products catalog is empty; populated exclusively from Firebase
-const PRODUCTS = [];
-window.PRODUCTS = PRODUCTS;
+window.PRODUCTS = [];
 window.isProductsLoading = true;
 
 /**

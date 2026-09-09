@@ -4,11 +4,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Product Details — New Desgin</title>
+  <title>New Desgin — Modern Minimalist Fashion Store</title>
   <meta name="description"
-    content="View product specifications, available sizes, colors, and pricing in USD and LYD at New Desgin.">
+    content="Discover modern, minimalist clothing crafted for effortless elegance. Solid cuts, premium materials, and timeless design at New Desgin.">
 
-  <!-- Google Fonts: Inter & Cairo -->
+  <!-- Google Fonts: Inter (English) & Cairo (Arabic) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -22,18 +22,24 @@
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/responsive.css">
   <link rel="stylesheet" href="css/rtl.css">
+
+  <script>
+    // Instant theme application to prevent flicker
+    const _t = localStorage.getItem("nd_theme") || "light";
+    document.documentElement.setAttribute("data-theme", _t);
+  </script>
 </head>
 
 <body>
 
-  <!-- Top Announcement Bar -->
-  <aside class="announcement-bar" role="region" aria-label="Announcement">
+  <!-- Top Announcement Bar (Hidden by default — Admin-controlled from Firebase) -->
+  <aside class="announcement-bar" id="announcementBar" role="region" aria-label="Announcement" style="display:none;">
     <div class="container">
-      <span data-i18n="announcement">FREE EXPRESS DELIVERY ON ORDERS OVER $150 — SOLID MINIMAL AESTHETICS</span>
+      <span id="announcementText" data-i18n="announcement"></span>
     </div>
   </aside>
 
-  <!-- Sticky Header -->
+  <!-- Sticky Main Header -->
   <header class="site-header" id="siteHeader">
     <div class="container header-inner">
       <!-- Mobile Menu Button -->
@@ -54,13 +60,13 @@
 
       <!-- Desktop Navigation Links -->
       <nav class="nav-links" aria-label="Main Navigation">
-        <a href="products.html" class="nav-link" data-i18n="navShop">Shop</a>
-        <a href="products.html" class="nav-link" data-i18n="navCollections">Collections</a>
+        <a href="index.html" class="nav-link" data-i18n="navMain">Main</a>
+        <a href="products.html" class="nav-link active" data-i18n="navShop">Shop</a>
         <a href="faq.html" class="nav-link">FAQ</a>
         <a href="support.html" class="nav-link">Support</a>
       </nav>
 
-      <!-- Header Actions -->
+      <!-- Header Actions / Utilities -->
       <div class="header-actions">
         <!-- Language Switcher -->
         <div class="selector-pill" title="Select Language">
@@ -89,7 +95,7 @@
           </select>
         </div>
 
-        <!-- Theme Toggle -->
+        <!-- Theme Toggle Button -->
         <button type="button" class="action-btn theme-toggle-btn" aria-label="Toggle Dark / Light Theme"
           title="Toggle Theme">
           <span class="theme-icon">
@@ -100,7 +106,7 @@
           </span>
         </button>
 
-        <!-- Auth Button (Logged Out) -->
+        <!-- Auth State Button (Logged Out) -->
         <div class="auth-state-logged-out">
           <button type="button" class="action-btn auth-modal-open-btn" aria-label="Sign In / Register" title="Sign In">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -111,7 +117,7 @@
           </button>
         </div>
 
-        <!-- Auth Button (Logged In) -->
+        <!-- Auth State Button (Logged In) -->
         <div class="auth-state-logged-in" style="display: none; align-items: center; gap: 0.5rem;">
           <button type="button" class="auth-user-btn" id="logoutBtn" title="Click to Log Out">
             <span class="auth-avatar auth-user-avatar-initial">U</span>
@@ -126,7 +132,7 @@
           </button>
         </div>
 
-        <!-- Cart Open Button -->
+        <!-- Cart Open Button with dynamic counter badge -->
         <button type="button" class="action-btn cart-open-btn" aria-label="View Shopping Cart" title="View Cart">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
             stroke-linecap="round" stroke-linejoin="round">
@@ -140,7 +146,7 @@
     </div>
   </header>
 
-  <!-- Mobile Drawer -->
+  <!-- Mobile Drawer Menu -->
   <aside class="mobile-drawer" id="mobileDrawer" aria-label="Mobile Navigation">
     <div class="mobile-drawer-header">
       <div class="brand-logo">
@@ -157,8 +163,8 @@
     </div>
     <div class="mobile-drawer-body">
       <nav class="mobile-nav-list">
+        <a href="index.html" class="mobile-nav-link" data-i18n="navMain">Main</a>
         <a href="products.html" class="mobile-nav-link" data-i18n="navShop">Shop</a>
-        <a href="products.html" class="mobile-nav-link" data-i18n="navCollections">Collections</a>
         <a href="faq.html" class="mobile-nav-link">FAQ</a>
         <a href="terms.html" class="mobile-nav-link">Terms & Policies</a>
         <a href="support.html" class="mobile-nav-link">Support & Tickets</a>
@@ -212,164 +218,50 @@
     </div>
   </aside>
 
-  <!-- Breadcrumbs -->
-  <nav class="breadcrumbs-bar" aria-label="Breadcrumb">
-    <div class="container">
-      <ol class="breadcrumbs-list">
-        <li class="breadcrumbs-item"><a href="index.html">Home</a></li>
-        <li class="breadcrumbs-separator">/</li>
-        <li class="breadcrumbs-item"><a href="products.html" id="pdpBreadcrumbCategory">Apparel</a></li>
-        <li class="breadcrumbs-separator">/</li>
-        <li class="breadcrumbs-item active" id="pdpBreadcrumbTitle" aria-current="page">Product Name</li>
-      </ol>
-    </div>
-  </nav>
-
-  <!-- Main Product Detail Flow -->
-  <main class="product-detail-section">
-    <div class="container product-detail-grid">
-
-      <!-- Gallery Column -->
-      <div class="product-gallery">
-        <div class="gallery-main-view">
-          <span class="product-unique-key-chip" id="pdpUniqueKeyChip">KEY: ND-001</span>
-          <img src="" alt="Product Photo" class="gallery-main-img" id="pdpMainImage" />
-        </div>
-        <!-- Additional Gallery Thumbnails -->
-        <div class="gallery-thumbs" id="pdpThumbnails" style="display: none;"></div>
+  <!-- Main Content Flow -->
+  <main>
+    <!-- Breadcrumbs -->
+    <nav class="breadcrumbs-bar" aria-label="Breadcrumb" style="padding-top: 2rem;">
+      <div class="container">
+        <ol class="breadcrumbs-list">
+          <li class="breadcrumbs-item"><a href="index.html">Home</a></li>
+          <li class="breadcrumbs-separator">/</li>
+          <li class="breadcrumbs-item active" aria-current="page">All Products</li>
+        </ol>
       </div>
+    </nav>
 
-      <!-- Info Column -->
-      <div class="product-info-col">
-        <div class="product-header-meta">
-          <span class="product-meta-category" id="pdpMetaCategory">Apparel</span>
-          <span class="product-key-label"><span data-i18n="productSku">SKU</span>: <span
-              id="pdpKeyDisplay">ND-001</span></span>
+    <!-- Product Catalog & Category Tabs -->
+    <section class="catalog-section" id="catalog">
+      <div class="container">
+        <header class="section-header">
+          <span class="section-tag" data-i18n="catalogTag">CURATED CATALOG</span>
+          <h2 class="section-title" data-i18n="catalogTitle">Our Minimalist Essentials</h2>
+          <p class="section-subtitle" data-i18n="catalogSubtitle">
+            Engineered with solid shades, precision cuts, and superior comfort.
+          </p>
+        </header>
+
+        <!-- Category Filter Tabs -->
+        <div class="filter-tabs-wrapper" role="tablist">
+          <button type="button" class="filter-tab active" data-category="all" data-i18n="tabAll">All Products</button>
+          <button type="button" class="filter-tab" data-category="featured" data-i18n="tabFeatured">Featured</button>
+          <button type="button" class="filter-tab" data-category="new" data-i18n="tabNew">New Arrivals</button>
+          <button type="button" class="filter-tab" data-category="sale" data-i18n="tabSale">On Sale</button>
+          <button type="button" class="filter-tab" data-category="apparel" data-i18n="tabApparel">Apparel</button>
+          <button type="button" class="filter-tab" data-category="footwear" data-i18n="tabFootwear">Footwear</button>
+          <button type="button" class="filter-tab" data-category="accessories"
+            data-i18n="tabAccessories">Accessories</button>
         </div>
 
-        <h1 class="product-main-title" id="pdpTitle">Product Title</h1>
-
-        <div class="product-price-box">
-          <span class="product-main-price" id="pdpPrice">$0.00</span>
-          <span class="product-price-original" id="pdpOrigPrice" style="display: none;">$0.00</span>
-        </div>
-
-        <div class="product-stock-status">
-          <span class="stock-dot"></span>
-          <span id="pdpStockText">In Stock</span>
-        </div>
-
-        <!-- Color Swatches -->
-        <div class="color-swatch-group" id="pdpColorGroup">
-          <label class="option-label" data-i18n="selectColor">Select Color</label>
-          <div class="color-swatches-list" id="pdpColorSwatches"></div>
-        </div>
-
-        <!-- Size Options -->
-        <div class="option-group" id="pdpSizesGroup">
-          <label class="option-label" data-i18n="selectSize">Select Size</label>
-          <div class="size-options" id="pdpSizesList"></div>
-        </div>
-
-        <!-- Quantity & Add to Cart / Buy Now -->
-        <div class="product-actions-block">
-          <div class="product-qty-add-row">
-            <div class="quantity-controller" style="height: 48px;">
-              <button type="button" class="qty-btn" id="pdpQtyMinus"
-                style="width: 40px; height: 100%; font-size: 1.1rem;">-</button>
-              <span class="qty-value" id="pdpQtyVal" style="width: 44px; font-size: 1rem;">1</span>
-              <button type="button" class="qty-btn" id="pdpQtyPlus"
-                style="width: 40px; height: 100%; font-size: 1.1rem;">+</button>
-            </div>
-            <button type="button" class="btn btn-primary" id="pdpAddToCartBtn"
-              style="flex-grow: 1; height: 48px; font-size: 1rem;">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round">
-                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                <line x1="3" y1="6" x2="21" y2="6"></line>
-                <path d="M16 10a4 4 0 0 1-8 0"></path>
-              </svg>
-              <span data-i18n="addToCart">Add to Cart</span>
-            </button>
-          </div>
-          <button type="button" class="btn btn-blue btn-full" id="pdpBuyNowBtn" style="height: 48px; font-size: 1rem;">
-            <span data-i18n="buyNow">Buy Now</span>
-          </button>
-        </div>
-
-        <!-- Details Accordion -->
-        <div class="product-accordion">
-          <div class="accordion-item">
-            <button type="button" class="accordion-header">
-              <span data-i18n="descriptionTab">Description & Details</span>
-              <span class="accordion-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                  stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="6 9 12 15 18 9"></polyline>
-                </svg>
-              </span>
-            </button>
-            <div class="accordion-body" id="pdpDescription">
-              Designed with precision cuts, durable stitching, and clean silhouettes. Optimized for comfort and modern
-              minimalist versatility across all settings.
-            </div>
-          </div>
-
-          <div class="accordion-item">
-            <button type="button" class="accordion-header">
-              <span data-i18n="specsTab">Fabric & Material Care</span>
-              <span class="accordion-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                  stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="6 9 12 15 18 9"></polyline>
-                </svg>
-              </span>
-            </button>
-            <div class="accordion-body" style="display: none;">
-              Machine wash cold with like colors. Do not bleach. Tumble dry on low heat or hang dry to preserve garment
-              shape and longevity.
-            </div>
-          </div>
-
-          <div class="accordion-item">
-            <button type="button" class="accordion-header">
-              <span data-i18n="shippingTab">Shipping & Free Returns</span>
-              <span class="accordion-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                  stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="6 9 12 15 18 9"></polyline>
-                </svg>
-              </span>
-            </button>
-            <div class="accordion-body" style="display: none;">
-              <div style="margin-bottom: 0.5rem;">
-                <strong data-i18n="deliveryTripoliLabel" style="color: var(--text-main);">Delivery (Tripoli):</strong>
-                <span data-store-info="deliveryTripoli">Same Day</span>
-              </div>
-              <div style="margin-bottom: 0.5rem;">
-                <strong data-i18n="deliveryOutsideLabel" style="color: var(--text-main);">Delivery (Outside
-                  Tripoli):</strong>
-                <span data-store-info="deliveryOutside">2-3 Days</span>
-              </div>
-              <div>
-                <strong data-i18n="returnsLabel" style="color: var(--text-main);">Returns:</strong>
-                <span data-store-info="returnDays">3</span> <span data-i18n="daysText">Days</span>
-              </div>
-            </div>
-          </div>
+        <!-- Products Grid Container -->
+        <div class="products-grid" id="productsGrid" aria-live="polite">
+          <!-- Dynamically populated by js/app.js -->
         </div>
       </div>
+    </section>
 
-    </div>
   </main>
-
-  <!-- Related Products Section -->
-  <section class="related-products-section">
-    <div class="container">
-      <h2 class="related-title" data-i18n="relatedProducts">You May Also Like</h2>
-      <div class="products-grid" id="pdpRelatedGrid"></div>
-    </div>
-  </section>
 
   <!-- Slide-out Shopping Cart Drawer -->
   <div class="drawer-backdrop" id="drawerBackdrop"></div>
@@ -395,9 +287,11 @@
 
     <!-- Items List Body -->
     <div class="drawer-body">
-      <div class="cart-items-list" id="cartItemsList"></div>
+      <div class="cart-items-list" id="cartItemsList">
+        <!-- Rendered dynamically -->
+      </div>
 
-      <!-- Empty State -->
+      <!-- Clean Empty State -->
       <div class="cart-empty-state" id="cartEmptyState" style="display: none;">
         <div class="empty-icon">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
@@ -414,7 +308,7 @@
       </div>
     </div>
 
-    <!-- Drawer Footer -->
+    <!-- Drawer Footer / Summary -->
     <div class="drawer-footer" id="cartFooter">
       <div class="summary-row">
         <span data-i18n="cartSubtotal">Subtotal</span>
@@ -435,7 +329,49 @@
     </div>
   </aside>
 
-  <!-- Firebase Authentication Modal (With Google Sign In) -->
+  <!-- Product Quick View Modal -->
+  <div class="modal-overlay" id="quickViewOverlay" role="dialog" aria-modal="true" aria-label="Product Quick View">
+    <div class="modal-window modal-wide">
+      <button type="button" class="modal-close-btn" id="quickViewClose" aria-label="Close Quick View">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+      <div class="quick-view-grid">
+        <div class="quick-view-media">
+          <img src="" alt="Product view" class="quick-view-img" id="qvImage" />
+        </div>
+        <div class="quick-view-details">
+          <span class="qv-category" id="qvCategory">Apparel</span>
+          <h3 class="qv-title" id="qvTitle">Product Title</h3>
+          <div class="qv-price-row">
+            <span class="qv-price" id="qvPrice">$0.00</span>
+            <span class="product-price-original" id="qvOriginalPrice" style="display: none;">$0.00</span>
+          </div>
+          <p class="qv-desc" id="qvDescription">Product Description</p>
+
+          <div class="option-group" id="qvSizesGroup">
+            <label class="option-label" data-i18n="selectSize">Select Size</label>
+            <div class="size-options" id="qvSizesList"></div>
+          </div>
+
+          <div class="qv-actions-row">
+            <div class="quantity-controller">
+              <button type="button" class="qty-btn" id="qvQtyMinus">-</button>
+              <span class="qty-value" id="qvQtyVal">1</span>
+              <button type="button" class="qty-btn" id="qvQtyPlus">+</button>
+            </div>
+            <button type="button" class="btn btn-primary" id="qvAddToCartBtn" style="flex-grow: 1;"
+              data-i18n="addToCart">Add to Cart</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase Authentication Modal (Login / Sign Up) -->
   <div class="modal-overlay" id="authModalOverlay" role="dialog" aria-modal="true" aria-label="Account Authentication">
     <div class="modal-window">
       <button type="button" class="modal-close-btn" id="authModalClose" aria-label="Close Authentication Dialog">
@@ -446,7 +382,7 @@
         </svg>
       </button>
 
-      <!-- Tabs -->
+      <!-- Tab Switchers -->
       <div class="auth-tabs">
         <div class="auth-tab active" id="authTabLogin" data-i18n="authLoginTab">Sign In</div>
         <div class="auth-tab" id="authTabSignup" data-i18n="authSignupTab">Create Account</div>
@@ -455,7 +391,7 @@
       <div class="auth-form-body">
         <div id="authModalAlert" class="form-alert"></div>
 
-        <!-- Login Form -->
+        <!-- Sign In Form -->
         <form id="loginForm">
           <div class="form-group">
             <label class="form-label" for="loginEmail" data-i18n="authEmail">Email Address</label>
@@ -495,7 +431,7 @@
           </div>
         </form>
 
-        <!-- Signup Form -->
+        <!-- Create Account Form -->
         <form id="signupForm" style="display: none;">
           <div class="form-group">
             <label class="form-label" for="signupName" data-i18n="authFullName">Full Name</label>
@@ -550,7 +486,7 @@
   <!-- Toast Notification Container -->
   <div class="toast-container" id="toastContainer" aria-live="assertive"></div>
 
-  <!-- Footer -->
+  <!-- Clean Footer -->
   <footer class="site-footer" id="footer">
     <div class="container">
       <div class="footer-grid">
@@ -626,7 +562,7 @@
   <script src="js/currency.js"></script>
   <script src="js/cart.js"></script>
   <script src="js/auth.js"></script>
-  <script src="js/product-page.js"></script>
+  <script src="js/app.js"></script>
 </body>
 
 </html>

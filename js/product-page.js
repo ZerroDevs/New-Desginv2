@@ -21,17 +21,17 @@ const ProductPageController = {
     const params = new URLSearchParams(window.location.search);
     const key = params.get("id") || params.get("key");
     
-    if (!PRODUCTS || PRODUCTS.length === 0) {
+    if (!window.PRODUCTS || window.PRODUCTS.length === 0) {
       this.currentProduct = null;
       return;
     }
 
     if (key) {
-      this.currentProduct = PRODUCTS.find(
+      this.currentProduct = window.PRODUCTS.find(
         p => p && (p.id.toLowerCase() === key.toLowerCase() || (p.sku && p.sku.toLowerCase() === key.toLowerCase()))
-      ) || PRODUCTS[0];
+      ) || window.PRODUCTS[0];
     } else {
-      this.currentProduct = PRODUCTS[0];
+      this.currentProduct = window.PRODUCTS[0];
     }
 
     if (this.currentProduct) {
@@ -288,7 +288,7 @@ const ProductPageController = {
 
     const isArabic = I18nManager.currentLang === "ar";
     // Get up to 4 other products
-    const related = PRODUCTS.filter(p => p.id !== this.currentProduct.id).slice(0, 4);
+    const related = window.PRODUCTS.filter(p => p.id !== this.currentProduct.id && p.category === this.currentProduct.category).slice(0, 4);
 
     container.innerHTML = related.map(product => {
       const name = isArabic ? product.nameAr : product.name;

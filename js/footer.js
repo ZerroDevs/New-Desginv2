@@ -36,10 +36,10 @@ const SiteFooter = {
             <div class="footer-col">
               <h4 class="footer-col-title" data-i18n="footerShopTitle">Shop</h4>
               <ul class="footer-links">
-                <li><a href="index.html#catalog" class="footer-link" data-i18n="tabAll">All Products</a></li>
-                <li><a href="index.html#catalog" class="footer-link" data-i18n="tabNew">New Arrivals</a></li>
-                <li><a href="index.html#catalog" class="footer-link" data-i18n="tabSale">On Sale</a></li>
-                <li><a href="index.html#catalog" class="footer-link" data-i18n="tabApparel">Apparel</a></li>
+                <li><a href="products.html" class="footer-link" data-i18n="tabAll">All Products</a></li>
+                <li><a href="products.html" class="footer-link" data-i18n="tabNew">New Arrivals</a></li>
+                <li><a href="products.html" class="footer-link" data-i18n="tabSale">On Sale</a></li>
+                <li><a href="products.html" class="footer-link" data-i18n="tabApparel">Apparel</a></li>
               </ul>
             </div>
 
@@ -69,8 +69,7 @@ const SiteFooter = {
           <div class="footer-bottom">
             <div>&copy; 2026 New Desgin. <span data-i18n="footerRights">All rights reserved.</span></div>
             <div style="font-size: 0.8rem; display: flex; align-items: center; gap: 1rem;">
-              <span style="opacity: 0.8;">Solid Light Blue &amp; Dark Blue System</span>
-              <a href="admin.html" style="color: var(--brand-blue); font-weight: 600; text-decoration: underline;">Admin Portal</a>
+          <span style="opacity: 0.8;">Made By <a href="https://wa.me/218916808225" target="_blank" style="color: inherit; text-decoration: underline; font-weight: 600;">@Osama</a></span>
             </div>
           </div>
         </div>
