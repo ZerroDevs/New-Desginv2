@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="light">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Desgin — Modern Minimalist Fashion Store</title>
+  <meta name="description"
+    content="Discover modern, minimalist clothing crafted for effortless elegance. Solid cuts, premium materials, and timeless design at New Desgin.">
+
+  <!-- Google Fonts: Inter (English) & Cairo (Arabic) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="Images/Logo-noBG.png">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/rtl.css">
+
+  <script>
+    // Instant theme application to prevent flicker
+    const _t = localStorage.getItem("nd_theme") || "light";
+    document.documentElement.setAttribute("data-theme", _t);
+  </script>
+</head>
+
+<body>
+
+  <!-- Top Announcement Bar (Hidden by default — Admin-controlled from Firebase) -->
+  <aside class="announcement-bar" id="announcementBar" role="region" aria-label="Announcement" style="display:none;">
+    <div class="container">
+      <span id="announcementText" data-i18n="announcement"></span>
+    </div>
+  </aside>
+
+  <!-- Sticky Main Header -->
+  <header class="site-header" id="siteHeader">
+    <div class="container header-inner">
+      <!-- Mobile Menu Button -->
+      <button type="button" class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Open Navigation Menu">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+
+      <!-- Brand Logo -->
+      <a href="#hero" class="brand-logo" aria-label="New Desgin Home">
+        <img src="Images/Logo-noBG.png" alt="New Desgin" class="brand-img" />
+        <span class="brand-text">NEW <span>DESGIN</span></span>
+      </a>
+
+      <!-- Desktop Navigation Links -->
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="#catalog" class="nav-link active" data-i18n="navShop">Shop</a>
+        <a href="#catalog" class="nav-link" data-i18n="navCollections">Collections</a>
+        <a href="faq.html" class="nav-link">FAQ</a>
+        <a href="support.html" class="nav-link">Support</a>
+      </nav>
+
+      <!-- Header Actions / Utilities -->
+      <div class="header-actions">
+        <!-- Language Switcher -->
+        <div class="selector-pill" title="Select Language">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          </svg>
+          <select class="lang-selector" aria-label="Language Selector">
+            <option value="en">EN</option>
+            <option value="ar">العربية (AR)</option>
+          </select>
+        </div>
+
+        <!-- Currency Switcher -->
+        <div class="selector-pill" title="Select Currency">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="1" x2="12" y2="23"></line>
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+          </svg>
+          <select class="currency-selector" aria-label="Currency Selector">
+            <option value="USD">USD ($)</option>
+            <option value="LYD">LYD (ل.د)</option>
+          </select>
+        </div>
+
+        <!-- Theme Toggle Button -->
+        <button type="button" class="action-btn theme-toggle-btn" aria-label="Toggle Dark / Light Theme"
+          title="Toggle Theme">
+          <span class="theme-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </span>
+        </button>
+
+        <!-- Auth State Button (Logged Out) -->
+        <div class="auth-state-logged-out">
+          <button type="button" class="action-btn auth-modal-open-btn" aria-label="Sign In / Register" title="Sign In">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Auth State Button (Logged In) -->
+        <div class="auth-state-logged-in" style="display: none; align-items: center; gap: 0.5rem;">
+          <button type="button" class="auth-user-btn" id="logoutBtn" title="Click to Log Out">
+            <span class="auth-avatar auth-user-avatar-initial">U</span>
+            <span class="auth-user-name"
+              style="max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">User</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Cart Open Button with dynamic counter badge -->
+        <button type="button" class="action-btn cart-open-btn" aria-label="View Shopping Cart" title="View Cart">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <path d="M16 10a4 4 0 0 1-8 0"></path>
+          </svg>
+          <span class="cart-badge cart-count-badge" style="display: none;">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer Menu -->
+  <aside class="mobile-drawer" id="mobileDrawer" aria-label="Mobile Navigation">
+    <div class="mobile-drawer-header">
+      <div class="brand-logo">
+        <img src="Images/Logo-noBG.png" alt="New Desgin" class="brand-img" />
+        <span class="brand-text">NEW <span>DESGIN</span></span>
+      </div>
+      <button type="button" class="drawer-close-btn" id="mobileDrawerClose" aria-label="Close Mobile Navigation">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+    <div class="mobile-drawer-body">
+      <nav class="mobile-nav-list">
+        <a href="#catalog" class="mobile-nav-link" data-i18n="navShop">Shop</a>
+        <a href="#catalog" class="mobile-nav-link" data-i18n="navCollections">Collections</a>
+        <a href="faq.html" class="mobile-nav-link">FAQ</a>
+        <a href="terms.html" class="mobile-nav-link">Terms & Policies</a>
+        <a href="support.html" class="mobile-nav-link">Support & Tickets</a>
+      </nav>
+
+      <div class="mobile-settings-block">
+        <div class="mobile-setting-row">
+          <span data-i18n="navAccount">Account</span>
+          <div class="auth-state-logged-out">
+            <button type="button" class="btn btn-primary btn-sm auth-modal-open-btn"
+              onclick="document.getElementById('mobileDrawerClose').click()">
+              <span data-i18n="navLogin">Sign In</span>
+            </button>
+          </div>
+          <div class="auth-state-logged-in" style="display: none;">
+            <button type="button" class="btn btn-outline-danger btn-sm"
+              onclick="AuthManager.handleLogout(); document.getElementById('mobileDrawerClose').click();">
+              <span data-i18n="navLogout">Logout</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="mobile-setting-row">
+          <span>Language / اللغة</span>
+          <select class="lang-selector" aria-label="Mobile Language Selector">
+            <option value="en">English (EN)</option>
+            <option value="ar">العربية (AR)</option>
+          </select>
+        </div>
+
+        <div class="mobile-setting-row">
+          <span>Currency / العملة</span>
+          <select class="currency-selector" aria-label="Mobile Currency Selector">
+            <option value="USD">USD ($)</option>
+            <option value="LYD">LYD (ل.د)</option>
+          </select>
+        </div>
+
+        <div class="mobile-setting-row">
+          <span>Theme Mode</span>
+          <button type="button" class="btn btn-secondary btn-sm theme-toggle-btn">
+            <span class="theme-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+              </svg>
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content Flow -->
+  <main>
+    <!-- Hero Section (Solid Colors Only, Zero Gradients) -->
+    <section class="hero-section" id="hero">
+      <div class="container hero-grid">
+        <div class="hero-text-col">
+          <span class="hero-tag" data-i18n="heroTag">NEW SEASON 2026</span>
+          <h1 class="hero-title">
+            <span data-i18n="heroTitlePart1">STYLE WITHOUT</span><br>
+            <span data-i18n="heroTitlePart2">LIMITS.</span>
+          </h1>
+          <p class="hero-description" data-i18n="heroDesc">
+            Discover modern, minimalist clothing crafted for effortless elegance. Clean solid cuts, premium materials,
+            and timeless design.
+          </p>
+          <div class="hero-actions">
+            <a href="#catalog" class="btn btn-primary" data-i18n="heroCtaShop">Shop Now</a>
+            <a href="#about" class="btn btn-secondary" data-i18n="heroCtaExplore">Explore Collections</a>
+          </div>
+        </div>
+
+        <div class="hero-media-col">
+          <div class="hero-image-wrapper">
+            <img src="Images/Levis Jeans 2.png" alt="New Desgin Modern Fashion Collection" class="hero-image" />
+            <div class="hero-floating-badge">
+              <div class="title" data-i18n="heroBadgeTitle">New Arrival</div>
+              <div class="subtitle" data-i18n="heroBadgeSubtitle">Spring / Summer 26</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Value Proposition / Benefits Strip -->
+    <section class="benefits-section" aria-label="Store Benefits">
+      <div class="container benefits-grid">
+        <div class="benefit-item">
+          <div class="benefit-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <polygon
+                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+              </polygon>
+            </svg>
+          </div>
+          <div class="benefit-info">
+            <h4 class="benefit-title" data-i18n="benefit1Title">Premium Materials</h4>
+            <p class="benefit-subtitle" data-i18n="benefit1Desc">Crafted from ethically sourced fabrics</p>
+          </div>
+        </div>
+
+        <div class="benefit-item">
+          <div class="benefit-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <rect x="1" y="3" width="15" height="13"></rect>
+              <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+              <circle cx="5.5" cy="18.5" r="2.5"></circle>
+              <circle cx="18.5" cy="18.5" r="2.5"></circle>
+            </svg>
+          </div>
+          <div class="benefit-info">
+            <h4 class="benefit-title" data-i18n="benefit2Title">Fast Delivery</h4>
+            <p class="benefit-subtitle" data-i18n="benefit2Desc">Worldwide tracked shipping within 48h</p>
+          </div>
+        </div>
+
+        <div class="benefit-item">
+          <div class="benefit-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+          </div>
+          <div class="benefit-info">
+            <h4 class="benefit-title" data-i18n="benefit3Title">Secure Payments</h4>
+            <p class="benefit-subtitle" data-i18n="benefit3Desc">Encrypted & authenticated transactions</p>
+          </div>
+        </div>
+
+        <div class="benefit-item">
+          <div class="benefit-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="1 4 1 10 7 10"></polyline>
+              <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+            </svg>
+          </div>
+          <div class="benefit-info">
+            <h4 class="benefit-title" data-i18n="benefit4Title">Easy Returns</h4>
+            <p class="benefit-subtitle" data-i18n="benefit4Desc">30-day hassle-free exchange policy</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Product Catalog & Category Tabs -->
+    <section class="catalog-section" id="catalog">
+      <div class="container">
+        <header class="section-header">
+          <span class="section-tag" data-i18n="catalogTag">CURATED CATALOG</span>
+          <h2 class="section-title" data-i18n="catalogTitle">Our Minimalist Essentials</h2>
+          <p class="section-subtitle" data-i18n="catalogSubtitle">
+            Engineered with solid shades, precision cuts, and superior comfort.
+          </p>
+        </header>
+
+        <!-- Category Filter Tabs -->
+        <div class="filter-tabs-wrapper" role="tablist">
+          <button type="button" class="filter-tab active" data-category="all" data-i18n="tabAll">All Products</button>
+          <button type="button" class="filter-tab" data-category="featured" data-i18n="tabFeatured">Featured</button>
+          <button type="button" class="filter-tab" data-category="new" data-i18n="tabNew">New Arrivals</button>
+          <button type="button" class="filter-tab" data-category="sale" data-i18n="tabSale">On Sale</button>
+          <button type="button" class="filter-tab" data-category="apparel" data-i18n="tabApparel">Apparel</button>
+          <button type="button" class="filter-tab" data-category="footwear" data-i18n="tabFootwear">Footwear</button>
+          <button type="button" class="filter-tab" data-category="accessories"
+            data-i18n="tabAccessories">Accessories</button>
+        </div>
+
+        <!-- Products Grid Container -->
+        <div class="products-grid" id="productsGrid" aria-live="polite">
+          <!-- Dynamically populated by js/app.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- About New Desgin Section (Split Layout: Text | Image) -->
+    <section class="about-section" id="about">
+      <div class="container about-grid">
+        <div class="about-text-col">
+          <span class="tag" data-i18n="aboutTag">OUR PHILOSOPHY</span>
+          <h2 class="about-title" data-i18n="aboutTitle">Simplicity In Every Stitch</h2>
+          <p class="about-paragraph" data-i18n="aboutP1">
+            New Desgin was founded on a simple premise: genuine elegance doesn't require complexity or flashy gradients.
+            By focusing strictly on solid palettes of light blue and dark blue, balanced by refined neutrals, we craft
+            apparel that stands out through silhouette and fabric quality.
+          </p>
+          <p class="about-paragraph" data-i18n="aboutP2">
+            Every piece is designed for longevity and effortless layering. Whether in bustling urban centers or relaxed
+            coastal escapes, New Desgin represents confident minimalism.
+          </p>
+          <div class="about-stats">
+            <div class="stat-item">
+              <div class="num" data-i18n="stat1Num">100%</div>
+              <div class="label" data-i18n="stat1Label">Organic Cotton</div>
+            </div>
+            <div class="stat-item">
+              <div class="num" data-i18n="stat2Num">48H</div>
+              <div class="label" data-i18n="stat2Label">Fast Dispatch</div>
+            </div>
+            <div class="stat-item">
+              <div class="num" data-i18n="stat3Num">25K+</div>
+              <div class="label" data-i18n="stat3Label">Happy Customers</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="about-media-col">
+          <img src="Images/Levis Jeans 3.png" alt="New Desgin Studio Philosophy" class="about-image" />
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Slide-out Shopping Cart Drawer -->
+  <div class="drawer-backdrop" id="drawerBackdrop"></div>
+  <aside class="cart-drawer" id="cartDrawer" aria-label="Shopping Cart Drawer">
+    <div class="drawer-header">
+      <h3 class="drawer-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <path d="M16 10a4 4 0 0 1-8 0"></path>
+        </svg>
+        <span data-i18n="cartTitle">Your Shopping Bag</span>
+      </h3>
+      <button type="button" class="drawer-close-btn cart-close-btn" aria-label="Close Shopping Cart">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Items List Body -->
+    <div class="drawer-body">
+      <div class="cart-items-list" id="cartItemsList">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- Clean Empty State -->
+      <div class="cart-empty-state" id="cartEmptyState" style="display: none;">
+        <div class="empty-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <path d="M16 10a4 4 0 0 1-8 0"></path>
+          </svg>
+        </div>
+        <h4 class="empty-title" data-i18n="cartEmptyTitle">Your cart is empty</h4>
+        <p class="empty-subtitle" data-i18n="cartEmptySubtitle">Looks like you haven't added any products yet.</p>
+        <button type="button" class="btn btn-primary btn-sm cart-close-btn" data-i18n="cartContinueShopping">Continue
+          Shopping</button>
+      </div>
+    </div>
+
+    <!-- Drawer Footer / Summary -->
+    <div class="drawer-footer" id="cartFooter">
+      <div class="summary-row">
+        <span data-i18n="cartSubtotal">Subtotal</span>
+        <span id="cartSubtotalAmount">$0.00</span>
+      </div>
+      <div class="summary-row">
+        <span data-i18n="cartShipping">Estimated Shipping</span>
+        <span data-i18n="cartShippingFree">Calculated at checkout</span>
+      </div>
+      <div class="summary-row total">
+        <span data-i18n="cartTotal">Total</span>
+        <span id="cartTotalAmount">$0.00</span>
+      </div>
+      <div class="drawer-actions">
+        <button type="button" class="btn btn-primary btn-full" id="checkoutBtn" data-i18n="cartCheckout">Proceed to
+          Checkout</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Product Quick View Modal -->
+  <div class="modal-overlay" id="quickViewOverlay" role="dialog" aria-modal="true" aria-label="Product Quick View">
+    <div class="modal-window modal-wide">
+      <button type="button" class="modal-close-btn" id="quickViewClose" aria-label="Close Quick View">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+      <div class="quick-view-grid">
+        <div class="quick-view-media">
+          <img src="" alt="Product view" class="quick-view-img" id="qvImage" />
+        </div>
+        <div class="quick-view-details">
+          <span class="qv-category" id="qvCategory">Apparel</span>
+          <h3 class="qv-title" id="qvTitle">Product Title</h3>
+          <div class="qv-price-row">
+            <span class="qv-price" id="qvPrice">$0.00</span>
+            <span class="product-price-original" id="qvOriginalPrice" style="display: none;">$0.00</span>
+          </div>
+          <p class="qv-desc" id="qvDescription">Product Description</p>
+
+          <div class="option-group" id="qvSizesGroup">
+            <label class="option-label" data-i18n="selectSize">Select Size</label>
+            <div class="size-options" id="qvSizesList"></div>
+          </div>
+
+          <div class="qv-actions-row">
+            <div class="quantity-controller">
+              <button type="button" class="qty-btn" id="qvQtyMinus">-</button>
+              <span class="qty-value" id="qvQtyVal">1</span>
+              <button type="button" class="qty-btn" id="qvQtyPlus">+</button>
+            </div>
+            <button type="button" class="btn btn-primary" id="qvAddToCartBtn" style="flex-grow: 1;"
+              data-i18n="addToCart">Add to Cart</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase Authentication Modal (Login / Sign Up) -->
+  <div class="modal-overlay" id="authModalOverlay" role="dialog" aria-modal="true" aria-label="Account Authentication">
+    <div class="modal-window">
+      <button type="button" class="modal-close-btn" id="authModalClose" aria-label="Close Authentication Dialog">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+
+      <!-- Tab Switchers -->
+      <div class="auth-tabs">
+        <div class="auth-tab active" id="authTabLogin" data-i18n="authLoginTab">Sign In</div>
+        <div class="auth-tab" id="authTabSignup" data-i18n="authSignupTab">Create Account</div>
+      </div>
+
+      <div class="auth-form-body">
+        <div id="authModalAlert" class="form-alert"></div>
+
+        <!-- Sign In Form -->
+        <form id="loginForm">
+          <div class="form-group">
+            <label class="form-label" for="loginEmail" data-i18n="authEmail">Email Address</label>
+            <input type="email" id="loginEmail" class="form-input" placeholder="name@example.com" required
+              autocomplete="email" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="loginPassword" data-i18n="authPassword">Password</label>
+            <input type="password" id="loginPassword" class="form-input" placeholder="••••••••" required
+              autocomplete="current-password" />
+          </div>
+          <button type="submit" class="btn btn-primary btn-full" id="loginSubmitBtn" data-i18n="authLoginBtn">Sign
+            In</button>
+
+          <div class="auth-divider">
+            <span data-i18n="authOr">OR</span>
+          </div>
+
+          <button type="button" class="btn-google-auth" aria-label="Sign In with Google">
+            <svg width="18" height="18" viewBox="0 0 24 24">
+              <path fill="#4285F4"
+                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+              <path fill="#34A853"
+                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+              <path fill="#FBBC05"
+                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+              <path fill="#EA4335"
+                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+            </svg>
+            <span data-i18n="authGoogleSignIn">Continue with Google</span>
+          </button>
+
+          <div style="margin-top: 1.25rem; text-align: center; font-size: 0.85rem; color: var(--text-secondary);">
+            <span data-i18n="authNoAccount">Don't have an account?</span>
+            <a href="#" id="linkToSignup" style="color: var(--brand-blue); font-weight: 700;"
+              data-i18n="authSwitchToSignup">Register here</a>
+          </div>
+        </form>
+
+        <!-- Create Account Form -->
+        <form id="signupForm" style="display: none;">
+          <div class="form-group">
+            <label class="form-label" for="signupName" data-i18n="authFullName">Full Name</label>
+            <input type="text" id="signupName" class="form-input" placeholder="John Doe" required autocomplete="name" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="signupEmail" data-i18n="authEmail">Email Address</label>
+            <input type="email" id="signupEmail" class="form-input" placeholder="name@example.com" required
+              autocomplete="email" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="signupPassword" data-i18n="authPassword">Password</label>
+            <input type="password" id="signupPassword" class="form-input" placeholder="Minimum 6 characters" required
+              autocomplete="new-password" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="signupConfirm" data-i18n="authConfirmPassword">Confirm Password</label>
+            <input type="password" id="signupConfirm" class="form-input" placeholder="Repeat password" required
+              autocomplete="new-password" />
+          </div>
+          <button type="submit" class="btn btn-primary btn-full" id="signupSubmitBtn" data-i18n="authSignupBtn">Create
+            Account</button>
+
+          <div class="auth-divider">
+            <span data-i18n="authOr">OR</span>
+          </div>
+
+          <button type="button" class="btn-google-auth" aria-label="Sign Up with Google">
+            <svg width="18" height="18" viewBox="0 0 24 24">
+              <path fill="#4285F4"
+                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+              <path fill="#34A853"
+                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+              <path fill="#FBBC05"
+                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+              <path fill="#EA4335"
+                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+            </svg>
+            <span data-i18n="authGoogleSignIn">Continue with Google</span>
+          </button>
+
+          <div style="margin-top: 1.25rem; text-align: center; font-size: 0.85rem; color: var(--text-secondary);">
+            <span data-i18n="authHaveAccount">Already have an account?</span>
+            <a href="#" id="linkToLogin" style="color: var(--brand-blue); font-weight: 700;"
+              data-i18n="authSwitchToLogin">Sign in here</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer" aria-live="assertive"></div>
+
+  <!-- Clean Footer -->
+  <footer class="site-footer" id="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="brand-logo">
+            <img src="Images/Logo-noBG.png" alt="New Desgin" class="brand-img" />
+            <span class="brand-text">NEW <span>DESGIN</span></span>
+          </div>
+          <p class="footer-desc" data-i18n="footerDesc">
+            A modern, minimalist fashion brand dedicated to solid palettes, refined simplicity, and high-performance
+            garments.
+          </p>
+          <div class="footer-brand-badge" style="margin-top: 1.25rem;">
+            <img src="Images/Logo-text.png" alt="New Design — التصميم الجديد"
+              style="width: 120px; height: 120px; object-fit: cover; border-radius: var(--radius-md); border: 1px solid var(--border-color); display: block;" />
+          </div>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-col-title" data-i18n="footerShopTitle">Shop</h4>
+          <ul class="footer-links">
+            <li><a href="#catalog" class="footer-link" data-i18n="tabAll">All Products</a></li>
+            <li><a href="#catalog" class="footer-link" data-i18n="tabNew">New Arrivals</a></li>
+            <li><a href="#catalog" class="footer-link" data-i18n="tabSale">On Sale</a></li>
+            <li><a href="#catalog" class="footer-link" data-i18n="tabApparel">Apparel</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-col-title" data-i18n="footerHelpTitle">Customer Care</h4>
+          <ul class="footer-links">
+            <li><a href="faq.html" class="footer-link">FAQ & Shipping</a></li>
+            <li><a href="terms.html" class="footer-link">Terms & Return Policy (3 Days)</a></li>
+            <li><a href="support.html" class="footer-link">Support & Tickets</a></li>
+            <li>WhatsApp: <a href="https://wa.me/218924295050" target="_blank" data-store-info="whatsapp"
+                style="color: var(--brand-blue); font-weight: 700;">+218 92-4295050</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-col-title" data-i18n="footerNewsletterTitle">Stay In The Loop</h4>
+          <p class="footer-desc" data-i18n="footerNewsletterDesc">Receive exclusive updates on new drops and seasonal
+            discounts.</p>
+          <form class="footer-newsletter-form" id="newsletterForm">
+            <input type="email" placeholder="Enter your email..." required aria-label="Newsletter Email"
+              data-i18n-placeholder="footerEmailPlaceholder" />
+            <button type="submit" class="btn btn-primary" data-i18n="footerSubscribeBtn">Join</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>&copy; 2026 New Desgin. <span data-i18n="footerRights">All rights reserved.</span></div>
+        <div style="font-size: 0.8rem; display: flex; align-items: center; gap: 1rem;">
+          <span style="opacity: 0.8;">Solid Light Blue & Dark Blue System</span>
+          <a href="admin.html" style="color: var(--brand-blue); font-weight: 600; text-decoration: underline;">Admin
+            Portal</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Firebase App, Auth & Database SDKs (Compat v10) -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+  <!-- Application Modules -->
+  <script src="js/config.js"></script>
+  <script src="js/store-info.js"></script>
+  <script src="js/products.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/currency.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+</body>
+
+</html>

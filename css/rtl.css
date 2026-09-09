@@ -1,0 +1,109 @@
+/* ==========================================================================
+   NEW DESGIN — ARABIC RTL STYLESHEET
+   Applied automatically when html[dir="rtl"] is active.
+   Ensures authentic typography (Cairo/Tajawal) and true layout mirroring.
+   ========================================================================== */
+
+[dir="rtl"] {
+  font-family: var(--font-arabic);
+}
+
+[dir="rtl"] body {
+  font-family: var(--font-arabic);
+  text-align: right;
+}
+
+[dir="rtl"] input, 
+[dir="rtl"] select, 
+[dir="rtl"] textarea, 
+[dir="rtl"] button {
+  font-family: var(--font-arabic);
+  text-align: right;
+}
+
+/* --- Mirrored Header & Brand --- */
+[dir="rtl"] .brand-badge {
+  letter-spacing: normal;
+}
+
+[dir="rtl"] .brand-text {
+  letter-spacing: normal;
+}
+
+[dir="rtl"] .nav-link.active::after {
+  left: auto;
+  right: 0;
+}
+
+[dir="rtl"] .cart-badge {
+  right: auto;
+  left: -4px;
+}
+
+/* --- Mirrored Product Badges & Actions --- */
+[dir="rtl"] .product-badge {
+  left: auto;
+  right: 0.75rem;
+}
+
+[dir="rtl"] .hero-floating-badge {
+  left: auto;
+  right: 1.5rem;
+}
+
+/* --- Mirrored Cart Drawer --- */
+[dir="rtl"] .cart-drawer {
+  right: auto;
+  left: 0;
+  transform: translateX(-100%);
+  box-shadow: 4px 0 20px rgba(15, 23, 42, 0.15);
+}
+
+[dir="rtl"][data-theme="dark"] .cart-drawer {
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.7);
+}
+
+[dir="rtl"] .cart-drawer.active {
+  transform: translateX(0);
+}
+
+/* --- Mirrored Mobile Drawer --- */
+[dir="rtl"] .mobile-drawer {
+  left: auto;
+  right: 0;
+  transform: translateX(100%);
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.2);
+}
+
+[dir="rtl"] .mobile-drawer.active {
+  transform: translateX(0);
+}
+
+/* --- Modals in RTL --- */
+[dir="rtl"] .modal-close-btn {
+  right: auto;
+  left: 1rem;
+}
+
+[dir="rtl"] .cart-item-remove {
+  margin-left: 0;
+  margin-right: 0.5rem;
+}
+
+/* --- Toast Notifications in RTL --- */
+[dir="rtl"] .toast-container {
+  right: auto;
+  left: 2rem;
+}
+
+/* Mobile Responsive RTL Adjustments */
+@media (max-width: 768px) {
+  [dir="rtl"] .hero-floating-badge {
+    right: 1rem;
+  }
+
+  [dir="rtl"] .toast-container {
+    left: 1rem;
+    right: 1rem;
+  }
+}

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Support & Tickets — New Desgin</title>
+  <meta name="description" content="Reach the New Desgin support desk, track your orders, submit support tickets, or chat directly via WhatsApp and phone.">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="Images/Logo-noBG.png">
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/rtl.css">
+
+  <script>
+    // Instant theme (no flicker)
+    const _t = localStorage.getItem("nd_theme") || "light";
+    document.documentElement.setAttribute("data-theme", _t);
+    window.CURRENT_PAGE = "support";
+  </script>
+</head>
+<body>
+
+  <!-- Shared Header Mount -->
+  <div id="site-header-mount"></div>
+
+  <!-- Support Portal Main -->
+  <main class="support-portal-section">
+    <div class="container" style="max-width: 900px;">
+      
+      <!-- Top Header Card -->
+      <div class="support-header-card">
+        <h1 style="font-size: 1.85rem; font-weight: 900; margin-bottom: 0.35rem;" data-i18n="supportPageTitle">Customer Support Center</h1>
+        <p style="color: var(--text-secondary); font-size: 0.95rem;" data-i18n="supportPageSubtitle">Direct contact channels and live support tickets.</p>
+        
+        <!-- Quick Contact Channels -->
+        <div class="store-channels-grid">
+          <!-- WhatsApp -->
+          <a href="https://wa.me/218924295050" target="_blank" class="store-channel-box" data-store-info="whatsapp">
+            <div class="channel-icon" style="color: #22c55e;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+            </div>
+            <div class="channel-info">
+              <h4 data-i18n="supportChannelWhatsApp">WhatsApp / واتساب</h4>
+              <p data-store-info="phone">+218 92-4295050</p>
+            </div>
+          </a>
+
+          <!-- Phone -->
+          <a href="tel:+218924295050" class="store-channel-box" data-store-info="phone">
+            <div class="channel-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+            </div>
+            <div class="channel-info">
+              <h4 data-i18n="supportChannelPhone">Direct Call / اتصال هاتفي</h4>
+              <p data-store-info="phone">+218 92-4295050</p>
+            </div>
+          </a>
+
+          <!-- Email -->
+          <a href="mailto:Altasmemaljaded@gmail.com" class="store-channel-box" data-store-info="email">
+            <div class="channel-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            </div>
+            <div class="channel-info">
+              <h4 data-i18n="supportChannelEmail">Email / البريد الإلكتروني</h4>
+              <p style="font-size: 0.8rem; word-break: break-all;" data-store-info="email">Altasmemaljaded@gmail.com</p>
+            </div>
+          </a>
+
+          <!-- Delivery & Return Info -->
+          <div class="store-channel-box" style="cursor: default;">
+            <div class="channel-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            </div>
+            <div class="channel-info">
+              <h4 data-i18n="supportChannelDelivery">Return &amp; Delivery / الاسترداد والتوصيل</h4>
+              <p style="font-size: 0.82rem;">
+                <span data-i18n="supportDeliveryInfo">Return</span> <strong data-store-info="returnDays">3</strong>
+                <span data-i18n="supportDeliverySuffix">days | Tripoli:</span>
+                <strong data-store-info="deliveryTripoli">نفس اليوم / Same Day</strong>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Support Tabs Navigation -->
+      <nav class="support-tabs-bar" aria-label="Support Navigation">
+        <button type="button" class="support-nav-tab active" data-view="new-ticket" data-i18n="supportTabNew">
+          ✍️ Open New Ticket / فتح تذكرة
+        </button>
+        <button type="button" class="support-nav-tab" data-view="my-tickets" data-i18n="supportTabMy">
+          📋 My Tickets / تذاكري
+        </button>
+        <button type="button" class="support-nav-tab" data-view="track-ticket" data-i18n="supportTabTrack">
+          🔍 Track Ticket / تتبع رقم التذكرة
+        </button>
+      </nav>
+
+      <!-- VIEW 1: OPEN NEW TICKET -->
+      <section class="support-view-pane active" id="view-new-ticket">
+        <div class="card" style="padding: 2rem;">
+          <h2 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 0.4rem;" data-i18n="supportNewTitle">Submit a Support Ticket</h2>
+          <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.5rem;" data-i18n="supportNewDesc">
+            Fill in your details below. Our team responds promptly, and you can track responses live on this page.
+          </p>
+
+          <form id="supportTicketForm">
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label" for="ticketName">
+                  <span data-i18n="supportFieldName">Full Name</span>
+                  / <span style="font-family: Cairo, sans-serif;">الاسم الكامل</span>*
+                </label>
+                <input type="text" id="ticketName" class="form-input" placeholder="e.g. Mohamed Ali" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="ticketContact">
+                  <span data-i18n="supportFieldContact">Phone or Email</span>
+                  / <span style="font-family: Cairo, sans-serif;">الهاتف أو الإيميل</span>*
+                </label>
+                <input type="text" id="ticketContact" class="form-input" placeholder="+218 9... or user@domain.com" required />
+              </div>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label" for="ticketCategory">
+                  <span data-i18n="supportFieldCategory">Category</span>
+                  / <span style="font-family: Cairo, sans-serif;">القسم</span>*
+                </label>
+                <select id="ticketCategory" class="form-input" required>
+                  <option value="Order Inquiry">Order Inquiry / استفسار عن طلبية</option>
+                  <option value="Delivery">Delivery / استفسار عن الشحن والتوصيل</option>
+                  <option value="Return & Exchange">Return &amp; Exchange / طلب استبدال أو استرجاع</option>
+                  <option value="Product & Sizing">Product &amp; Sizing / مقاسات وتفاصيل المنتجات</option>
+                  <option value="Other">Other / استفسار عام</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="ticketSubject">
+                  <span data-i18n="supportFieldSubject">Subject</span>
+                  / <span style="font-family: Cairo, sans-serif;">الموضوع</span>*
+                </label>
+                <input type="text" id="ticketSubject" class="form-input" placeholder="e.g. Sizing inquiry on trench coat" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="ticketMessage">
+                <span data-i18n="supportFieldMessage">Detailed Message</span>
+                / <span style="font-family: Cairo, sans-serif;">تفاصيل الرسالة</span>*
+              </label>
+              <textarea id="ticketMessage" class="form-input" rows="4" placeholder="Please describe how we can assist you..." required></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="ticketSubmitBtn" style="padding: 0.85rem 2rem; font-weight: 700; width: 100%;">
+              <span data-i18n="supportSubmitBtn">Submit Ticket</span> 🚀 / <span style="font-family: Cairo, sans-serif;">إرسال التذكرة</span>
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <!-- VIEW 2: MY TICKETS & CHAT THREAD -->
+      <section class="support-view-pane" id="view-my-tickets">
+        <div id="myTicketsContainer">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+            <h2 style="font-size: 1.25rem; font-weight: 800;" data-i18n="supportMyTitle">My Support Tickets</h2>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="SupportSystem.loadMyTickets()">🔄 Refresh</button>
+          </div>
+          <div id="myTicketsList">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Chat thread container (Hidden initially) -->
+        <div id="ticketChatPane" style="display: none;">
+          <div class="chat-window-card">
+            <div class="chat-header-bar">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="SupportSystem.closeTicketChat()">← Back / رجوع</button>
+              <div id="chatHeaderInfo" style="text-align: right;"></div>
+            </div>
+            
+            <div class="chat-messages-container" id="chatMessagesBox">
+              <!-- Chat bubbles -->
+            </div>
+
+            <div class="chat-reply-input-bar" id="chatReplyBox">
+              <input type="text" id="chatReplyInput" class="form-input" placeholder="Type a follow-up message / رد متابعة..." onkeydown="if(event.key==='Enter') SupportSystem.sendFollowUpReply();" />
+              <button type="button" class="btn btn-primary" onclick="SupportSystem.sendFollowUpReply()" style="white-space: nowrap;">Send / إرسال</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 3: TRACK BY ID -->
+      <section class="support-view-pane" id="view-track-ticket">
+        <div class="card" style="padding: 2rem;">
+          <h2 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 0.4rem;" data-i18n="supportTrackTitle">Track Your Ticket by ID</h2>
+          <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.5rem;" data-i18n="supportTrackDesc">
+            Enter your unique ticket reference code (e.g. <code>TKT-XXXX</code>) to view status and admin responses.
+          </p>
+
+          <form id="trackTicketForm" style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+            <input type="text" id="trackTicketInput" class="form-input" placeholder="e.g. TKT-L8Y3N4" style="text-transform: uppercase; flex: 1; min-width: 0;" required />
+            <button type="submit" class="btn btn-primary" style="white-space: nowrap;" data-i18n="supportSearchBtn">Search Ticket</button>
+          </form>
+
+          <div id="trackTicketResult" style="margin-top: 1.5rem;"></div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer" aria-live="assertive"></div>
+
+  <!-- Shared Footer Mount -->
+  <div id="site-footer-mount"></div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+  <!-- App Modules -->
+  <script src="js/config.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/store-info.js"></script>
+  <script src="js/header.js"></script>
+  <script src="js/footer.js"></script>
+  <script src="js/support-tickets.js"></script>
+  <script>
+    // Support tab navigation
+    document.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll(".support-nav-tab").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const view = btn.getAttribute("data-view");
+          document.querySelectorAll(".support-nav-tab").forEach(b => b.classList.remove("active"));
+          document.querySelectorAll(".support-view-pane").forEach(p => p.classList.remove("active"));
+          btn.classList.add("active");
+          const pane = document.getElementById("view-" + view);
+          if (pane) pane.classList.add("active");
+          if (view === "my-tickets") {
+            if (typeof SupportSystem !== "undefined") SupportSystem.loadMyTickets();
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

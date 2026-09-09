@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 — Page Not Found | New Desgin</title>
+  <meta name="description" content="The page you requested was not found. Return to New Desgin store to browse minimalist collections.">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="Images/Logo-noBG.png">
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/rtl.css">
+
+  <script>
+    // Instant theme (no flicker)
+    const _t = localStorage.getItem("nd_theme") || "light";
+    document.documentElement.setAttribute("data-theme", _t);
+    window.CURRENT_PAGE = "404";
+  </script>
+</head>
+<body>
+
+  <!-- Shared Header Mount -->
+  <div id="site-header-mount"></div>
+
+  <!-- 404 Error Content -->
+  <main class="error-page-section">
+    <div class="container">
+      <div class="error-card">
+        <div class="error-code-badge">404</div>
+        <h1 style="font-size: 1.75rem; font-weight: 800; margin-bottom: 0.75rem;">
+          <span data-i18n="err404Title">Page Not Found</span>
+          <span style="display: block; font-size: 1.1rem; color: var(--text-secondary); font-weight: 500; margin-top: 0.25rem;">الصفحة غير موجودة</span>
+        </h1>
+        <p style="color: var(--text-secondary); line-height: 1.6; margin-bottom: 2rem;" data-i18n="err404Desc">
+          The page or product you were looking for doesn't exist, has been moved, or is temporarily unavailable.
+        </p>
+        
+        <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
+          <a href="index.html" class="btn btn-primary" style="padding: 0.75rem 1.75rem;" data-i18n="err404CatalogBtn">Explore Catalog</a>
+          <a href="support.html" class="btn btn-secondary" style="padding: 0.75rem 1.75rem;" data-i18n="err404SupportBtn">Customer Support</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Shared Footer Mount -->
+  <div id="site-footer-mount"></div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+  <!-- App Modules -->
+  <script src="js/config.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/store-info.js"></script>
+  <script src="js/header.js"></script>
+  <script src="js/footer.js"></script>
+</body>
+</html>

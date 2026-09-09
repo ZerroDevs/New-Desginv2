@@ -1,0 +1,22 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "products": {
+      ".read": true,
+      ".write": "auth != null && (root.child('settings/adminEmails').child(auth.token.email.replace('.', ',')).exists() || !root.child('settings/adminEmails').exists())"
+    },
+    "settings": {
+      ".read": true,
+      ".write": "auth != null && (root.child('settings/adminEmails').child(auth.token.email.replace('.', ',')).exists() || !root.child('settings/adminEmails').exists())"
+    },
+    "supportTickets": {
+      ".read": true,
+      ".write": true
+    },
+    "orders": {
+      ".read": "auth != null && root.child('settings/adminEmails').child(auth.token.email.replace('.', ',')).exists()",
+      ".write": "auth != null"
+    }
+  }
+}
