@@ -47,6 +47,7 @@ const SiteFooter = {
             <div class="footer-col">
               <h4 class="footer-col-title" data-i18n="footerHelpTitle">Customer Care</h4>
               <ul class="footer-links">
+                <li><a href="track.html" class="footer-link" data-i18n="navTrackOrder">Track Order</a></li>
                 <li><a href="faq.html" class="footer-link" data-i18n="footerFaq">FAQ &amp; Shipping</a></li>
                 <li><a href="terms.html" class="footer-link" data-i18n="footerTerms">Terms &amp; Return Policy</a></li>
                 <li><a href="support.html" class="footer-link" data-i18n="footerSupport">Support &amp; Tickets</a></li>

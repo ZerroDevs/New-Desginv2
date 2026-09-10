@@ -57,15 +57,15 @@ const SiteHeader = {
           <nav class="nav-links" aria-label="Main Navigation">
             ${navLink("index.html", '<span data-i18n="navMain">Main</span>', "main")}
             ${navLink("products.html", '<span data-i18n="navShop">Shop</span>', "shop")}
+            ${navLink("track.html", '<span data-i18n="navTrackOrder">Track Order</span>', "track")}
             ${navLink("faq.html", "FAQ", "faq")}
-            ${navLink("support.html", "Support", "support")}
           </nav>
 
           <!-- Header Actions -->
           <div class="header-actions">
             <!-- Language Switcher -->
             <div class="selector-pill" title="Select Language">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10z"></path></svg>
               <select class="lang-selector" aria-label="Language Selector">
                 <option value="en">EN</option>
                 <option value="ar">العربية (AR)</option>
@@ -78,6 +78,39 @@ const SiteHeader = {
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
               </span>
             </button>
+
+            <!-- Auth State Button (Logged Out) -->
+            <div class="auth-state-logged-out">
+              <button type="button" class="action-btn auth-modal-open-btn" aria-label="Sign In / Register" title="Sign In">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              </button>
+            </div>
+
+            <!-- Auth State Button (Logged In Dropdown) -->
+            <div class="auth-state-logged-in auth-user-dropdown-container" style="display: none; align-items: center;">
+              <button type="button" class="auth-user-btn" id="userDropdownToggleBtn" aria-label="User Menu" title="User Menu" style="padding: 3px; border-radius: 50%; border: none; background: transparent;">
+                <span class="auth-avatar auth-user-avatar-initial" style="width: 32px; height: 32px; font-size: 0.9rem; font-weight: 800; border: 2px solid var(--brand-blue);">U</span>
+              </button>
+              <div class="user-dropdown-menu" id="userAccountDropdown">
+                <div class="user-dropdown-header">
+                  <div class="user-dropdown-name auth-user-name">User</div>
+                  <div class="user-dropdown-email" id="userDropdownEmail">user@example.com</div>
+                </div>
+                <a href="profile.html" class="user-dropdown-item">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                  <span data-i18n="navProfile">Profile</span>
+                </a>
+                <a href="admin.html" class="user-dropdown-item user-dropdown-admin-link" style="display: none; color: var(--brand-blue); font-weight: 700;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                  <span>Admin Panel</span>
+                </a>
+                <div class="user-dropdown-divider"></div>
+                <button type="button" class="user-dropdown-item logout-action-btn" id="logoutBtn" style="color: var(--error);">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                  <span data-i18n="navLogout">Sign Out</span>
+                </button>
+              </div>
+            </div>
 
             <!-- Back to Store button (shown on inner pages) -->
             <a href="index.html" class="btn btn-primary btn-sm">Store</a>
@@ -100,12 +133,20 @@ const SiteHeader = {
           <nav class="mobile-nav-list">
             ${mobileNavLink("index.html", '<span data-i18n="navMain">Main</span>', "main")}
             ${mobileNavLink("products.html", '<span data-i18n="navShop">Shop</span>', "shop")}
+            ${mobileNavLink("track.html", '<span data-i18n="navTrackOrder">Track Order</span>', "track")}
             ${mobileNavLink("faq.html", "FAQ", "faq")}
             ${mobileNavLink("terms.html", "Terms & Policies", "terms")}
-            ${mobileNavLink("support.html", "Support & Tickets", "support")}
           </nav>
 
           <div class="mobile-settings-block">
+            <div class="auth-state-logged-in" style="display: none; flex-direction: column; gap: 0.5rem; margin-bottom: 0.75rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color);">
+              <a href="profile.html" class="btn btn-secondary btn-sm" style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+                👤 <span data-i18n="navProfile">Profile</span>
+              </a>
+              <a href="admin.html" class="btn btn-primary btn-sm user-dropdown-admin-link" style="display: none; align-items: center; justify-content: center; gap: 6px;">
+                🛡️ <span>Admin Panel</span>
+              </a>
+            </div>
             <div class="mobile-setting-row">
               <span>Language / اللغة</span>
               <select class="lang-selector" aria-label="Mobile Language Selector">
@@ -127,17 +168,60 @@ const SiteHeader = {
     `;
 
     this.bindDrawer();
+    if (typeof AuthManager !== "undefined") {
+      if (!AuthManager.initialized) AuthManager.init();
+      AuthManager.updateUI();
+    }
   },
 
   bindDrawer() {
     const toggle = document.getElementById("mobileMenuToggle");
     const drawer = document.getElementById("mobileDrawer");
     const close = document.getElementById("mobileDrawerClose");
-    if (toggle && drawer) {
-      toggle.addEventListener("click", () => drawer.classList.add("open"));
+    let backdrop = document.getElementById("drawerBackdrop");
+
+    // Dynamically inject backdrop if missing on inner pages
+    if (!backdrop) {
+      backdrop = document.createElement("div");
+      backdrop.id = "drawerBackdrop";
+      backdrop.className = "drawer-backdrop";
+      document.body.appendChild(backdrop);
     }
-    if (close && drawer) {
-      close.addEventListener("click", () => drawer.classList.remove("open"));
+
+    const openFn = () => {
+      if (drawer) {
+        drawer.classList.add("active");
+        drawer.classList.add("open");
+      }
+      if (backdrop) backdrop.classList.add("active");
+      document.body.style.overflow = "hidden";
+    };
+
+    const closeFn = () => {
+      if (drawer) {
+        drawer.classList.remove("active");
+        drawer.classList.remove("open");
+      }
+      if (backdrop) backdrop.classList.remove("active");
+      document.body.style.overflow = "";
+    };
+
+    if (toggle) {
+      toggle.addEventListener("click", openFn);
+    }
+
+    if (close) {
+      close.addEventListener("click", closeFn);
+    }
+
+    if (backdrop) {
+      backdrop.addEventListener("click", closeFn);
+    }
+
+    if (drawer) {
+      drawer.querySelectorAll(".mobile-nav-link").forEach(link => {
+        link.addEventListener("click", closeFn);
+      });
     }
   },
 
@@ -186,7 +270,11 @@ window.SiteHeader = SiteHeader;
 document.addEventListener("DOMContentLoaded", () => {
   SiteHeader.currentPage = window.CURRENT_PAGE || "";
   SiteHeader.init();
-  // After rendering, initialize theme & i18n if available
+  // After rendering, initialize theme, i18n & auth UI if available
   if (typeof ThemeManager !== "undefined") ThemeManager.init();
   if (typeof I18nManager !== "undefined") I18nManager.init();
+  if (typeof AuthManager !== "undefined") {
+    if (!AuthManager.initialized) AuthManager.init();
+    AuthManager.updateUI();
+  }
 });

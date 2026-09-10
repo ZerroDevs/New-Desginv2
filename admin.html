@@ -136,6 +136,18 @@
           <span>Currency & Rates</span>
         </button>
 
+        <button type="button" class="nav-item" data-tab="orders">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+          <span>Orders Management</span>
+        </button>
+
         <button type="button" class="nav-item" data-tab="store-info">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
             stroke-linecap="round" stroke-linejoin="round">
@@ -534,6 +546,55 @@
             </div>
           </div>
         </section>
+
+        <!-- TAB 7: ORDERS MANAGEMENT -->
+        <section class="admin-tab-pane" id="tab-orders">
+          <div class="card">
+            <div class="card-header" style="flex-wrap: wrap; gap: 1rem;">
+              <h2 class="card-title">Orders Management</h2>
+              <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+                <input type="text" id="orderSearchInputAdmin" class="form-input" placeholder="Search Order ID or Phone..." style="max-width: 240px; padding: 0.5rem 0.75rem;" onkeyup="AdminController.filterOrders()" />
+                <button type="button" class="btn btn-secondary btn-sm" onclick="AdminController.loadOrders()">
+                  <span>🔄 Refresh Orders</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Orders Status Filter Pills -->
+            <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem; flex-wrap: wrap;">
+              <button type="button" class="btn btn-sm btn-primary order-filter-pill active" data-filter="all" onclick="AdminController.setOrderFilter('all', this)">All Orders</button>
+              <button type="button" class="btn btn-sm btn-secondary order-filter-pill" data-filter="pending" onclick="AdminController.setOrderFilter('pending', this)">Pending ⏳</button>
+              <button type="button" class="btn btn-sm btn-secondary order-filter-pill" data-filter="processing" onclick="AdminController.setOrderFilter('processing', this)">Processing ⚙️</button>
+              <button type="button" class="btn btn-sm btn-secondary order-filter-pill" data-filter="shipped" onclick="AdminController.setOrderFilter('shipped', this)">Shipped 🚚</button>
+              <button type="button" class="btn btn-sm btn-secondary order-filter-pill" data-filter="delivered" onclick="AdminController.setOrderFilter('delivered', this)">Delivered 🎉</button>
+              <button type="button" class="btn btn-sm btn-secondary order-filter-pill" data-filter="canceled" onclick="AdminController.setOrderFilter('canceled', this)">Canceled ❌</button>
+            </div>
+
+            <div class="admin-table-wrapper">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Order ID</th>
+                    <th>Date & Time</th>
+                    <th>Customer Name & Phone</th>
+                    <th>Delivery Address</th>
+                    <th>Items</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="ordersTableBody">
+                  <!-- Dynamically populated -->
+                </tbody>
+              </table>
+            </div>
+
+            <div id="ordersEmptyState" style="display: none; text-align: center; padding: 3rem 1rem;">
+              <p style="color: var(--text-muted);">No orders found matching your criteria.</p>
+            </div>
+          </div>
+        </section>
       </div>
 
       <!-- Admin Mobile Bottom Quick Navigation -->
@@ -824,7 +885,8 @@
               <label class="form-label" for="prodCategory">Category*</label>
               <select id="prodCategory" class="form-input" required>
                 <option value="apparel">Apparel / ملابس</option>
-                <option value="footwear">Footwear / أحذية</option>
+                <option value="pants">Pants / بنطال (سراويل)</option>
+                <option value="footwear">Shoes / أحذية</option>
                 <option value="accessories">Accessories / إكسسوارات</option>
               </select>
             </div>
@@ -932,12 +994,23 @@
 
           <div class="form-grid-2">
             <div class="form-group">
-              <label class="form-label" for="prodSizes">Available Sizes (comma separated)</label>
-              <input type="text" id="prodSizes" class="form-input" placeholder="S, M, L, XL" />
+              <label class="form-label" for="prodSizes">Available Sizes (leave empty for NO sizes)</label>
+              <input type="text" id="prodSizes" class="form-input" placeholder="S, M, L, XL or leave empty if no sizes" />
+              <div style="display: flex; gap: 0.35rem; margin-top: 0.4rem; flex-wrap: wrap; align-items: center;">
+                <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">Presets:</span>
+                <button type="button" class="btn btn-secondary btn-sm" style="font-size: 0.72rem; padding: 2px 7px;" onclick="AdminController.fillPresetSizes('apparel')">Apparel (S..XXL)</button>
+                <button type="button" class="btn btn-secondary btn-sm" style="font-size: 0.72rem; padding: 2px 7px;" onclick="AdminController.fillPresetSizes('pants')">Pants (30..40)</button>
+                <button type="button" class="btn btn-secondary btn-sm" style="font-size: 0.72rem; padding: 2px 7px;" onclick="AdminController.fillPresetSizes('shoes')">Shoes (40..45)</button>
+                <button type="button" class="btn btn-danger btn-sm" style="font-size: 0.72rem; padding: 2px 7px;" onclick="AdminController.fillPresetSizes('clear')">Clear (No Sizes)</button>
+              </div>
             </div>
             <div class="form-group">
-              <label class="form-label" for="prodColors">Available Colors (comma separated)</label>
-              <input type="text" id="prodColors" class="form-input" placeholder="Navy Slate, Sky Mist" />
+              <label class="form-label" for="prodColors">Available Colors (leave empty for NO colors)</label>
+              <input type="text" id="prodColors" class="form-input" placeholder="Navy, Black or leave empty if no colors" />
+              <div style="display: flex; gap: 0.35rem; margin-top: 0.4rem; flex-wrap: wrap; align-items: center;">
+                <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">Presets:</span>
+                <button type="button" class="btn btn-danger btn-sm" style="font-size: 0.72rem; padding: 2px 7px;" onclick="AdminController.clearColors()">Clear (No Colors)</button>
+              </div>
             </div>
           </div>
 
@@ -987,6 +1060,17 @@
         <button type="button" class="btn btn-secondary btn-sm"
           onclick="AdminController.closeTicketModal()">Close</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Order Details Modal -->
+  <div id="adminOrderDetailsModal" class="nd-checkout-modal-backdrop">
+    <div class="nd-checkout-modal-content" style="max-width: 650px;">
+      <div class="nd-checkout-modal-header">
+        <h3 id="modalOrderTitle">Order Details</h3>
+        <button type="button" class="nd-modal-close" onclick="document.getElementById('adminOrderDetailsModal').classList.remove('active')">&times;</button>
+      </div>
+      <div id="modalOrderContent"></div>
     </div>
   </div>
 

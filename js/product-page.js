@@ -35,8 +35,34 @@ const ProductPageController = {
     }
 
     if (this.currentProduct) {
-      this.selectedSize = this.currentProduct.sizes && this.currentProduct.sizes.length > 0 ? this.currentProduct.sizes[0] : "Standard";
-      this.selectedColor = this.currentProduct.colors && this.currentProduct.colors.length > 0 ? this.currentProduct.colors[0].name : "Standard";
+      const p = this.currentProduct;
+      const hasSizes = p.sizes && p.sizes.length > 0;
+      const hasColors = p.colors && p.colors.length > 0;
+
+      // Try matching user's saved profile size preference
+      let userPrefSize = null;
+      try {
+        const rawProf = localStorage.getItem("nd_user_profile");
+        if (rawProf) {
+          const prof = JSON.parse(rawProf);
+          const cat = (p.category || "").toLowerCase();
+          if (cat === "pants" && prof.pantsSize) userPrefSize = prof.pantsSize;
+          else if ((cat === "footwear" || cat === "shoes") && prof.shoesSize) userPrefSize = prof.shoesSize;
+          else if (prof.apparelSize) userPrefSize = prof.apparelSize;
+        }
+      } catch (e) {}
+
+      if (hasSizes) {
+        if (userPrefSize && p.sizes.includes(userPrefSize)) {
+          this.selectedSize = userPrefSize;
+        } else {
+          this.selectedSize = p.sizes[0];
+        }
+      } else {
+        this.selectedSize = "";
+      }
+
+      this.selectedColor = hasColors ? p.colors[0].name : "";
     }
   },
 
@@ -230,41 +256,53 @@ const ProductPageController = {
 
     // Render Color Swatches
     const swatchesContainer = document.getElementById("pdpColorSwatches");
-    if (swatchesContainer && p.colors && p.colors.length > 0) {
-      swatchesContainer.innerHTML = p.colors.map((c, idx) => {
-        const colorName = isArabic ? c.nameAr : c.name;
-        const isActive = c.name === this.selectedColor;
-        return `
-          <button type="button" 
-                  class="color-swatch ${isActive ? 'active' : ''}" 
-                  style="background-color: ${c.hex};" 
-                  title="${colorName}" 
-                  aria-label="${colorName}"
-                  onclick="ProductPageController.selectColor('${c.name}', this)">
-          </button>
-        `;
-      }).join("");
-      document.getElementById("pdpColorGroup").style.display = "block";
-    } else if (document.getElementById("pdpColorGroup")) {
-      document.getElementById("pdpColorGroup").style.display = "none";
+    const colorGroup = document.getElementById("pdpColorGroup");
+    if (swatchesContainer && colorGroup) {
+      if (p.colors && p.colors.length > 0) {
+        swatchesContainer.innerHTML = p.colors.map((c, idx) => {
+          const colorName = isArabic ? c.nameAr : c.name;
+          const isActive = c.name === this.selectedColor;
+          return `
+            <button type="button" 
+                    class="color-swatch ${isActive ? 'active' : ''}" 
+                    style="background-color: ${c.hex};" 
+                    title="${colorName}" 
+                    aria-label="${colorName}"
+                    onclick="ProductPageController.selectColor('${c.name}', this)">
+            </button>
+          `;
+        }).join("");
+        colorGroup.style.display = "block";
+      } else {
+        colorGroup.style.display = "none";
+      }
     }
 
     // Render Sizes
     const sizesContainer = document.getElementById("pdpSizesList");
-    if (sizesContainer && p.sizes && p.sizes.length > 0) {
-      sizesContainer.innerHTML = p.sizes.map((s) => {
-        const isActive = s === this.selectedSize;
-        return `
-          <button type="button" 
-                  class="size-pill ${isActive ? 'active' : ''}" 
-                  onclick="ProductPageController.selectSize('${s}', this)">
-            ${s}
-          </button>
+    const sizesGroup = document.getElementById("pdpSizesGroup");
+    if (sizesContainer && sizesGroup) {
+      if (p.sizes && p.sizes.length > 0) {
+        sizesContainer.innerHTML = p.sizes.map((s) => {
+          const isActive = s === this.selectedSize;
+          return `
+            <button type="button" 
+                    class="size-pill ${isActive ? 'active' : ''}" 
+                    onclick="ProductPageController.selectSize('${s}', this)">
+              ${s}
+            </button>
+          `;
+        }).join("");
+        sizesGroup.style.display = "block";
+      } else {
+        // Render dynamic notice callout banner for items without pre-set size/color selection
+        sizesGroup.style.display = "block";
+        sizesContainer.innerHTML = `
+          <div style="background: rgba(14, 165, 233, 0.08); border: 1px solid rgba(14, 165, 233, 0.25); border-radius: var(--radius-md); padding: 0.85rem 1rem; color: var(--brand-blue); font-size: 0.88rem; font-weight: 700; line-height: 1.5; margin-top: 0.25rem;">
+            ${typeof I18nManager !== "undefined" ? I18nManager.t("productNoSizeNotice") : (isArabic ? "💬 ملاحظة: لا يلزم اختيار مقاس لهذا المنتج — سيتم تحديد التفاصيل مباشرة مع خدمة العملاء في محادثة الواتساب." : "💬 Note: No size selection required for this product — details will be confirmed directly in WhatsApp chat.")}
+          </div>
         `;
-      }).join("");
-      document.getElementById("pdpSizesGroup").style.display = "block";
-    } else if (document.getElementById("pdpSizesGroup")) {
-      document.getElementById("pdpSizesGroup").style.display = "none";
+      }
     }
   },
 

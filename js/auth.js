@@ -10,7 +10,11 @@ const AuthManager = {
   isFirebaseAvailable: false,
   firebaseAuth: null,
 
+  initialized: false,
+
   init() {
+    if (this.initialized) return;
+    this.initialized = true;
     this.initFirebase();
     this.bindEvents();
     this.restoreSession();
@@ -32,7 +36,8 @@ const AuthManager = {
             this.setUser({
               uid: user.uid,
               email: user.email,
-              displayName: user.displayName || user.email.split("@")[0]
+              displayName: user.displayName || user.email.split("@")[0],
+              photoURL: user.photoURL || null
             });
           } else {
             // Check if there's an offline session active
@@ -61,10 +66,13 @@ const AuthManager = {
   },
 
   bindEvents() {
-    // Open auth modal buttons
-    const authOpenBtns = document.querySelectorAll(".auth-modal-open-btn");
-    authOpenBtns.forEach(btn => {
-      btn.addEventListener("click", () => this.openModal());
+    // Open auth modal buttons (delegated for dynamic header/elements)
+    document.addEventListener("click", (e) => {
+      const openBtn = e.target.closest(".auth-modal-open-btn");
+      if (openBtn) {
+        e.preventDefault();
+        this.openModal();
+      }
     });
 
     // Close auth modal
@@ -107,15 +115,82 @@ const AuthManager = {
       btn.addEventListener("click", () => this.handleGoogleSignIn());
     });
 
-    // Logout button
-    const logoutBtn = document.getElementById("logoutBtn");
-    if (logoutBtn) {
-      logoutBtn.addEventListener("click", () => this.handleLogout());
-    }
+    // Logout buttons (delegated)
+    document.addEventListener("click", (e) => {
+      if (e.target.closest("#logoutBtn, .logout-action-btn")) {
+        this.handleLogout();
+      }
+    });
+
+    // User Dropdown Toggle & Outside Click
+    document.addEventListener("click", (e) => {
+      const userBtn = e.target.closest("#userDropdownToggleBtn, .auth-user-btn");
+      const dropdowns = document.querySelectorAll("#userAccountDropdown, .user-dropdown-menu");
+
+      if (userBtn) {
+        dropdowns.forEach(d => d.classList.toggle("active"));
+      } else {
+        dropdowns.forEach(d => {
+          if (!d.contains(e.target)) {
+            d.classList.remove("active");
+          }
+        });
+      }
+    });
   },
 
   openModal(defaultTab = "login") {
-    const overlay = document.getElementById("authModalOverlay");
+    let overlay = document.getElementById("authModalOverlay");
+    if (!overlay) {
+      overlay = document.createElement("div");
+      overlay.className = "modal-overlay";
+      overlay.id = "authModalOverlay";
+      overlay.setAttribute("role", "dialog");
+      overlay.setAttribute("aria-modal", "true");
+      overlay.innerHTML = `
+        <div class="modal-card">
+          <button type="button" class="modal-close-btn" id="authModalClose" onclick="AuthManager.closeModal()">&times;</button>
+          <div class="auth-tabs">
+            <button type="button" class="auth-tab active" id="authTabLogin" data-i18n="authLoginTab">Sign In</button>
+            <button type="button" class="auth-tab" id="authTabSignup" data-i18n="authSignupTab">Create Account</button>
+          </div>
+          <div id="authModalAlert" class="form-alert" style="display: none;"></div>
+          <form id="loginForm">
+            <div class="nd-form-group">
+              <label>Email</label>
+              <input type="email" id="loginEmail" class="nd-input" required />
+            </div>
+            <div class="nd-form-group">
+              <label>Password</label>
+              <input type="password" id="loginPassword" class="nd-input" required />
+            </div>
+            <button type="submit" class="btn btn-primary btn-full" id="loginSubmitBtn" data-i18n="authLoginBtn">Sign In</button>
+          </form>
+          <form id="signupForm" style="display: none;">
+            <div class="nd-form-group">
+              <label>Full Name</label>
+              <input type="text" id="signupName" class="nd-input" required />
+            </div>
+            <div class="nd-form-group">
+              <label>Email</label>
+              <input type="email" id="signupEmail" class="nd-input" required />
+            </div>
+            <div class="nd-form-group">
+              <label>Password</label>
+              <input type="password" id="signupPassword" class="nd-input" required />
+            </div>
+            <div class="nd-form-group">
+              <label>Confirm Password</label>
+              <input type="password" id="signupConfirm" class="nd-input" required />
+            </div>
+            <button type="submit" class="btn btn-primary btn-full" id="signupSubmitBtn" data-i18n="authSignupBtn">Create Account</button>
+          </form>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+      this.bindEvents();
+    }
+
     if (overlay) {
       this.switchTab(defaultTab);
       this.clearAlerts();
@@ -349,18 +424,67 @@ const AuthManager = {
     const loggedInElements = document.querySelectorAll(".auth-state-logged-in");
     const userNames = document.querySelectorAll(".auth-user-name");
     const userAvatars = document.querySelectorAll(".auth-user-avatar-initial");
+    const dropdownEmails = document.querySelectorAll("#userDropdownEmail");
 
     if (this.currentUser) {
       loggedOutElements.forEach(el => el.style.display = "none");
       loggedInElements.forEach(el => el.style.display = "flex");
 
-      const initial = (this.currentUser.displayName || this.currentUser.email || "U").charAt(0).toUpperCase();
-      userNames.forEach(el => el.textContent = this.currentUser.displayName || this.currentUser.email);
-      userAvatars.forEach(el => el.textContent = initial);
+      const name = this.currentUser.displayName || (this.currentUser.email ? this.currentUser.email.split("@")[0] : "User");
+      const email = this.currentUser.email || "user@example.com";
+      const initial = name.charAt(0).toUpperCase();
+
+      userNames.forEach(el => el.textContent = name);
+      userAvatars.forEach(el => {
+        if (this.currentUser.photoURL) {
+          el.innerHTML = `<img src="${this.currentUser.photoURL}" alt="Avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+        } else {
+          el.textContent = initial;
+        }
+      });
+      dropdownEmails.forEach(el => el.textContent = email);
+
+      this.checkAdminRole(this.currentUser);
     } else {
       loggedOutElements.forEach(el => el.style.display = "flex");
       loggedInElements.forEach(el => el.style.display = "none");
+      const adminLinks = document.querySelectorAll(".user-dropdown-admin-link");
+      adminLinks.forEach(el => el.style.display = "none");
     }
+  },
+
+  async checkAdminRole(user) {
+    if (!user || !user.email) return;
+    const adminLinks = document.querySelectorAll(".user-dropdown-admin-link");
+    const userEmail = user.email.toLowerCase();
+
+    let isAdmin = false;
+    if (user.uid && user.uid.toLowerCase().includes("admin")) {
+      isAdmin = true;
+    } else if (typeof firebase !== "undefined" && firebase.database) {
+      try {
+        const ownerSnap = await firebase.database().ref("settings/ownerEmail").once("value");
+        const ownerEmail = ownerSnap.val();
+        if (ownerEmail && ownerEmail.toLowerCase() === userEmail) {
+          isAdmin = true;
+        } else {
+          const adminSnap = await firebase.database().ref("settings/adminEmails").once("value");
+          const admins = adminSnap.val();
+          if (admins) {
+            const list = Object.values(admins).map(e => String(e).toLowerCase());
+            isAdmin = list.includes(userEmail);
+          } else {
+            isAdmin = true;
+          }
+        }
+      } catch (e) {
+        console.warn("Remote admin role check fallback:", e);
+      }
+    }
+
+    adminLinks.forEach(link => {
+      link.style.display = isAdmin ? "flex" : "none";
+    });
   },
 
   formatFirebaseError(err) {
@@ -385,3 +509,11 @@ const AuthManager = {
 };
 
 window.AuthManager = AuthManager;
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => {
+    AuthManager.init();
+  });
+} else {
+  AuthManager.init();
+}

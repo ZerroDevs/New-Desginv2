@@ -126,18 +126,25 @@ const AppCoordinator = {
   openMobileDrawer() {
     const mobileDrawer = document.getElementById("mobileDrawer");
     const backdrop = document.getElementById("drawerBackdrop");
-    if (mobileDrawer && backdrop) {
+    if (mobileDrawer) {
       mobileDrawer.classList.add("active");
-      backdrop.classList.add("active");
-      document.body.style.overflow = "hidden";
+      mobileDrawer.classList.add("open");
     }
+    if (backdrop) {
+      backdrop.classList.add("active");
+    }
+    document.body.style.overflow = "hidden";
   },
 
   closeMobileDrawer() {
     const mobileDrawer = document.getElementById("mobileDrawer");
     const backdrop = document.getElementById("drawerBackdrop");
-    if (mobileDrawer) mobileDrawer.classList.remove("active");
-    if (backdrop && !document.getElementById("cartDrawer").classList.contains("active")) {
+    const cartDrawer = document.getElementById("cartDrawer");
+    if (mobileDrawer) {
+      mobileDrawer.classList.remove("active");
+      mobileDrawer.classList.remove("open");
+    }
+    if (backdrop && (!cartDrawer || !cartDrawer.classList.contains("active"))) {
       backdrop.classList.remove("active");
       document.body.style.overflow = "";
     }
@@ -238,8 +245,28 @@ const AppCoordinator = {
     if (!product) return;
 
     this.activeQuickViewProduct = product;
-    this.selectedQuickViewSize = product.sizes && product.sizes.length > 0 ? product.sizes[0] : null;
-    this.selectedQuickViewColor = product.colors && product.colors.length > 0 ? product.colors[0].name : null;
+    
+    // Try matching user's saved profile size preference
+    let userPrefSize = null;
+    try {
+      const rawProf = localStorage.getItem("nd_user_profile");
+      if (rawProf) {
+        const prof = JSON.parse(rawProf);
+        const cat = (product.category || "").toLowerCase();
+        if (cat === "pants" && prof.pantsSize) userPrefSize = prof.pantsSize;
+        else if ((cat === "footwear" || cat === "shoes") && prof.shoesSize) userPrefSize = prof.shoesSize;
+        else if (prof.apparelSize) userPrefSize = prof.apparelSize;
+      }
+    } catch (e) {}
+
+    const hasSizes = product.sizes && product.sizes.length > 0;
+    if (hasSizes) {
+      this.selectedQuickViewSize = (userPrefSize && product.sizes.includes(userPrefSize)) ? userPrefSize : product.sizes[0];
+    } else {
+      this.selectedQuickViewSize = "";
+    }
+
+    this.selectedQuickViewColor = product.colors && product.colors.length > 0 ? product.colors[0].name : "";
     this.quickViewQuantity = 1;
 
     const overlay = document.getElementById("quickViewOverlay");
@@ -271,16 +298,22 @@ const AppCoordinator = {
     if (qtyVal) qtyVal.textContent = "1";
 
     // Render sizes
-    if (sizesContainer) {
-      if (product.sizes && product.sizes.length > 0) {
-        sizesContainer.innerHTML = product.sizes.map((s, idx) => `
-          <button type="button" class="size-pill ${idx === 0 ? 'active' : ''}" onclick="AppCoordinator.selectSize('${s}', this)">
+    const sizesGroup = document.getElementById("qvSizesGroup");
+    if (sizesContainer && sizesGroup) {
+      if (hasSizes) {
+        sizesContainer.innerHTML = product.sizes.map((s) => `
+          <button type="button" class="size-pill ${s === this.selectedQuickViewSize ? 'active' : ''}" onclick="AppCoordinator.selectSize('${s}', this)">
             ${s}
           </button>
         `).join("");
-        document.getElementById("qvSizesGroup").style.display = "block";
+        sizesGroup.style.display = "block";
       } else {
-        document.getElementById("qvSizesGroup").style.display = "none";
+        sizesGroup.style.display = "block";
+        sizesContainer.innerHTML = `
+          <div style="background: rgba(14, 165, 233, 0.08); border: 1px solid rgba(14, 165, 233, 0.25); border-radius: var(--radius-md); padding: 0.75rem 0.85rem; color: var(--brand-blue); font-size: 0.82rem; font-weight: 700; line-height: 1.4;">
+            ${typeof I18nManager !== "undefined" ? I18nManager.t("productNoSizeNotice") : (isArabic ? "💬 ملاحظة: لا يلزم اختيار مقاس لهذا المنتج — سيتم تحديد التفاصيل مباشرة مع خدمة العملاء في محادثة الواتساب." : "💬 Note: No size selection required for this product — details will be confirmed directly in WhatsApp chat.")}
+          </div>
+        `;
       }
     }
 
@@ -307,8 +340,13 @@ const AppCoordinator = {
   },
 
   showToast(message) {
-    const container = document.getElementById("toastContainer");
-    if (!container) return;
+    let container = document.getElementById("toastContainer");
+    if (!container) {
+      container = document.createElement("div");
+      container.id = "toastContainer";
+      container.className = "toast-container";
+      document.body.appendChild(container);
+    }
 
     const toast = document.createElement("div");
     toast.className = "toast";
@@ -324,13 +362,13 @@ const AppCoordinator = {
     // Trigger enter animation
     setTimeout(() => toast.classList.add("show"), 20);
 
-    // Auto dismiss after 3 seconds
+    // Auto dismiss after 3.2 seconds
     setTimeout(() => {
       toast.classList.remove("show");
       setTimeout(() => {
         if (toast.parentNode) toast.parentNode.removeChild(toast);
       }, 300);
-    }, 3000);
+    }, 3200);
   },
 
   onLanguageChange(lang) {

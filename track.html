@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="light">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Track Your Order — New Desgin</title>
+  <meta name="description"
+    content="Check live order status, shipment tracking, and delivery progress for your New Desgin orders.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="Images/Logo-noBG.png">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/rtl.css">
+
+  <script>
+    const _t = localStorage.getItem("nd_theme") || "light";
+    document.documentElement.setAttribute("data-theme", _t);
+    window.CURRENT_PAGE = "track";
+  </script>
+</head>
+
+<body>
+
+  <!-- Shared Header Mount -->
+  <div id="site-header-mount"></div>
+
+  <!-- Track Order Main Section -->
+  <main class="track-section">
+    <div class="container" style="max-width: 900px;">
+
+      <!-- Hero Search Card -->
+      <div class="track-hero-card">
+        <h1 style="font-size: 1.85rem; font-weight: 900; margin-bottom: 0.35rem;" data-i18n="trackTitle">Track Your
+          Order</h1>
+        <p style="color: var(--text-secondary); font-size: 0.95rem;" data-i18n="trackSubtitle">Enter your Order ID to
+          see live shipping &amp; processing status.</p>
+
+        <form id="trackSearchForm" class="track-search-box">
+          <input type="text" id="orderSearchInput" class="nd-input" required
+            placeholder="e.g. ND-123456 or phone number" data-i18n-placeholder="trackInputPlaceholder"
+            style="font-size: 1.05rem; padding: 0.85rem 1.1rem;" />
+          <button type="submit" class="btn btn-primary" style="white-space: nowrap; padding: 0 1.75rem;">
+            🔍 <span data-i18n="trackSearchBtn">Track Order</span>
+          </button>
+        </form>
+
+        <p style="margin-top: 0.85rem; font-size: 0.88rem; color: var(--text-secondary); display: flex; align-items: center; justify-content: center; gap: 6px; font-weight: 600;"
+          data-i18n="trackNote">
+          💡 <span>Note: Please enter the Order ID without the <strong>'#'</strong> symbol (e.g.
+            <strong>ND-123456</strong>).</span>
+        </p>
+      </div>
+
+      <!-- Loading State -->
+      <div id="trackLoading" style="display: none; text-align: center; padding: 3rem 0;">
+        <div class="spinner"
+          style="width: 40px; height: 40px; border: 3px solid var(--border-color); border-top-color: var(--brand-blue); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1rem;">
+        </div>
+        <p style="color: var(--text-muted); font-weight: 600;">Fetching live order status...</p>
+      </div>
+
+      <!-- Error State -->
+      <div id="trackError"
+        style="display: none; background: rgba(239, 68, 68, 0.1); border: 1px solid var(--error); color: var(--error); border-radius: var(--radius-md); padding: 1.25rem; text-align: center; max-width: 680px; margin: 0 auto;">
+      </div>
+
+      <!-- Live Result Display Container -->
+      <div id="trackResultContainer" style="display: none;"></div>
+
+    </div>
+  </main>
+
+  <!-- Slide-out Cart Drawer -->
+  <div class="drawer-backdrop" id="drawerBackdrop"></div>
+  <aside class="cart-drawer" id="cartDrawer" aria-label="Shopping Cart Drawer">
+    <div class="drawer-header">
+      <h3 class="drawer-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <path d="M16 10a4 4 0 0 1-8 0"></path>
+        </svg>
+        <span data-i18n="cartTitle">Your Shopping Bag</span>
+      </h3>
+      <button type="button" class="drawer-close-btn cart-close-btn" aria-label="Close Shopping Cart">&times;</button>
+    </div>
+    <div class="drawer-body">
+      <div class="cart-items-list" id="cartItemsList"></div>
+      <div class="cart-empty-state" id="cartEmptyState" style="display: none;">
+        <h4 class="empty-title" data-i18n="cartEmptyTitle">Your cart is empty</h4>
+        <p class="empty-subtitle" data-i18n="cartEmptySubtitle">Looks like you haven't added any products yet.</p>
+        <button type="button" class="btn btn-primary btn-sm cart-close-btn" data-i18n="cartContinueShopping">Continue
+          Shopping</button>
+      </div>
+    </div>
+    <div class="drawer-footer" id="cartFooter">
+      <div class="summary-row total">
+        <span data-i18n="cartTotal">Total</span>
+        <span id="cartTotalAmount">$0.00</span>
+      </div>
+      <div class="drawer-actions">
+        <button type="button" class="btn btn-primary btn-full" id="checkoutBtn" data-i18n="cartCheckout">Proceed to
+          Checkout</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer" aria-live="assertive"></div>
+
+  <!-- Shared Footer Mount -->
+  <div id="site-footer-mount"></div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+  <!-- App Modules -->
+  <script src="js/config.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/currency.js"></script>
+  <script src="js/products.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/store-info.js"></script>
+  <script src="js/header.js"></script>
+  <script src="js/footer.js"></script>
+  <script src="js/track-order.js"></script>
+</body>
+
+</html>

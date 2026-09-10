@@ -26,10 +26,10 @@
 
 <body>
 
-  <!-- Top Announcement Bar -->
-  <aside class="announcement-bar" role="region" aria-label="Announcement">
+  <!-- Top Announcement Bar (Hidden by default — Admin-controlled from Firebase) -->
+  <aside class="announcement-bar" id="announcementBar" role="region" aria-label="Announcement" style="display:none;">
     <div class="container">
-      <span data-i18n="announcement">FREE EXPRESS DELIVERY ON ORDERS OVER $150 — SOLID MINIMAL AESTHETICS</span>
+      <span id="announcementText" data-i18n="announcement"></span>
     </div>
   </aside>
 
@@ -54,10 +54,9 @@
 
       <!-- Desktop Navigation Links -->
       <nav class="nav-links" aria-label="Main Navigation">
-        <a href="products.html" class="nav-link" data-i18n="navShop">Shop</a>
-        <a href="products.html" class="nav-link" data-i18n="navCollections">Collections</a>
+        <a href="index.html#catalog" class="nav-link" data-i18n="navShop">Shop</a>
+        <a href="track.html" class="nav-link" data-i18n="navTrackOrder">Track Order</a>
         <a href="faq.html" class="nav-link">FAQ</a>
-        <a href="support.html" class="nav-link">Support</a>
       </nav>
 
       <!-- Header Actions -->
@@ -111,19 +110,30 @@
           </button>
         </div>
 
-        <!-- Auth Button (Logged In) -->
-        <div class="auth-state-logged-in" style="display: none; align-items: center; gap: 0.5rem;">
-          <button type="button" class="auth-user-btn" id="logoutBtn" title="Click to Log Out">
-            <span class="auth-avatar auth-user-avatar-initial">U</span>
-            <span class="auth-user-name"
-              style="max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">User</span>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-              <polyline points="16 17 21 12 16 7"></polyline>
-              <line x1="21" y1="12" x2="9" y2="12"></line>
-            </svg>
+        <!-- Auth State Button (Logged In Dropdown) -->
+        <div class="auth-state-logged-in auth-user-dropdown-container" style="display: none; align-items: center;">
+          <button type="button" class="auth-user-btn" id="userDropdownToggleBtn" aria-label="User Menu" title="User Menu" style="padding: 3px; border-radius: 50%; border: none; background: transparent;">
+            <span class="auth-avatar auth-user-avatar-initial" style="width: 32px; height: 32px; font-size: 0.9rem; font-weight: 800; border: 2px solid var(--brand-blue);">U</span>
           </button>
+          <div class="user-dropdown-menu" id="userAccountDropdown">
+            <div class="user-dropdown-header">
+              <div class="user-dropdown-name auth-user-name">User</div>
+              <div class="user-dropdown-email" id="userDropdownEmail">user@example.com</div>
+            </div>
+            <a href="profile.html" class="user-dropdown-item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              <span data-i18n="navProfile">Profile</span>
+            </a>
+            <a href="admin.html" class="user-dropdown-item user-dropdown-admin-link" style="display: none; color: var(--brand-blue); font-weight: 700;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+              <span>Admin Panel</span>
+            </a>
+            <div class="user-dropdown-divider"></div>
+            <button type="button" class="user-dropdown-item logout-action-btn" id="logoutBtn" style="color: var(--error);">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+              <span data-i18n="navLogout">Sign Out</span>
+            </button>
+          </div>
         </div>
 
         <!-- Cart Open Button -->
@@ -157,8 +167,8 @@
     </div>
     <div class="mobile-drawer-body">
       <nav class="mobile-nav-list">
-        <a href="products.html" class="mobile-nav-link" data-i18n="navShop">Shop</a>
-        <a href="products.html" class="mobile-nav-link" data-i18n="navCollections">Collections</a>
+        <a href="index.html#catalog" class="mobile-nav-link" data-i18n="navShop">Shop</a>
+        <a href="track.html" class="mobile-nav-link" data-i18n="navTrackOrder">Track Order</a>
         <a href="faq.html" class="mobile-nav-link">FAQ</a>
         <a href="terms.html" class="mobile-nav-link">Terms & Policies</a>
         <a href="support.html" class="mobile-nav-link">Support & Tickets</a>
@@ -218,7 +228,7 @@
       <ol class="breadcrumbs-list">
         <li class="breadcrumbs-item"><a href="index.html">Home</a></li>
         <li class="breadcrumbs-separator">/</li>
-        <li class="breadcrumbs-item"><a href="products.html" id="pdpBreadcrumbCategory">Apparel</a></li>
+        <li class="breadcrumbs-item"><a href="index.html#catalog" id="pdpBreadcrumbCategory">Apparel</a></li>
         <li class="breadcrumbs-separator">/</li>
         <li class="breadcrumbs-item active" id="pdpBreadcrumbTitle" aria-current="page">Product Name</li>
       </ol>
@@ -572,16 +582,17 @@
         <div class="footer-col">
           <h4 class="footer-col-title" data-i18n="footerShopTitle">Shop</h4>
           <ul class="footer-links">
-            <li><a href="products.html" class="footer-link" data-i18n="tabAll">All Products</a></li>
-            <li><a href="products.html" class="footer-link" data-i18n="tabNew">New Arrivals</a></li>
-            <li><a href="products.html" class="footer-link" data-i18n="tabSale">On Sale</a></li>
-            <li><a href="products.html" class="footer-link" data-i18n="tabApparel">Apparel</a></li>
+            <li><a href="index.html#catalog" class="footer-link" data-i18n="tabAll">All Products</a></li>
+            <li><a href="index.html#catalog" class="footer-link" data-i18n="tabNew">New Arrivals</a></li>
+            <li><a href="index.html#catalog" class="footer-link" data-i18n="tabSale">On Sale</a></li>
+            <li><a href="index.html#catalog" class="footer-link" data-i18n="tabApparel">Apparel</a></li>
           </ul>
         </div>
 
         <div class="footer-col">
           <h4 class="footer-col-title" data-i18n="footerHelpTitle">Customer Care</h4>
           <ul class="footer-links">
+            <li><a href="track.html" class="footer-link" data-i18n="navTrackOrder">Track Order</a></li>
             <li><a href="faq.html" class="footer-link">FAQ & Shipping</a></li>
             <li><a href="terms.html" class="footer-link">Terms & Return Policy (3 Days)</a></li>
             <li><a href="support.html" class="footer-link">Support & Tickets</a></li>

@@ -104,6 +104,7 @@ const AdminController = {
           this.renderAdminEmailsList();
           this.loadStoreInfo();
           this.loadSupportTickets();
+          this.loadOrders();
           this.loadAnnouncementSettings();
 
           // Restore last open tab
@@ -659,6 +660,20 @@ const AdminController = {
     this.currentExtraPhotos = [];
   },
 
+  fillPresetSizes(type) {
+    const input = document.getElementById("prodSizes");
+    if (!input) return;
+    if (type === "apparel") input.value = "S, M, L, XL, XXL";
+    else if (type === "pants") input.value = "30, 32, 34, 36, 38, 40";
+    else if (type === "shoes") input.value = "40, 41, 42, 43, 44, 45";
+    else if (type === "clear") input.value = "";
+  },
+
+  clearColors() {
+    const input = document.getElementById("prodColors");
+    if (input) input.value = "";
+  },
+
   handleSaveProduct(e) {
     e.preventDefault();
 
@@ -690,7 +705,7 @@ const AdminController = {
     }
 
     const targetId = this.editingProductId || idInput;
-    const sizes = sizesStr ? sizesStr.split(",").map(s => s.trim()).filter(Boolean) : ["Standard"];
+    const sizes = sizesStr ? sizesStr.split(",").map(s => s.trim()).filter(Boolean) : [];
     
     const colorDictionary = {
       "black": { hex: "#000000", ar: "أسود" },
@@ -720,11 +735,13 @@ const AdminController = {
         nameAr: match ? match.ar : trimmed, 
         hex: match ? match.hex : "#0f172a" 
       };
-    }) : [{ name: "Solid Blue", nameAr: "أزرق صلب", hex: "#0284c7" }];
+    }).filter(c => Boolean(c.name)) : [];
 
     const categoryNames = {
       apparel: { en: "Apparel", ar: "ملابس" },
-      footwear: { en: "Footwear", ar: "أحذية" },
+      pants: { en: "Pants", ar: "بنطال" },
+      footwear: { en: "Shoes", ar: "أحذية" },
+      shoes: { en: "Shoes", ar: "أحذية" },
       accessories: { en: "Accessories", ar: "إكسسوارات" }
     };
 
@@ -1291,6 +1308,500 @@ const AdminController = {
           .then(() => this.showNotification("Homepage content updated! ✓", "success"))
           .catch(err => this.showNotification(err.message, "error"));
       });
+    }
+  },
+
+  orders: {},
+  activeOrderFilter: "all",
+
+  loadOrders() {
+    if (!this.db) return;
+    this.db.ref("orders").on("value", snapshot => {
+      this.orders = snapshot.val() || {};
+      this.updateOrdersDashboardStats();
+      this.renderOrdersTable();
+    }, err => {
+      console.warn("Orders sync notice:", err);
+    });
+  },
+
+  updateOrdersDashboardStats() {
+    const ordersList = Object.values(this.orders);
+    const totalOrders = ordersList.length;
+    const pendingOrders = ordersList.filter(o => (o.status || 'pending').toLowerCase() === 'pending').length;
+    const totalRevenue = ordersList
+      .filter(o => (o.status || '').toLowerCase() !== 'canceled' && (o.status || '').toLowerCase() !== 'cancelled')
+      .reduce((sum, o) => sum + (parseFloat(o.finalTotal || o.total || 0)), 0);
+
+    const statTotalEl = document.getElementById("statTotalOrders");
+    const statPendingEl = document.getElementById("statPendingOrders");
+    const statRevenueEl = document.getElementById("statTotalRevenue");
+
+    if (statTotalEl) statTotalEl.textContent = totalOrders;
+    if (statPendingEl) statPendingEl.textContent = pendingOrders;
+    if (statRevenueEl) statRevenueEl.textContent = `${totalRevenue.toFixed(2)} LYD`;
+  },
+
+  setOrderFilter(filter, btnEl) {
+    this.activeOrderFilter = filter;
+    document.querySelectorAll(".order-filter-pill").forEach(b => {
+      b.classList.remove("active", "btn-primary");
+      b.classList.add("btn-secondary");
+    });
+    if (btnEl) {
+      btnEl.classList.add("active", "btn-primary");
+      btnEl.classList.remove("btn-secondary");
+    }
+    this.renderOrdersTable();
+  },
+
+  filterOrders() {
+    this.renderOrdersTable();
+  },
+
+  renderOrdersTable() {
+    const tbody = document.getElementById("ordersTableBody");
+    const emptyState = document.getElementById("ordersEmptyState");
+    const searchInput = document.getElementById("orderSearchInputAdmin");
+    const query = searchInput ? searchInput.value.trim().toLowerCase() : "";
+
+    if (!tbody) return;
+
+    let entries = Object.entries(this.orders);
+
+    // Apply status filter
+    if (this.activeOrderFilter !== "all") {
+      entries = entries.filter(([key, o]) => {
+        const s = (o.status || "pending").toLowerCase();
+        if (this.activeOrderFilter === "canceled") {
+          return s === "canceled" || s === "cancelled";
+        }
+        return s === this.activeOrderFilter;
+      });
+    }
+
+    // Apply search query
+    if (query) {
+      entries = entries.filter(([key, o]) => {
+        const orderId = (o.orderId || key).toLowerCase();
+        const phone = (o.customerPhone || "").toLowerCase();
+        const name = (o.customerName || "").toLowerCase();
+        return orderId.includes(query) || phone.includes(query) || name.includes(query);
+      });
+    }
+
+    // Sort by timestamp descending (newest first)
+    entries.sort((a, b) => (b[1].timestamp || 0) - (a[1].timestamp || 0));
+
+    if (entries.length === 0) {
+      tbody.innerHTML = "";
+      if (emptyState) emptyState.style.display = "block";
+      return;
+    }
+
+    if (emptyState) emptyState.style.display = "none";
+
+    tbody.innerHTML = entries.map(([key, order]) => {
+      const orderId = order.orderId || key;
+      const status = (order.status || "pending").toLowerCase();
+      const dateStr = new Date(order.timestamp || Date.now()).toLocaleString('ar-EG', {
+        month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+      });
+      const currencySymbol = order.currency === "USD" || order.currency === "$" ? "$" : "د.ل";
+
+      const itemsCount = (order.items || []).reduce((sum, i) => sum + (i.quantity || 1), 0);
+      const itemsSummaryText = (order.items || []).map(i => `${i.nameAr || i.name} (${i.quantity}x)`).join(", ");
+
+      return `
+        <tr>
+          <td><strong style="font-family: monospace; color: var(--admin-blue);">#${orderId}</strong></td>
+          <td style="font-size: 0.85rem; color: var(--text-muted);">${dateStr}</td>
+          <td>
+            <div style="font-weight: 700; color: var(--text-main);">${order.customerName || "—"}</div>
+            <div style="font-size: 0.82rem; color: var(--text-muted);" dir="ltr">${order.customerPhone || "—"}</div>
+          </td>
+          <td style="font-size: 0.85rem; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${order.customerAddress || "—"}</td>
+          <td>
+            <span class="badge" style="background: rgba(14,165,233,0.15); color: var(--admin-blue);" title="${itemsSummaryText}">
+              ${itemsCount} ${itemsCount === 1 ? 'item' : 'items'}
+            </span>
+          </td>
+          <td><strong style="color: var(--brand-blue);">${parseFloat(order.finalTotal || order.total || 0).toFixed(2)} ${currencySymbol}</strong></td>
+          <td>
+            <select class="form-input" style="padding: 4px 8px; font-size: 0.82rem; width: auto; font-weight: 700;" onchange="AdminController.updateOrderStatus('${orderId}', this.value)">
+              <option value="pending" ${status === 'pending' ? 'selected' : ''}>⏳ Pending / قيد الانتظار</option>
+              <option value="processing" ${status === 'processing' ? 'selected' : ''}>⚙️ Processing / قيد التنفيذ</option>
+              <option value="shipped" ${status === 'shipped' ? 'selected' : ''}>🚚 Shipped / تم الشحن</option>
+              <option value="delivered" ${status === 'delivered' || status === 'completed' ? 'selected' : ''}>🎉 Delivered / تم التوصيل</option>
+              <option value="canceled" ${status === 'canceled' || status === 'cancelled' ? 'selected' : ''}>❌ Canceled / ملغاة</option>
+            </select>
+          </td>
+          <td>
+            <div style="display: flex; gap: 4px;">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="AdminController.generateInvoice('${orderId}')" title="Print Invoice / الفاتورة">🖨️</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="AdminController.viewOrderDetails('${orderId}')" title="View Details / التفاصيل">👁️</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="AdminController.deleteOrder('${orderId}')" title="Delete Order / حذف" style="color: var(--error);">🗑️</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join("");
+  },
+
+  updateOrderStatus(orderId, newStatus) {
+    if (!this.db) return;
+    this.db.ref("orders/" + orderId + "/status").set(newStatus)
+      .then(() => {
+        this.showNotification(`Order #${orderId} status updated to ${newStatus}! ✓`, "success");
+      })
+      .catch(err => {
+        this.showNotification("Failed to update status: " + err.message, "error");
+      });
+  },
+
+  deleteOrder(orderId) {
+    if (!confirm(`Are you sure you want to permanently delete order #${orderId}?`)) return;
+    if (!this.db) return;
+
+    this.db.ref("orders/" + orderId).remove()
+      .then(() => {
+        this.showNotification(`Order #${orderId} deleted successfully.`, "success");
+      })
+      .catch(err => {
+        this.showNotification("Failed to delete order: " + err.message, "error");
+      });
+  },
+
+  viewOrderDetails(orderId) {
+    const order = this.orders[orderId];
+    if (!order) return;
+
+    const modal = document.getElementById("adminOrderDetailsModal");
+    const modalTitle = document.getElementById("modalOrderTitle");
+    const modalContent = document.getElementById("modalOrderContent");
+
+    if (!modal || !modalContent) return;
+
+    modalTitle.textContent = `Order Details #${order.orderId || orderId}`;
+    const dateStr = new Date(order.timestamp || Date.now()).toLocaleString('ar-EG');
+    const currencySymbol = order.currency === "USD" || order.currency === "$" ? "$" : "د.ل";
+
+    const itemsHtml = (order.items || []).map(item => `
+      <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">
+        <div>
+          <strong style="color: var(--text-main);">${item.nameAr || item.name}</strong>
+          <div style="font-size: 0.8rem; color: var(--text-muted);">
+            ${item.size ? 'Size: ' + item.size : ''} ${item.color ? '· Color: ' + item.color : ''}
+          </div>
+        </div>
+        <div style="text-align: right;">
+          <div>${item.quantity}x @ ${parseFloat(item.price).toFixed(2)} ${currencySymbol}</div>
+          <strong style="color: var(--brand-blue);">${(item.quantity * parseFloat(item.price)).toFixed(2)} ${currencySymbol}</strong>
+        </div>
+      </div>
+    `).join("");
+
+    modalContent.innerHTML = `
+      <div style="margin-bottom: 1.25rem;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; background: var(--bg-secondary); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+          <div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">Customer Name</div>
+            <strong style="color: var(--text-main); font-size: 0.95rem;">${order.customerName || '—'}</strong>
+          </div>
+          <div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">Phone Number</div>
+            <strong style="color: var(--text-main); font-size: 0.95rem;" dir="ltr">${order.customerPhone || '—'}</strong>
+          </div>
+          <div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">Delivery Address</div>
+            <strong style="color: var(--text-main); font-size: 0.95rem;">${order.customerAddress || '—'}</strong>
+          </div>
+          <div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">Order Date</div>
+            <strong style="color: var(--text-main); font-size: 0.95rem;">${dateStr}</strong>
+          </div>
+        </div>
+        ${order.notes ? `<div style="margin-top: 0.75rem; font-size: 0.88rem; background: rgba(14,165,233,0.08); padding: 8px 12px; border-radius: var(--radius-sm);"><strong>Notes:</strong> ${order.notes}</div>` : ''}
+      </div>
+
+      <h4 style="font-size: 1rem; margin-bottom: 0.5rem; color: var(--text-main);">Ordered Products</h4>
+      <div style="margin-bottom: 1.25rem;">
+        ${itemsHtml}
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-secondary); padding: 1rem; border-radius: var(--radius-md); font-size: 1.1rem; font-weight: 800;">
+        <span>Final Total Amount:</span>
+        <span style="color: var(--brand-blue);">${parseFloat(order.finalTotal || order.total || 0).toFixed(2)} ${currencySymbol}</span>
+      </div>
+
+      <div style="margin-top: 1.25rem; display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <button type="button" class="btn btn-secondary" onclick="AdminController.generateInvoice('${orderId}')">🖨️ Print Invoice</button>
+        <button type="button" class="btn btn-primary" onclick="document.getElementById('adminOrderDetailsModal').classList.remove('active')">Close</button>
+      </div>
+    `;
+
+    modal.classList.add("active");
+  },
+
+  generateInvoice(orderId) {
+    const order = this.orders[orderId];
+    if (!order) {
+      this.showNotification("Order not found", "error");
+      return;
+    }
+
+    const storeInfo = (this.storeInfo && this.storeInfo) || {};
+    const storeName = storeInfo.storeName || "New Desgin";
+    const storePhone = storeInfo.phone || storeInfo.whatsapp || "+218 92-4295050";
+    const storeEmail = storeInfo.email || "Altasmemaljaded@gmail.com";
+    const storeLogo = "Images/Logo-noBG.png";
+
+    const date = new Date(order.timestamp || Date.now());
+    const formattedDate = date.toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
+    const formattedTime = date.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+
+    const statusMap = {
+      'pending': { text: 'قيد الانتظار', bg: '#fef3c7', color: '#b45309' },
+      'processing': { text: 'قيد التنفيذ', bg: '#e0f2fe', color: '#0369a1' },
+      'shipped': { text: 'تم الشحن', bg: '#e0e7ff', color: '#4338ca' },
+      'completed': { text: 'مكتملة', bg: '#dcfce7', color: '#15803d' },
+      'delivered': { text: 'تم التوصيل', bg: '#dcfce7', color: '#15803d' },
+      'cancelled': { text: 'ملغاة', bg: '#fee2e2', color: '#b91c1c' },
+      'canceled': { text: 'ملغاة', bg: '#fee2e2', color: '#b91c1c' }
+    };
+    const stKey = (order.status || 'pending').toLowerCase();
+    const stInfo = statusMap[stKey] || { text: order.status, bg: '#f1f5f9', color: '#334155' };
+
+    const currencySymbol = order.currency === 'USD' || order.currency === '$' ? '$' : 'د.ل';
+
+    let itemsRows = '';
+    let calcSubtotal = 0;
+    if (order.items && order.items.length > 0) {
+      order.items.forEach((item, idx) => {
+        const qty = item.quantity || 1;
+        const unitPrice = parseFloat(item.price || 0);
+        const lineTotal = unitPrice * qty;
+        calcSubtotal += lineTotal;
+        const imgAttr = item.image ? `<img src="${item.image}" style="width: 38px; height: 38px; object-fit: cover; border-radius: 6px; border: 1px solid #e2e8f0; vertical-align: middle; margin-left: 8px;">` : '';
+
+        itemsRows += `
+          <tr>
+            <td style="text-align: center; font-weight: 700; color: #64748b;">${idx + 1}</td>
+            <td style="display: flex; align-items: center;">
+              ${imgAttr}
+              <div>
+                <div style="font-weight: 700; color: #0f172a;">${item.nameAr || item.name}</div>
+                <div style="font-size: 0.78rem; color: #64748b; margin-top: 2px;">
+                  ${item.size ? `<span style="background:#f1f5f9; padding:2px 6px; border-radius:4px; margin-left:4px;">مقاس: ${item.size}</span>` : ''}
+                  ${item.color ? `<span style="background:#f1f5f9; padding:2px 6px; border-radius:4px;">لون: ${item.color}</span>` : ''}
+                </div>
+              </div>
+            </td>
+            <td style="text-align: center; font-weight: 700; color: #0f172a;"><span style="background: #f1f5f9; padding: 4px 10px; border-radius: 20px; border: 1px solid #e2e8f0;">${qty}</span></td>
+            <td style="text-align: left; font-weight: 600; color: #334155;">${unitPrice.toFixed(2)} ${currencySymbol}</td>
+            <td style="text-align: left; font-weight: 800; color: #0284c7;">${lineTotal.toFixed(2)} ${currencySymbol}</td>
+          </tr>
+        `;
+      });
+    }
+
+    const finalTotalNum = parseFloat(order.finalTotal || order.total || calcSubtotal);
+    const trackUrl = `${window.location.origin}/track.html?id=${order.orderId || orderId}`;
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=${encodeURIComponent(trackUrl)}`;
+
+    const invoiceHtml = `
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فاتورة طلب #${order.orderId || orderId} - ${storeName}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Cairo', system-ui, -apple-system, sans-serif; background: #f8fafc; color: #0f172a; padding: 24px 12px; direction: rtl; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .print-actions { max-width: 840px; margin: 0 auto 16px; display: flex; justify-content: space-between; align-items: center; }
+        .print-btn { padding: 10px 24px; background: #0284c7; color: white; border: none; border-radius: 8px; font-family: 'Cairo', sans-serif; font-size: 0.95rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.2s; }
+        .print-btn:hover { background: #0369a1; }
+        .close-btn { padding: 10px 20px; background: #e2e8f0; color: #334155; border: none; border-radius: 8px; font-family: 'Cairo', sans-serif; font-size: 0.9rem; font-weight: 700; cursor: pointer; }
+        .close-btn:hover { background: #cbd5e1; }
+        
+        .invoice-card { max-width: 840px; margin: 0 auto; background: #ffffff; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; overflow: hidden; }
+        
+        /* Header */
+        .inv-header { background: linear-gradient(135deg, #0b192c 0%, #1e293b 100%); color: #ffffff; padding: 2.2rem 2.5rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #0284c7; }
+        .store-brand { display: flex; align-items: center; gap: 16px; }
+        .store-logo { height: 56px; width: auto; object-fit: contain; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.2)); }
+        .store-title { font-size: 1.6rem; font-weight: 900; letter-spacing: -0.5px; color: #ffffff; }
+        .store-sub { font-size: 0.85rem; color: #94a3b8; margin-top: 2px; }
+        
+        .inv-badge-box { text-align: left; }
+        .inv-title { font-size: 1.4rem; font-weight: 800; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px; }
+        .inv-id { font-size: 1.1rem; font-weight: 800; color: #ffffff; font-family: monospace; margin-top: 2px; }
+        .st-badge { display: inline-block; padding: 4px 14px; border-radius: 20px; font-size: 0.82rem; font-weight: 800; margin-top: 6px; }
+        
+        /* Meta Info Grid */
+        .inv-meta-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; padding: 1.5rem 2.5rem; background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+        .meta-item { background: #ffffff; padding: 0.85rem 1.1rem; border-radius: 10px; border: 1px solid #e2e8f0; }
+        .meta-item-label { font-size: 0.78rem; color: #64748b; font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+        .meta-item-val { font-size: 0.95rem; font-weight: 800; color: #0f172a; word-break: break-word; }
+        
+        /* Body */
+        .inv-body { padding: 2rem 2.5rem; }
+        .section-title { font-size: 1.05rem; font-weight: 800; color: #0284c7; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; }
+        
+        .items-table { width: 100%; border-collapse: collapse; margin-bottom: 1.75rem; }
+        .items-table th { background: #f1f5f9; color: #475569; font-weight: 800; font-size: 0.85rem; padding: 12px 14px; text-align: right; border-bottom: 2px solid #cbd5e1; }
+        .items-table td { padding: 14px 14px; border-bottom: 1px solid #f1f5f9; font-size: 0.92rem; }
+        
+        /* Summary Section */
+        .inv-summary-container { display: flex; justify-content: space-between; align-items: flex-start; gap: 1.5rem; flex-wrap: wrap; }
+        .notes-card { flex: 1; min-width: 260px; background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 10px; padding: 1rem 1.25rem; font-size: 0.88rem; color: #0369a1; }
+        .notes-card strong { display: block; margin-bottom: 4px; color: #0284c7; font-size: 0.9rem; }
+        
+        .summary-box { width: 320px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.2rem 1.4rem; }
+        .summary-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.9rem; color: #475569; font-weight: 600; }
+        .summary-row.total { border-top: 2px solid #0284c7; margin-top: 8px; padding-top: 12px; font-size: 1.25rem; font-weight: 900; color: #0f172a; }
+        
+        /* QR & Tracking */
+        .inv-qr-section { display: flex; align-items: center; justify-content: center; gap: 1rem; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1rem 1.5rem; margin-top: 1.75rem; text-align: right; }
+        .qr-img { width: 84px; height: 84px; border-radius: 8px; border: 1px solid #cbd5e1; padding: 3px; background: white; }
+        
+        /* Footer */
+        .inv-footer { background: #f8fafc; padding: 1.5rem 2.5rem; border-top: 1px solid #e2e8f0; text-align: center; }
+        .inv-footer-text { font-size: 1rem; font-weight: 800; color: #0284c7; margin-bottom: 4px; }
+        .inv-footer-sub { font-size: 0.82rem; color: #64748b; }
+
+        @media print {
+            body { background: #ffffff; padding: 0; }
+            .print-actions { display: none !important; }
+            .invoice-card { box-shadow: none; border: none; max-width: 100%; width: 100%; border-radius: 0; }
+            .inv-header { padding: 1.5rem 2rem; }
+            .inv-meta-grid { padding: 1rem 2rem; }
+            .inv-body { padding: 1.5rem 2rem; }
+            .inv-footer { padding: 1.2rem 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="print-actions">
+        <button class="print-btn" onclick="window.print()">🖨️ طباعة الفاتورة / Print</button>
+        <button class="close-btn" onclick="window.close()">❌ إغلاق / Close</button>
+    </div>
+
+    <div class="invoice-card">
+        <!-- Header -->
+        <div class="inv-header">
+            <div class="store-brand">
+                <img src="${storeLogo}" class="store-logo" alt="${storeName}" onerror="this.style.display='none'">
+                <div>
+                    <div class="store-title">${storeName}</div>
+                    <div class="store-sub">📞 ${storePhone} &nbsp;|&nbsp; ✉️ ${storeEmail}</div>
+                </div>
+            </div>
+            <div class="inv-badge-box">
+                <div class="inv-title">فاتورة مبيعات</div>
+                <div class="inv-id">#${order.orderId || orderId}</div>
+                <div><span class="st-badge" style="background: ${stInfo.bg}; color: ${stInfo.color};">${stInfo.text}</span></div>
+            </div>
+        </div>
+
+        <!-- Meta Information -->
+        <div class="inv-meta-grid">
+            <div class="meta-item">
+                <div class="meta-item-label">👤 بيانات العميل</div>
+                <div class="meta-item-val">${order.customerName || order.name || 'عميل محترم'}</div>
+                <div style="font-size: 0.82rem; color: #64748b; font-weight: 600; margin-top: 2px;" dir="ltr">${order.customerPhone || order.phone || ''}</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-item-label">📍 عنوان التوصيل</div>
+                <div class="meta-item-val">${order.customerAddress || order.address || 'طرابلس، ليبيا'}</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-item-label">📅 تاريخ ووقت الطلب</div>
+                <div class="meta-item-val">${formattedDate}</div>
+                <div style="font-size: 0.82rem; color: #64748b; font-weight: 600; margin-top: 2px;">${formattedTime}</div>
+            </div>
+        </div>
+
+        <!-- Body -->
+        <div class="inv-body">
+            <div class="section-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+                <span>المنتجات المطلوبة</span>
+            </div>
+
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th style="width: 40px; text-align: center;">#</th>
+                        <th>المنتج</th>
+                        <th style="width: 90px; text-align: center;">الكمية</th>
+                        <th style="width: 120px; text-align: left;">السعر</th>
+                        <th style="width: 130px; text-align: left;">المجموع</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${itemsRows}
+                </tbody>
+            </table>
+
+            <!-- Summary & Notes -->
+            <div class="inv-summary-container">
+                ${order.notes ? `
+                <div class="notes-card">
+                    <strong>📝 ملاحظات العميل:</strong>
+                    <div>${order.notes}</div>
+                </div>
+                ` : `
+                <div class="notes-card" style="background: #f8fafc; border-color: #e2e8f0; color: #64748b;">
+                    <strong>💳 طريقة الدفع:</strong>
+                    <div>الدفع عند الاستلام (Cash on Delivery)</div>
+                </div>
+                `}
+
+                <div class="summary-box">
+                    <div class="summary-row">
+                        <span>المجموع الفرعي:</span>
+                        <span>${calcSubtotal.toFixed(2)} ${currencySymbol}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>رسوم التوصيل:</span>
+                        <span style="color: #10b981;">مجاني</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>المجموع الكلي:</span>
+                        <span style="color: #0284c7;">${finalTotalNum.toFixed(2)} ${currencySymbol}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- QR Section -->
+            <div class="inv-qr-section">
+                <img src="${qrUrl}" alt="QR Code" class="qr-img">
+                <div>
+                    <div style="font-weight: 800; font-size: 0.95rem; color: #0f172a;">تتبع حالة شحنتك المباشرة</div>
+                    <div style="font-size: 0.82rem; color: #64748b; margin-top: 2px;">امسح كود QR عبر كاميرا هاتفك للانتقال لصفحة التتبع لطلبك مباشرة</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="inv-footer">
+            <div class="inv-footer-text">شكراً لشرائكم من ${storeName} ✨</div>
+            <div class="inv-footer-sub">${storeName} • أرقى تشكيلات الملابس والأزياء الفاخرة | تواصلوا معنا دائماً عبر الواتساب</div>
+        </div>
+    </div>
+</body>
+</html>
+    `;
+
+    const invoiceWindow = window.open('', '_blank');
+    if (invoiceWindow) {
+      invoiceWindow.document.write(invoiceHtml);
+      invoiceWindow.document.close();
+    } else {
+      this.showNotification("يرجى السماح بالنوافذ المنبثقة لعرض الفاتورة", "error");
     }
   },
 
