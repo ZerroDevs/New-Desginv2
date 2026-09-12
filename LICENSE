@@ -1,28 +1,24 @@
-PROPRIETARY & ALL RIGHTS RESERVED LICENSE
+CUSTOM SOURCE-AVAILABLE & NON-COMMERCIAL LICENSE
 
-Copyright (c) 2026 New Desgin Store. All Rights Reserved.
+Copyright (c) 2026 New Desgin Store.
 Developed & Created by ZerroDevs (https://github.com/ZerroDevs).
 
-IMPORTANT NOTICE:
-This software, source code, database architecture, design system, graphics, and associated documentation files (collectively, the "Software") are custom-developed exclusively for the official New Desgin store.
+PERMITTED USES (WHAT YOU CAN DO):
+1. FORKING & STUDYING:
+   Anyone is welcome to fork this repository, star it, study the codebase, and inspect the project architecture.
+2. COMPONENT & MODULE REUSE:
+   Developers and learners are permitted to reference, copy, adapt, or reuse individual JavaScript modules (cart engine, i18n switcher, currency manager), UI components, CSS styling, and design patterns for educational purposes, personal learning, or building their own projects.
 
-TERMS & CONDITIONS:
+RESTRICTIONS (WHAT YOU CANNOT DO):
+1. NO BRAND IMPERSONATION:
+   You may NOT host or deploy an operational commercial web store using the official "New Desgin" brand name, logo, or trademark.
+2. NO DIRECT RESALE:
+   You may NOT package and sell this full website codebase as a commercial template or turn-key store without significant modification.
 
-1. PROPRIETARY RIGHTS & OWNERSHIP:
-   The Software is the exclusive property of New Desgin and ZerroDevs. All title, ownership rights, and intellectual property rights in and to the Software shall remain with New Desgin and ZerroDevs.
+ATTRIBUTION:
+When reusing or adapting significant portions of this code or UI components, keeping credit to ZerroDevs (https://github.com/ZerroDevs) is appreciated.
 
-2. RESTRICTIONS ON USE:
-   No person, entity, student, developer, or third party is granted permission to inspect, copy, reproduce, clone, modify, merge, publish, distribute, sublicense, host, sell, or use this Software for:
-   - Personal projects or personal portfolios
-   - Educational purposes, school work, or tutorials
-   - Commercial applications or derivative online stores
-   - Open-source distribution or public mirroring
+DISCLAIMER:
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY.
 
-3. ABSOLUTE NO RE-USE POLICY:
-   Using, adapting, or deploying any portion of this codebase—including HTML layouts, JavaScript modules (auth, admin permissions, cart engines), CSS stylesheets, or database rules—without direct written consent from ZerroDevs is strictly prohibited and constitutes a violation of international copyright laws.
-
-4. DISCLAIMER OF WARRANTY:
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY.
-
-For inquiries or formal permission requests, contact:
 Developer Profile: https://github.com/ZerroDevs

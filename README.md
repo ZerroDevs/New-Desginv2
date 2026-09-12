@@ -1,6 +1,6 @@
 # 🛍️ New Desgin — Official E-Commerce Storefront & Admin Portal
 
-[![License: Proprietary](https://img.shields.io/badge/License-Proprietary-red.svg)](LICENSE)
+[![License: Source-Available](https://img.shields.io/badge/License-Source--Available-blue.svg)](LICENSE)
 [![Developer: ZerroDevs](https://img.shields.io/badge/Developer-@ZerroDevs-0284c7.svg?style=flat&logo=github)](https://github.com/ZerroDevs)
 [![Build Status](https://img.shields.io/badge/Status-Production%20Ready-success.svg)]()
 [![Stack](https://img.shields.io/badge/Tech-HTML5%20%7C%20CSS3%20%7C%20JavaScript%20%7C%20Firebase-orange.svg)]()
@@ -18,12 +18,13 @@ Developed with precision and modern solid aesthetics by **ZerroDevs**:
 
 ---
 
-## 🔒 Proprietary License Notice
+## 🔓 Open Learning & Reuse Guidelines
 
-> [!CAUTION]
-> **STRICTLY PROPRIETARY CODEBASE — ALL RIGHTS RESERVED**  
-> This repository and its entire source code were created exclusively for **New Desgin**.  
-> **NO ONE** is permitted to copy, inspect, clone, modify, distribute, sublicense, or use this codebase for **personal, educational, commercial, or open-source purposes**. See the full [`LICENSE`](LICENSE) for complete terms.
+> [!TIP]
+> **FEEL FREE TO FORK & REUSE COMPONENTS!**  
+> You are welcome to **fork** this repository, study the source code, and reuse any of the JavaScript modules, CSS styling, or UI components for **learning, education, or personal projects**.  
+> 
+> *Note*: The only restriction is that you may not impersonate the official **New Desgin** store or deploy a commercial business using the official store brand/logo. See the [`LICENSE`](LICENSE) for full details.
 
 ---
 
@@ -59,5 +60,5 @@ Developed with precision and modern solid aesthetics by **ZerroDevs**:
 
 ## 📄 License
 
-Copyright © 2026 **New Desgin Store**. All Rights Reserved.  
-Created and maintained by **[@ZerroDevs](https://github.com/ZerroDevs)**.
+Distributed under a Custom Source-Available & Non-Commercial License.  
+Created and maintained with ❤️ by **[@ZerroDevs](https://github.com/ZerroDevs)**.
