@@ -522,8 +522,6 @@ const CartManager = {
       address: address,
       customerAddress: address,
       notes: notes || "",
-      bankIban: bankIban,
-      bankAccountTitle: bankAccountTitle,
       receiptImage: this.currentReceiptDataUrl || null,
       items: this.items.map(item => ({
         id: item.id || "",
@@ -615,14 +613,10 @@ const CartManager = {
         `الهاتف: ${phone}\n` +
         `العنوان: ${address}\n` +
         (notes ? `ملاحظات: ${notes}\n` : "") +
-        `\nمعلومات التحويل البنكي:\n` +
-        `IBAN: ${bankIban}\n` +
-        `اسم الحساب: ${bankAccountTitle}\n` +
         (hasReceipt ? `إيصال التحويل: تم إرفاق صورة الإيصال مع الطلب عبر الموقع ✓\n` : "") +
         `\nالمنتجات المطلوبة:\n${itemsListText}\n\n` +
         (hasUnspecifiedVariant ? `تنبيه: يرجى توضيح تفاصيل المقاس واللون للمنتجات غير المحددة في المحادثة.\n\n` : "") +
         `المجموع الإجمالي: ${formattedTotal}\n\n` +
-        `تتبع حالة طلبك من هنا:\n${window.location.origin}/track.html?id=${orderNum}\n\n` +
         `شكراً لكم!`;
     } else {
       waMessage = `Hello, I would like to confirm a new order from New Desgin\n\n` +
@@ -631,14 +625,10 @@ const CartManager = {
         `Phone: ${phone}\n` +
         `Address: ${address}\n` +
         (notes ? `Notes: ${notes}\n` : "") +
-        `\nBank Transfer Details:\n` +
-        `IBAN: ${bankIban}\n` +
-        `Account: ${bankAccountTitle}\n` +
         (hasReceipt ? `Receipt: Payment receipt photo attached with order on website ✓\n` : "") +
         `\nOrdered Items:\n${itemsListText}\n\n` +
         (hasUnspecifiedVariant ? `Note: Please specify size & color preference for items marked above in this chat.\n\n` : "") +
         `Total Amount: ${formattedTotal}\n\n` +
-        `Track your order status here:\n${window.location.origin}/track.html?id=${orderNum}\n\n` +
         `Thank you!`;
     }
 

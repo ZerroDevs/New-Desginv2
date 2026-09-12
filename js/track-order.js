@@ -225,7 +225,6 @@ const TrackOrderEngine = {
             <div class="info-row"><span>${isAr ? 'الهاتف:' : 'Phone:'}</span> <strong dir="ltr">${order.customerPhone || '—'}</strong></div>
             <div class="info-row"><span>${isAr ? 'العنوان:' : 'Address:'}</span> <strong>${order.customerAddress || '—'}</strong></div>
             ${order.notes ? `<div class="info-row"><span>${isAr ? 'ملاحظات:' : 'Notes:'}</span> <strong>${order.notes}</strong></div>` : ''}
-            ${order.bankIban ? `<div class="info-row"><span>${isAr ? 'الآيبان:' : 'Bank IBAN:'}</span> <strong dir="ltr" style="font-family: monospace;">${order.bankIban}</strong></div>` : ''}
             ${order.receiptImage ? `
               <div style="margin-top: 0.75rem; padding-top: 0.5rem; border-top: 1px dashed var(--border-color);">
                 <div style="font-size: 0.82rem; font-weight: 700; color: #10b981; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg> <span>${isAr ? 'إيصال التحويل المرفق:' : 'Attached Receipt:'}</span></div>
