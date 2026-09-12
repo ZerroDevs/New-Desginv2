@@ -1,0 +1,22 @@
+# robots.txt for New Desgin Official Store
+
+User-agent: *
+Allow: /index.html
+Allow: /products.html
+Allow: /product.html
+Allow: /track.html
+Allow: /faq.html
+Allow: /terms.html
+Allow: /support.html
+Allow: /css/
+Allow: /js/
+Allow: /Images/
+
+# Disallow administrative & account pages from search engine indexing
+Disallow: /admin.html
+Disallow: /profile.html
+Disallow: /order-success.html
+Disallow: /404.html
+
+# Sitemap reference
+Sitemap: https://newdesgin.ly/sitemap.xml

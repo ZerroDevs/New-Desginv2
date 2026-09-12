@@ -6,11 +6,97 @@
 
 const CartManager = {
   items: [],
+  appliedCoupon: null,
 
   init() {
     this.loadCart();
     this.bindEvents();
     this.render();
+  },
+
+  async applyCoupon(code) {
+    if (!code) return;
+    const cleanCode = code.trim().toUpperCase();
+    const isAr = typeof I18nManager !== "undefined" && I18nManager.currentLang === "ar";
+
+    try {
+      if (typeof firebase !== "undefined" && firebase.database) {
+        if (!firebase.apps.length && typeof APP_CONFIG !== "undefined") {
+          firebase.initializeApp(APP_CONFIG.firebase);
+        }
+        const snap = await firebase.database().ref("coupons/" + cleanCode).once("value");
+        if (snap.exists()) {
+          const coupon = snap.val();
+          if (coupon.active === false) {
+            if (window.AppCoordinator) AppCoordinator.showToast(isAr ? "كوبون الخصم غير نَشِط حالياً" : "Coupon is inactive.", "error");
+            return;
+          }
+
+          const subtotalUSD = this.calculateSubtotal();
+          if (coupon.minOrderValue && subtotalUSD < coupon.minOrderValue) {
+            const minFmt = typeof CurrencyManager !== "undefined" ? CurrencyManager.format(coupon.minOrderValue) : `$${coupon.minOrderValue}`;
+            if (window.AppCoordinator) AppCoordinator.showToast(isAr ? `الحد الأدنى للطلب لاستخدام الكوبون هو ${minFmt}` : `Minimum order amount for coupon is ${minFmt}`, "warning");
+            return;
+          }
+
+          this.appliedCoupon = {
+            code: cleanCode,
+            type: coupon.type,
+            discountValue: coupon.discountValue,
+            minOrderValue: coupon.minOrderValue || 0
+          };
+
+          if (window.AppCoordinator) AppCoordinator.showToast(isAr ? `تم تطبيق كود الخصم (${cleanCode}) بنجاح! ✓` : `Promo code ${cleanCode} applied! ✓`, "success");
+          this.render();
+          if (document.getElementById("ndCheckoutModal") && document.getElementById("ndCheckoutModal").classList.contains("active")) {
+            this.openCheckoutModal();
+          }
+          return;
+        }
+      }
+      if (window.AppCoordinator) AppCoordinator.showToast(isAr ? "كوبون الخصم غير صحيح أو منتهي الصلاحية" : "Invalid or expired promo code.", "error");
+    } catch (e) {
+      console.warn("Apply coupon error:", e);
+      if (window.AppCoordinator) AppCoordinator.showToast(e.message, "error");
+    }
+  },
+
+  applyCouponFromInput() {
+    const input = document.getElementById("cartCouponInput");
+    if (input && input.value) {
+      this.applyCoupon(input.value);
+    }
+  },
+
+  removeCoupon() {
+    this.appliedCoupon = null;
+    const isAr = typeof I18nManager !== "undefined" && I18nManager.currentLang === "ar";
+    if (window.AppCoordinator) AppCoordinator.showToast(isAr ? "تم إزالة كود الخصم" : "Coupon removed.", "info");
+    this.render();
+    if (document.getElementById("ndCheckoutModal") && document.getElementById("ndCheckoutModal").classList.contains("active")) {
+      this.openCheckoutModal();
+    }
+  },
+
+  calculateDiscount() {
+    if (!this.appliedCoupon) return 0;
+    const subtotalUSD = this.calculateSubtotal();
+    if (this.appliedCoupon.minOrderValue && subtotalUSD < this.appliedCoupon.minOrderValue) {
+      return 0;
+    }
+
+    if (this.appliedCoupon.type === "percentage") {
+      return subtotalUSD * (parseFloat(this.appliedCoupon.discountValue || 0) / 100);
+    } else if (this.appliedCoupon.type === "fixed") {
+      return Math.min(subtotalUSD, parseFloat(this.appliedCoupon.discountValue || 0));
+    }
+    return 0;
+  },
+
+  calculateFinalTotal() {
+    const subtotalUSD = this.calculateSubtotal();
+    const discountUSD = this.calculateDiscount();
+    return Math.max(0, subtotalUSD - discountUSD);
   },
 
   loadCart() {
@@ -79,8 +165,12 @@ const CartManager = {
 
     this.currentReceiptDataUrl = null;
     const isAr = typeof I18nManager !== "undefined" && I18nManager.currentLang === "ar";
-    const subtotal = this.calculateSubtotal();
-    const formattedTotal = typeof CurrencyManager !== "undefined" ? CurrencyManager.format(subtotal) : `${subtotal} LYD`;
+    const subtotalUSD = this.calculateSubtotal();
+    const discountUSD = this.calculateDiscount();
+    const finalTotalUSD = this.calculateFinalTotal();
+
+    const formattedTotal = typeof CurrencyManager !== "undefined" ? CurrencyManager.format(finalTotalUSD) : `${finalTotalUSD} LYD`;
+    const formattedDiscount = typeof CurrencyManager !== "undefined" ? CurrencyManager.format(discountUSD) : `${discountUSD} LYD`;
     const curSymbol = (typeof CurrencyManager !== "undefined" && CurrencyManager.currentCurrency) ? CurrencyManager.currentCurrency : "LYD";
 
     const bankIban = (typeof StoreInfoManager !== "undefined" && StoreInfoManager.data && StoreInfoManager.data.bankIban)
@@ -104,6 +194,7 @@ const CartManager = {
             <div class="nd-checkout-summary">
               <div>
                 <div>${isAr ? "إجمالي المنتجات:" : "Total Items:"} <strong>${this.getTotalCount()}</strong></div>
+                ${this.appliedCoupon ? `<div style="color: #10b981; font-size: 0.85rem; font-weight: 700; margin-top: 2px;">${isAr ? 'خصم الكوبون' : 'Coupon Discount'} (${this.appliedCoupon.code}): -${formattedDiscount}</div>` : ''}
                 <div style="margin-top: 4px;">
                   ${isAr ? "الإجمالي النهائي:" : "Final Total:"} 
                   <strong id="chkSummaryTotal" style="color: var(--brand-blue); font-weight: 800; font-size: 1.05rem;">${formattedTotal}</strong>
@@ -372,7 +463,6 @@ const CartManager = {
 
     const orderNum = "ND-" + Math.floor(100000 + Math.random() * 900000);
     const subtotal = this.calculateSubtotal();
-    const formattedTotal = typeof CurrencyManager !== "undefined" ? CurrencyManager.format(subtotal) : `${subtotal} LYD`;
     const currency = (typeof CurrencyManager !== "undefined" && CurrencyManager.currentCurrency) ? CurrencyManager.currentCurrency : "LYD";
 
     const authUser = (typeof AuthManager !== "undefined" && AuthManager.currentUser) ? AuthManager.currentUser : null;
@@ -411,6 +501,12 @@ const CartManager = {
 
     const hasReceipt = !!this.currentReceiptDataUrl;
 
+    const subtotalUSD = this.calculateSubtotal();
+    const discountUSD = this.calculateDiscount();
+    const finalTotalUSD = this.calculateFinalTotal();
+    const formattedTotal = typeof CurrencyManager !== "undefined" ? CurrencyManager.format(finalTotalUSD) : `${finalTotalUSD} ${currency}`;
+    const formattedDiscount = typeof CurrencyManager !== "undefined" ? CurrencyManager.format(discountUSD) : `${discountUSD} ${currency}`;
+
     const orderData = {
       orderId: orderNum,
       id: orderNum,
@@ -438,8 +534,10 @@ const CartManager = {
         size: item.size || "Standard",
         color: item.color || "Standard"
       })),
-      total: subtotal,
-      finalTotal: subtotal,
+      total: subtotalUSD,
+      discount: discountUSD,
+      couponCode: this.appliedCoupon ? this.appliedCoupon.code : null,
+      finalTotal: finalTotalUSD,
       totalFormatted: formattedTotal,
       currency: currency,
       language: isAr ? "ar" : "en"
@@ -761,11 +859,46 @@ const CartManager = {
       `;
     }).join("");
 
-    const subtotal = this.calculateSubtotal();
-    const formattedTotal = CurrencyManager.format(subtotal);
+    const subtotalUSD = this.calculateSubtotal();
+    const discountUSD = this.calculateDiscount();
+    const finalTotalUSD = this.calculateFinalTotal();
 
-    if (subtotalEl) subtotalEl.textContent = formattedTotal;
-    if (totalEl) totalEl.textContent = formattedTotal;
+    const formattedSubtotal = CurrencyManager.format(subtotalUSD);
+    const formattedDiscount = CurrencyManager.format(discountUSD);
+    const formattedFinalTotal = CurrencyManager.format(finalTotalUSD);
+
+    if (subtotalEl) subtotalEl.textContent = formattedSubtotal;
+    if (totalEl) totalEl.textContent = formattedFinalTotal;
+
+    // Render coupon input / applied badge in cart drawer footer
+    let couponContainer = document.getElementById("cartCouponWrap");
+    if (!couponContainer && footerContainer) {
+      couponContainer = document.createElement("div");
+      couponContainer.id = "cartCouponWrap";
+      couponContainer.style.padding = "0.75rem 1.25rem 0 1.25rem";
+      footerContainer.insertBefore(couponContainer, footerContainer.firstChild);
+    }
+
+    if (couponContainer) {
+      if (this.appliedCoupon) {
+        couponContainer.innerHTML = `
+          <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: var(--radius-sm); padding: 0.45rem 0.65rem; display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.65rem;">
+            <div style="display: flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 700; color: #10b981;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+              <span>${this.appliedCoupon.code} (${this.appliedCoupon.type === "percentage" ? `${this.appliedCoupon.discountValue}% OFF` : this.appliedCoupon.type === "freeship" ? "Free Delivery" : `-${formattedDiscount}`})</span>
+            </div>
+            <button type="button" onclick="CartManager.removeCoupon()" style="background: none; border: none; color: var(--error); cursor: pointer; font-size: 0.85rem; font-weight: 700;" title="Remove Coupon">✕</button>
+          </div>
+        `;
+      } else {
+        couponContainer.innerHTML = `
+          <div style="display: flex; gap: 0.4rem; margin-bottom: 0.65rem;">
+            <input type="text" id="cartCouponInput" class="form-input" style="font-family: monospace; text-transform: uppercase; padding: 0.4rem 0.65rem; font-size: 0.8rem; font-weight: 700; flex: 1; border-radius: var(--radius-sm);" placeholder="${isArabic ? 'كود الخصم (WELCOME10)' : 'Promo Code'}" />
+            <button type="button" class="btn btn-secondary btn-sm" onclick="CartManager.applyCouponFromInput()" style="white-space: nowrap; font-weight: 700; padding: 0.4rem 0.85rem;">${isArabic ? 'تطبيق' : 'Apply'}</button>
+          </div>
+        `;
+      }
+    }
   }
 };
 

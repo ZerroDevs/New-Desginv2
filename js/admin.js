@@ -129,6 +129,7 @@ const AdminController = {
           this.loadSupportTickets();
           this.loadOrders();
           this.loadAnnouncementSettings();
+          this.loadCoupons();
 
           this.applyRolePermissions(user);
         } else {
@@ -422,6 +423,7 @@ const AdminController = {
         "store-info": "Store Info & Policies",
         "support-tickets": "Customer Support Tickets",
         admins: "Admin Access & Security",
+        coupons: "Coupons & Promo Codes",
         homepage: "Homepage Content"
       };
       pageTitle.textContent = titles[tabName] || "Admin Panel";
@@ -2107,6 +2109,270 @@ const AdminController = {
     } else {
       this.showNotification("يرجى السماح بالنوافذ المنبثقة لعرض الفاتورة", "error");
     }
+  },
+
+  /* ========================================================================
+     COUPONS & PROMO CODES MANAGEMENT
+     ======================================================================== */
+  coupons: {},
+
+  loadCoupons() {
+    if (!this.db) return;
+    this.db.ref("coupons").on("value", snapshot => {
+      const data = snapshot.val();
+      this.coupons = data || {};
+      this.renderCouponsList();
+    });
+  },
+
+  filterCoupons() {
+    this.renderCouponsList();
+  },
+
+  renderCouponsList() {
+    const tableBody = document.getElementById("couponsTableBody");
+    const emptyState = document.getElementById("couponsEmptyState");
+    if (!tableBody) return;
+
+    const allKeys = Object.keys(this.coupons);
+
+    // Calculate Summary Stats
+    let totalCount = allKeys.length;
+    let activeCount = 0;
+    let percentCount = 0;
+    let freeShipCount = 0;
+
+    allKeys.forEach(k => {
+      const item = this.coupons[k];
+      if (item.active !== false) activeCount++;
+      if (item.type === "percentage") percentCount++;
+      if (item.type === "freeship") freeShipCount++;
+    });
+
+    const statTotalEl = document.getElementById("statTotalCoupons");
+    const statActiveEl = document.getElementById("statActiveCoupons");
+    const statPercentEl = document.getElementById("statPercentCoupons");
+    const statFreeShipEl = document.getElementById("statFreeShipCoupons");
+
+    if (statTotalEl) statTotalEl.textContent = totalCount;
+    if (statActiveEl) statActiveEl.textContent = activeCount;
+    if (statPercentEl) statPercentEl.textContent = percentCount;
+    if (statFreeShipEl) statFreeShipEl.textContent = freeShipCount;
+
+    // Filter Search
+    const searchVal = document.getElementById("couponSearchInput")
+      ? document.getElementById("couponSearchInput").value.trim().toUpperCase()
+      : "";
+
+    const keys = allKeys.filter(code => !searchVal || code.toUpperCase().includes(searchVal));
+
+    if (keys.length === 0) {
+      tableBody.innerHTML = "";
+      if (emptyState) emptyState.style.display = "block";
+      return;
+    }
+
+    if (emptyState) emptyState.style.display = "none";
+
+    const currentUserInfo = this.getUserRoleInfo(this.currentUser ? this.currentUser.email : "");
+    const isSupportRole = currentUserInfo.role === "support";
+
+    tableBody.innerHTML = keys.map(code => {
+      const c = this.coupons[code];
+      const isActive = c.active !== false;
+
+      let typeTag = `<span class="coupon-type-tag percentage"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="5" x2="5" y2="19"></line><circle cx="6.5" cy="6.5" r="2.5"></circle><circle cx="17.5" cy="17.5" r="2.5"></circle></svg> Percentage (%)</span>`;
+      let valDisplay = `${c.discountValue}% OFF`;
+
+      if (c.type === "fixed") {
+        typeTag = `<span class="coupon-type-tag fixed"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg> Fixed Amount ($)</span>`;
+        valDisplay = `$${parseFloat(c.discountValue || 0).toFixed(2)} OFF`;
+      } else if (c.type === "freeship") {
+        typeTag = `<span class="coupon-type-tag freeship"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg> Free Shipping</span>`;
+        valDisplay = "100% Free Shipping";
+      }
+
+      const minOrderFmt = c.minOrderValue > 0
+        ? `<strong style="font-weight: 700;">$${parseFloat(c.minOrderValue).toFixed(2)}</strong>`
+        : `<span style="color: var(--text-muted);">No minimum</span>`;
+
+      return `
+        <tr>
+          <td>
+            <div class="coupon-code-chip">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                <line x1="7" y1="7" x2="7.01" y2="7"></line>
+              </svg>
+              <span>${code.toUpperCase()}</span>
+            </div>
+          </td>
+          <td>${typeTag}</td>
+          <td><span class="coupon-value-badge">${valDisplay}</span></td>
+          <td>${minOrderFmt}</td>
+          <td>
+            <span class="status-badge ${isActive ? 'visible' : 'hidden'}">
+              ${isActive ? 'Active' : 'Inactive'}
+            </span>
+          </td>
+          <td style="text-align: right;">
+            <div class="table-actions" style="justify-content: flex-end;">
+              ${!isSupportRole ? `
+                <button type="button" class="btn btn-secondary btn-sm" onclick="AdminController.toggleCouponStatus('${code}')" style="display: inline-flex; align-items: center; gap: 4px;">
+                  ${isActive ? 'Deactivate' : 'Activate'}
+                </button>
+                <button type="button" class="btn btn-danger btn-sm" onclick="AdminController.deleteCoupon('${code}')" style="display: inline-flex; align-items: center;">✕</button>
+              ` : `<span style="font-size: 0.8rem; color: var(--text-muted);">View Only</span>`}
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join("");
+  },
+
+  openCouponModal() {
+    const userInfo = this.getUserRoleInfo(this.currentUser ? this.currentUser.email : "");
+    if (userInfo.role === "support") {
+      this.showNotification("Support accounts cannot manage coupons.", "error");
+      return;
+    }
+    const form = document.getElementById("couponForm");
+    if (form) form.reset();
+    document.getElementById("coupCode").disabled = false;
+    this.onCouponTypeChange("percentage");
+    this.updateCouponPreview();
+    document.getElementById("couponModalOverlay").classList.add("active");
+  },
+
+  closeCouponModal() {
+    document.getElementById("couponModalOverlay").classList.remove("active");
+  },
+
+  onCouponTypeChange(val) {
+    const groupVal = document.getElementById("groupCouponValue");
+    const coupVal = document.getElementById("coupValue");
+    if (val === "freeship") {
+      if (groupVal) groupVal.style.display = "none";
+      if (coupVal) { coupVal.value = "0"; coupVal.required = false; }
+    } else {
+      if (groupVal) groupVal.style.display = "block";
+      if (coupVal) { coupVal.required = true; }
+    }
+  },
+
+  generateRandomCouponCode() {
+    const prefixes = ["PROMO", "SAVE", "FLASH", "DEAL", "SUMMER", "VIP"];
+    const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+    const num = Math.floor(10 + Math.random() * 90);
+    const code = `${prefix}${num}`;
+    const coupCodeEl = document.getElementById("coupCode");
+    if (coupCodeEl) {
+      coupCodeEl.value = code;
+      this.updateCouponPreview();
+    }
+  },
+
+  applyCouponPreset(code, type, value, minOrder) {
+    const coupCodeEl = document.getElementById("coupCode");
+    const coupTypeEl = document.getElementById("coupType");
+    const coupValueEl = document.getElementById("coupValue");
+    const coupMinOrderEl = document.getElementById("coupMinOrder");
+
+    if (coupCodeEl) coupCodeEl.value = code;
+    if (coupTypeEl) coupTypeEl.value = type;
+    if (coupValueEl) coupValueEl.value = value;
+    if (coupMinOrderEl) coupMinOrderEl.value = minOrder;
+
+    this.onCouponTypeChange(type);
+    this.updateCouponPreview();
+  },
+
+  updateCouponPreview() {
+    const code = (document.getElementById("coupCode") ? document.getElementById("coupCode").value : "").trim().toUpperCase() || "PROMO CODE";
+    const type = document.getElementById("coupType") ? document.getElementById("coupType").value : "percentage";
+    const value = parseFloat(document.getElementById("coupValue") ? document.getElementById("coupValue").value : 0) || 0;
+    const minOrder = parseFloat(document.getElementById("coupMinOrder") ? document.getElementById("coupMinOrder").value : 0) || 0;
+
+    const prevCodeEl = document.getElementById("prevCode");
+    const prevTypeTagEl = document.getElementById("prevTypeTag");
+    const prevValueEl = document.getElementById("prevValue");
+    const prevMinOrderEl = document.getElementById("prevMinOrder");
+
+    if (prevCodeEl) prevCodeEl.textContent = code;
+
+    if (type === "percentage") {
+      if (prevTypeTagEl) prevTypeTagEl.textContent = "PERCENTAGE DISCOUNT";
+      if (prevValueEl) prevValueEl.textContent = `${value}% OFF`;
+    } else if (type === "fixed") {
+      if (prevTypeTagEl) prevTypeTagEl.textContent = "FIXED AMOUNT DISCOUNT";
+      if (prevValueEl) prevValueEl.textContent = `$${value.toFixed(2)} OFF`;
+    } else if (type === "freeship") {
+      if (prevTypeTagEl) prevTypeTagEl.textContent = "FREE SHIPPING VOUCHER";
+      if (prevValueEl) prevValueEl.textContent = "100% FREE DELIVERY";
+    }
+
+    if (prevMinOrderEl) {
+      prevMinOrderEl.textContent = minOrder > 0
+        ? `Min. Order Required: $${minOrder.toFixed(2)}`
+        : "Min. Order: No minimum required";
+    }
+  },
+
+  handleSaveCoupon(e) {
+    e.preventDefault();
+    const userInfo = this.getUserRoleInfo(this.currentUser ? this.currentUser.email : "");
+    if (userInfo.role === "support") {
+      this.showNotification("Support accounts cannot create coupons.", "error");
+      return;
+    }
+
+    const rawCode = document.getElementById("coupCode").value.trim().toUpperCase();
+    const type = document.getElementById("coupType").value;
+    const value = parseFloat(document.getElementById("coupValue").value) || 0;
+    const minOrder = parseFloat(document.getElementById("coupMinOrder").value) || 0;
+
+    if (!rawCode) {
+      this.showNotification("Please enter a valid coupon code.", "error");
+      return;
+    }
+
+    const payload = {
+      code: rawCode,
+      type: type,
+      discountValue: value,
+      minOrderValue: minOrder,
+      active: true,
+      createdAt: Date.now()
+    };
+
+    const submitBtn = document.getElementById("saveCouponSubmitBtn");
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = "Saving..."; }
+
+    this.db.ref("coupons/" + rawCode).set(payload)
+      .then(() => {
+        this.showNotification(`Coupon ${rawCode} created successfully! ✓`, "success");
+        this.closeCouponModal();
+      })
+      .catch(err => this.showNotification("Error: " + err.message, "error"))
+      .finally(() => {
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = "Save Coupon to Firebase"; }
+      });
+  },
+
+  toggleCouponStatus(code) {
+    const coupon = this.coupons[code];
+    if (!coupon) return;
+    const newStatus = !coupon.active;
+    this.db.ref(`coupons/${code}/active`).set(newStatus)
+      .then(() => this.showNotification(`Coupon ${code} ${newStatus ? 'activated' : 'deactivated'}!`, "info"))
+      .catch(err => this.showNotification(err.message, "error"));
+  },
+
+  deleteCoupon(code) {
+    if (!confirm(`Are you sure you want to delete coupon "${code}"?`)) return;
+    this.db.ref("coupons/" + code).remove()
+      .then(() => this.showNotification(`Coupon ${code} deleted.`, "info"))
+      .catch(err => this.showNotification(err.message, "error"));
   },
 
   showNotification(message, type = "info") {

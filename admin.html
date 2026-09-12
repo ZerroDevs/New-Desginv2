@@ -177,6 +177,15 @@
           <span>Admin Access</span>
         </button>
 
+        <button type="button" class="nav-item" data-tab="coupons">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+            <line x1="7" y1="7" x2="7.01" y2="7"></line>
+          </svg>
+          <span>Coupons & Promos</span>
+        </button>
+
         <button type="button" class="nav-item" data-tab="homepage">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
             stroke-linecap="round" stroke-linejoin="round">
@@ -654,7 +663,6 @@
             </div>
           </div>
         </section>
-      </div>
 
       <!-- Admin Mobile Bottom Quick Navigation -->
       <nav class="admin-bottom-nav" style="display: none;" aria-label="Mobile Navigation">
@@ -918,6 +926,126 @@
         </div>
       </section>
 
+        <!-- TAB 9: COUPONS & PROMO CODES -->
+        <section class="admin-tab-pane" id="tab-coupons">
+          <!-- Coupons Overview Stats Grid -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon" style="background-color: rgba(2, 132, 199, 0.15); color: var(--admin-blue);">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                  <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                </svg>
+              </div>
+              <div>
+                <div class="stat-number" id="statTotalCoupons">0</div>
+                <div class="stat-label">Total Promo Vouchers</div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon" style="background-color: rgba(16, 185, 129, 0.15); color: var(--success);">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+              </div>
+              <div>
+                <div class="stat-number" id="statActiveCoupons" style="color: var(--success);">0</div>
+                <div class="stat-label">Active Campaign Codes</div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon" style="background-color: rgba(99, 102, 241, 0.15); color: #6366f1;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="19" y1="5" x2="5" y2="19"></line>
+                  <circle cx="6.5" cy="6.5" r="2.5"></circle>
+                  <circle cx="17.5" cy="17.5" r="2.5"></circle>
+                </svg>
+              </div>
+              <div>
+                <div class="stat-number" id="statPercentCoupons" style="color: #6366f1;">0</div>
+                <div class="stat-label">Percentage Discounts</div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon" style="background-color: rgba(245, 158, 11, 0.15); color: #f59e0b;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="1" y="3" width="15" height="13"></rect>
+                  <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                  <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                  <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                </svg>
+              </div>
+              <div>
+                <div class="stat-number" id="statFreeShipCoupons" style="color: #f59e0b;">0</div>
+                <div class="stat-label">Free Delivery Promos</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Main Table Card -->
+          <div class="card">
+            <div class="card-header" style="flex-wrap: wrap; gap: 1rem;">
+              <div>
+                <h2 class="card-title" style="display: flex; align-items: center; gap: 0.5rem;">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--admin-blue);">
+                    <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                    <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                  </svg>
+                  <span>Promo Codes & Vouchers</span>
+                </h2>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.25rem;">
+                  Create marketing vouchers for customers to apply in cart or checkout.
+                </p>
+              </div>
+              <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+                <input type="text" id="couponSearchInput" class="form-input" placeholder="Search Code (e.g. WELCOME)..." style="max-width: 220px; padding: 0.5rem 0.75rem;" onkeyup="AdminController.filterCoupons()" />
+                <button type="button" class="btn btn-primary btn-sm" onclick="AdminController.openCouponModal()" style="display: inline-flex; align-items: center; gap: 6px;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                  <span>Create New Coupon</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="admin-table-wrapper">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Coupon Voucher</th>
+                    <th>Discount Type</th>
+                    <th>Benefit Value</th>
+                    <th>Min. Order Threshold</th>
+                    <th>Status</th>
+                    <th style="text-align: right;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="couponsTableBody">
+                  <!-- Populated dynamically -->
+                </tbody>
+              </table>
+            </div>
+
+            <div id="couponsEmptyState" style="display: none; text-align: center; padding: 3.5rem 1.5rem;">
+              <div style="width: 60px; height: 60px; border-radius: 50%; background-color: var(--bg-input); color: var(--text-muted); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                  <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                </svg>
+              </div>
+              <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.35rem;">No Promo Coupons Created Yet</h3>
+              <p style="color: var(--text-muted); font-size: 0.9rem; max-width: 400px; margin: 0 auto 1.5rem auto;">Boost sales campaigns by offering discount codes or free delivery vouchers to your store customers.</p>
+              <button type="button" class="btn btn-primary" onclick="AdminController.openCouponModal()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <span>Create Your First Promo Coupon</span>
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
+
     </main>
   </div>
 
@@ -1130,6 +1258,90 @@
         <button type="button" class="nd-modal-close" onclick="document.getElementById('adminOrderDetailsModal').classList.remove('active')">&times;</button>
       </div>
       <div id="modalOrderContent"></div>
+    </div>
+  </div>
+
+  <!-- Add Coupon Modal -->
+  <div class="admin-modal-overlay" id="couponModalOverlay">
+    <div class="admin-modal" style="max-width: 540px;">
+      <div class="admin-modal-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
+        <h3 style="font-weight: 800; display: flex; align-items: center; gap: 8px;" id="couponModalTitle">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--admin-blue);">
+            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+            <line x1="7" y1="7" x2="7.01" y2="7"></line>
+          </svg>
+          <span>Create Promo Voucher</span>
+        </h3>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="AdminController.closeCouponModal()">✕</button>
+      </div>
+
+      <form id="couponForm" onsubmit="AdminController.handleSaveCoupon(event)">
+        <div class="admin-modal-body">
+
+          <!-- Live Voucher Preview Box -->
+          <div class="coupon-live-preview">
+            <div class="coupon-preview-notch left"></div>
+            <div class="coupon-preview-notch right"></div>
+            <div class="coupon-preview-content">
+              <div class="coupon-preview-header">
+                <span class="coupon-preview-badge" id="prevTypeTag">PERCENTAGE DISCOUNT</span>
+                <span class="coupon-preview-status">STOREFRONT ACTIVE</span>
+              </div>
+              <div class="coupon-preview-body">
+                <div class="coupon-preview-code" id="prevCode">PROMO CODE</div>
+                <div class="coupon-preview-value" id="prevValue">10% OFF</div>
+              </div>
+              <div class="coupon-preview-footer" id="prevMinOrder">Min. Order: No minimum</div>
+            </div>
+          </div>
+
+          <!-- Quick Presets -->
+          <div style="margin-bottom: 1.25rem;">
+            <label class="form-label" style="font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 0.5rem;">Quick Campaign Templates</label>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <button type="button" class="coupon-preset-btn" onclick="AdminController.applyCouponPreset('WELCOME10', 'percentage', 10, 0)">WELCOME10 (10% OFF)</button>
+              <button type="button" class="coupon-preset-btn" onclick="AdminController.applyCouponPreset('FREESHIP', 'freeship', 0, 50)">FREESHIP ($50+ Min)</button>
+              <button type="button" class="coupon-preset-btn" onclick="AdminController.applyCouponPreset('SAVE20', 'fixed', 20, 100)">SAVE20 ($20 OFF)</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="coupCode">Coupon Code (Uppercase)*</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="text" id="coupCode" class="form-input" placeholder="e.g. WELCOME10" style="text-transform: uppercase; font-family: monospace; font-weight: 800; letter-spacing: 1px; flex: 1;" required oninput="AdminController.updateCouponPreview()" />
+              <button type="button" class="btn btn-secondary btn-sm" style="white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;" onclick="AdminController.generateRandomCouponCode()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
+                <span>Random</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="coupType">Discount Type*</label>
+            <select id="coupType" class="form-input" onchange="AdminController.onCouponTypeChange(this.value); AdminController.updateCouponPreview();" required style="font-weight: 600;">
+              <option value="percentage">% Percentage Discount (e.g. 10%, 20% OFF)</option>
+              <option value="fixed">$ Fixed Amount Discount (e.g. $15 OFF order)</option>
+              <option value="freeship">Free Delivery (100% Free Shipping Voucher)</option>
+            </select>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group" id="groupCouponValue">
+              <label class="form-label" for="coupValue" id="lblCoupValue">Discount Value*</label>
+              <input type="number" step="0.01" min="0" id="coupValue" class="form-input" placeholder="10 (for 10%)" required oninput="AdminController.updateCouponPreview()" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="coupMinOrder">Min. Order Value (USD $)</label>
+              <input type="number" step="0.01" min="0" id="coupMinOrder" class="form-input" value="0" placeholder="0 for no minimum" oninput="AdminController.updateCouponPreview()" />
+            </div>
+          </div>
+        </div>
+
+        <div class="admin-modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="AdminController.closeCouponModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="saveCouponSubmitBtn">Save Coupon to Firebase</button>
+        </div>
+      </form>
     </div>
   </div>
 

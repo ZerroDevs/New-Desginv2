@@ -7,6 +7,11 @@
       ".write": "auth != null && auth.token.email != null && (root.child('settings/adminEmails').child(auth.token.email.replace('.', ',')).exists() || !root.child('settings/adminEmails').exists() || (root.child('settings/ownerEmail').exists() && auth.token.email == root.child('settings/ownerEmail').val()))",
       ".indexOn": ["category", "visible", "createdAt", "price"]
     },
+    "coupons": {
+      ".read": true,
+      ".write": "auth != null && auth.token.email != null && (root.child('settings/adminEmails').child(auth.token.email.replace('.', ',')).exists() || !root.child('settings/adminEmails').exists() || (root.child('settings/ownerEmail').exists() && auth.token.email == root.child('settings/ownerEmail').val()))",
+      ".indexOn": ["active", "type", "createdAt"]
+    },
     "settings": {
       ".read": true,
       ".write": "auth != null && auth.token.email != null && (root.child('settings/adminEmails').child(auth.token.email.replace('.', ',')).exists() || !root.child('settings/adminEmails').exists() || (root.child('settings/ownerEmail').exists() && auth.token.email == root.child('settings/ownerEmail').val()))"

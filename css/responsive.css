@@ -394,6 +394,7 @@
   .nd-checkout-modal-content {
     padding: 1.25rem 1rem;
     max-width: 96%;
+    max-height: 92vh;
     border-radius: var(--radius-md);
     background-color: var(--modal-bg, var(--card-bg, #ffffff)) !important;
     color: var(--text-main) !important;

@@ -522,7 +522,7 @@ body {
   background-color: var(--bg-card);
 }
 
-#productForm {
+#productForm, #couponForm {
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -809,3 +809,194 @@ body {
     flex: 1;
   }
 }
+
+/* ==========================================================================
+   COUPONS & PROMO CODES ENGINE STYLES
+   ========================================================================== */
+
+/* Coupon Code Chip in Table */
+.coupon-code-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.75rem;
+  background-color: rgba(2, 132, 199, 0.1);
+  border: 1px dashed var(--admin-blue);
+  border-radius: var(--radius-md);
+  color: var(--admin-blue);
+  font-family: monospace;
+  font-weight: 800;
+  font-size: 0.95rem;
+  letter-spacing: 0.05em;
+}
+
+[data-theme="light"] .coupon-code-chip {
+  background-color: #e0f2fe;
+}
+
+/* Coupon Type Pills */
+.coupon-type-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.coupon-type-tag.percentage {
+  background-color: rgba(99, 102, 241, 0.15);
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.coupon-type-tag.fixed {
+  background-color: rgba(2, 132, 199, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(2, 132, 199, 0.3);
+}
+
+.coupon-type-tag.freeship {
+  background-color: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+/* Value Badge */
+.coupon-value-badge {
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--text-main);
+}
+
+/* Live Preview Card in Coupon Modal */
+.coupon-live-preview {
+  position: relative;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  border: 1px solid var(--admin-blue);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+[data-theme="light"] .coupon-live-preview {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border-color: var(--admin-blue);
+}
+
+.coupon-preview-notch {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 24px;
+  background-color: var(--bg-card);
+  transform: translateY(-50%);
+  border: 1px solid var(--admin-blue);
+}
+
+.coupon-preview-notch.left {
+  left: -1px;
+  border-radius: 0 12px 12px 0;
+  border-left: none;
+}
+
+.coupon-preview-notch.right {
+  right: -1px;
+  border-radius: 12px 0 0 12px;
+  border-right: none;
+}
+
+.coupon-preview-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.coupon-preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.coupon-preview-badge {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--admin-blue);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.coupon-preview-status {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--success);
+  background: rgba(16, 185, 129, 0.15);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.coupon-preview-body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0.35rem 0;
+}
+
+.coupon-preview-code {
+  font-family: monospace;
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: var(--text-main);
+  letter-spacing: 2px;
+}
+
+.coupon-preview-value {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--success);
+}
+
+.coupon-preview-footer {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  border-top: 1px dashed var(--border-subtle);
+  padding-top: 0.5rem;
+}
+
+/* Coupon Preset Buttons */
+.coupon-preset-btn {
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 0.35rem 0.65rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.coupon-preset-btn:hover {
+  border-color: var(--admin-blue);
+  color: var(--admin-blue);
+}
+
+@media (max-width: 640px) {
+  .coupon-preview-body {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+  }
+  .coupon-preview-code {
+    font-size: 1.1rem;
+    word-break: break-all;
+  }
+  .coupon-preset-btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
