@@ -73,7 +73,8 @@
     display: none; /* Hidden on mobile; moved to mobile drawer */
   }
 
-  .header-actions .selector-pill {
+  .header-actions .selector-pill,
+  .header-actions .header-toggle-btn {
     display: none; /* In drawer on mobile to save precious top bar space */
   }
 

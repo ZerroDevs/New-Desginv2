@@ -63,14 +63,17 @@ const SiteHeader = {
 
           <!-- Header Actions -->
           <div class="header-actions">
-            <!-- Language Switcher -->
-            <div class="selector-pill" title="Select Language">
+            <!-- Language Toggle Button -->
+            <button type="button" class="header-toggle-btn lang-toggle-btn" aria-label="Toggle Language" title="Switch Language / تغيير اللغة">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10z"></path></svg>
-              <select class="lang-selector" aria-label="Language Selector">
-                <option value="en">EN</option>
-                <option value="ar">العربية (AR)</option>
-              </select>
-            </div>
+              <span class="lang-toggle-text toggle-badge">EN</span>
+            </button>
+
+            <!-- Currency Toggle Button -->
+            <button type="button" class="header-toggle-btn currency-toggle-btn" aria-label="Toggle Currency" title="Switch Currency / تغيير العملة">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+              <span class="currency-toggle-text toggle-badge">USD</span>
+            </button>
 
             <!-- Theme Toggle -->
             <button type="button" class="action-btn theme-toggle-btn" aria-label="Toggle Theme" title="Toggle Theme">
@@ -149,10 +152,17 @@ const SiteHeader = {
             </div>
             <div class="mobile-setting-row">
               <span>Language / اللغة</span>
-              <select class="lang-selector" aria-label="Mobile Language Selector">
-                <option value="en">English (EN)</option>
-                <option value="ar">العربية (AR)</option>
-              </select>
+              <button type="button" class="header-toggle-btn lang-toggle-btn" aria-label="Toggle Language">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10z"></path></svg>
+                <span class="lang-toggle-text toggle-badge">EN</span>
+              </button>
+            </div>
+            <div class="mobile-setting-row">
+              <span>Currency / العملة</span>
+              <button type="button" class="header-toggle-btn currency-toggle-btn" aria-label="Toggle Currency">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                <span class="currency-toggle-text toggle-badge">USD</span>
+              </button>
             </div>
             <div class="mobile-setting-row">
               <span>Theme Mode</span>

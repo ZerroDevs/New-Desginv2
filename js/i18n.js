@@ -544,6 +544,13 @@ const I18nManager = {
   },
 
   bindEvents() {
+    document.querySelectorAll(".lang-toggle-btn").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        this.toggleLanguage();
+      });
+    });
+
     const langSelects = document.querySelectorAll(".lang-selector");
     langSelects.forEach(select => {
       select.value = this.currentLang;
@@ -551,6 +558,11 @@ const I18nManager = {
         this.setLanguage(e.target.value);
       });
     });
+  },
+
+  toggleLanguage() {
+    const nextLang = this.currentLang === "ar" ? "en" : "ar";
+    this.setLanguage(nextLang);
   },
 
   setLanguage(lang, triggerRerender = true) {
@@ -566,7 +578,13 @@ const I18nManager = {
       document.documentElement.setAttribute("dir", "ltr");
     }
 
-    // Sync all language dropdowns across desktop and mobile
+    // Sync all language toggle button texts across desktop and mobile
+    const toggleTexts = document.querySelectorAll(".lang-toggle-text");
+    toggleTexts.forEach(el => {
+      el.textContent = lang.toUpperCase();
+    });
+
+    // Sync all language dropdowns if present
     const langSelects = document.querySelectorAll(".lang-selector");
     langSelects.forEach(select => {
       select.value = lang;

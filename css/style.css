@@ -351,6 +351,48 @@ textarea:focus {
   cursor: pointer;
 }
 
+/* Header Clickable Toggle Buttons (Language & Currency) */
+.header-toggle-btn {
+  height: 40px;
+  padding: 0 0.75rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-secondary);
+  color: var(--text-main);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  font-size: 0.825rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  user-select: none;
+  white-space: nowrap;
+}
+
+.header-toggle-btn:hover {
+  background-color: var(--bg-tertiary);
+  color: var(--brand-blue);
+  border-color: var(--brand-blue);
+}
+
+.header-toggle-btn svg {
+  flex-shrink: 0;
+  color: var(--brand-blue);
+}
+
+.header-toggle-btn .toggle-badge {
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--text-main);
+}
+
+.header-toggle-btn:hover .toggle-badge {
+  color: var(--brand-blue);
+}
+
 /* Action Icon Buttons */
 .action-btn {
   width: 40px;

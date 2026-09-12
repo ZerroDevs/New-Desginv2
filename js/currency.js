@@ -13,6 +13,13 @@ const CurrencyManager = {
   },
 
   bindEvents() {
+    document.querySelectorAll(".currency-toggle-btn").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        this.toggleCurrency();
+      });
+    });
+
     const currencySelects = document.querySelectorAll(".currency-selector");
     currencySelects.forEach(select => {
       select.value = this.currentCurrency;
@@ -20,6 +27,11 @@ const CurrencyManager = {
         this.setCurrency(e.target.value);
       });
     });
+  },
+
+  toggleCurrency() {
+    const nextCurr = this.currentCurrency === "USD" ? "LYD" : "USD";
+    this.setCurrency(nextCurr);
   },
 
   setCurrency(currencyCode, triggerRerender = true) {
@@ -30,7 +42,13 @@ const CurrencyManager = {
     this.currentCurrency = currencyCode;
     localStorage.setItem("nd_currency", currencyCode);
 
-    // Sync all dropdowns
+    // Sync all currency toggle button texts across desktop and mobile
+    const toggleTexts = document.querySelectorAll(".currency-toggle-text");
+    toggleTexts.forEach(el => {
+      el.textContent = currencyCode;
+    });
+
+    // Sync all dropdowns if present
     const currencySelects = document.querySelectorAll(".currency-selector");
     currencySelects.forEach(select => {
       select.value = currencyCode;
