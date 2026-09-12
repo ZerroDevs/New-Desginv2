@@ -9,6 +9,9 @@ const ProfileManager = {
 
   init() {
     this.bindEvents();
+    if (!this.checkAuthState()) {
+      return;
+    }
     this.loadProfile();
     this.loadUserOrders();
 
@@ -16,11 +19,42 @@ const ProfileManager = {
     if (typeof AuthManager !== "undefined" && AuthManager.firebaseAuth) {
       AuthManager.firebaseAuth.onAuthStateChanged((user) => {
         if (user) {
-          this.fetchFirebaseProfile(user.uid);
-          this.loadUserOrders();
+          if (this.checkAuthState()) {
+            this.fetchFirebaseProfile(user.uid);
+            this.loadUserOrders();
+          }
+        } else {
+          this.checkAuthState();
         }
       });
     }
+  },
+
+  checkAuthState() {
+    const loggedOutView = document.getElementById("profileLoggedOutView");
+    const loggedInView = document.getElementById("profileLoggedInView");
+
+    let authUser = (typeof AuthManager !== "undefined" ? AuthManager.currentUser : null);
+    if (!authUser) {
+      try {
+        const savedAuth = localStorage.getItem("nd_auth_user");
+        if (savedAuth) authUser = JSON.parse(savedAuth);
+      } catch (e) {}
+    }
+
+    const isLoggedIn = !!authUser;
+
+    if (loggedOutView && loggedInView) {
+      if (isLoggedIn) {
+        loggedOutView.style.display = "none";
+        loggedInView.style.display = "block";
+      } else {
+        loggedOutView.style.display = "block";
+        loggedInView.style.display = "none";
+      }
+    }
+
+    return isLoggedIn;
   },
 
   getProfile() {
@@ -41,11 +75,46 @@ const ProfileManager = {
       phone: "",
       address: "",
       notes: "",
-      preferredCurrency: "LYD",
+      preferredCurrency: (typeof CurrencyManager !== "undefined" && CurrencyManager.currentCurrency) ? CurrencyManager.currentCurrency : "LYD",
       apparelSize: "",
       pantsSize: "",
       shoesSize: ""
     };
+  },
+
+  updateUserProfile(newData) {
+    if (!newData || typeof newData !== "object") return;
+    const current = this.getProfile();
+    
+    // Only update non-empty string or defined values
+    const updated = { ...current };
+    Object.keys(newData).forEach(key => {
+      if (newData[key] !== undefined && newData[key] !== null && newData[key] !== "") {
+        updated[key] = newData[key];
+      }
+    });
+    updated.updatedAt = new Date().toISOString();
+
+    try {
+      localStorage.setItem(this.profileKey, JSON.stringify(updated));
+    } catch (e) {
+      console.warn("Failed to save profile to localStorage:", e);
+    }
+
+    if (updated.preferredCurrency && typeof CurrencyManager !== "undefined") {
+      CurrencyManager.setCurrency(updated.preferredCurrency, false);
+    }
+
+    try {
+      const authUser = (typeof AuthManager !== "undefined" && AuthManager.currentUser) ? AuthManager.currentUser : null;
+      if (authUser && authUser.uid && typeof firebase !== "undefined" && firebase.database) {
+        firebase.database().ref("users/" + authUser.uid).update(updated);
+      }
+    } catch (e) {
+      console.warn("Firebase profile update notice:", e);
+    }
+
+    return updated;
   },
 
   toggleSizeOtherInput(type) {
@@ -276,39 +345,30 @@ const ProfileManager = {
       } catch (e) {}
     }
 
+    if (!authUser) {
+      this.renderUserOrders([]);
+      return;
+    }
+
     const profile = this.getProfile();
     const userId = authUser ? authUser.uid : null;
     const userEmail = (authUser && authUser.email ? authUser.email : (profile && profile.email ? profile.email : "")).toLowerCase();
     const userPhone = profile && profile.phone ? profile.phone.replace(/[^0-9]/g, "") : "";
 
-    const ordersMap = new Map();
+    const liveOrdersMap = new Map();
+    let isFirebaseConnected = false;
 
-    // 1. Check local storage orders first
-    try {
-      const localOrdersRaw = localStorage.getItem("nd_my_orders") || localStorage.getItem("nd_user_orders");
-      if (localOrdersRaw) {
-        const parsed = JSON.parse(localOrdersRaw);
-        if (Array.isArray(parsed)) {
-          parsed.forEach(o => {
-            const key = o.id || o.orderId;
-            if (key) ordersMap.set(key, o);
-          });
-        }
-      }
-    } catch (e) {
-      console.warn("Local storage orders parse notice:", e);
-    }
-
-    // 2. Fetch direct user sub-node orders from Firebase if logged in
+    // 1. Fetch direct user sub-node orders from Firebase if logged in
     if (userId && typeof firebase !== "undefined" && firebase.database) {
       try {
         const userOrdersSnap = await firebase.database().ref(`users/${userId}/orders`).once("value");
+        isFirebaseConnected = true;
         if (userOrdersSnap.exists()) {
           const userOrds = userOrdersSnap.val();
           Object.keys(userOrds).forEach(k => {
             const ord = userOrds[k];
             ord.id = ord.id || ord.orderId || k;
-            ordersMap.set(ord.id, ord);
+            liveOrdersMap.set(ord.id, ord);
           });
         }
       } catch (e) {
@@ -316,10 +376,11 @@ const ProfileManager = {
       }
     }
 
-    // 3. Fetch from global Firebase orders node as fallback/sync
+    // 2. Fetch from global Firebase orders node to scan for user orders
     if (typeof firebase !== "undefined" && firebase.database) {
       try {
         const snap = await firebase.database().ref("orders").once("value");
+        isFirebaseConnected = true;
         if (snap.exists()) {
           const allOrdersObj = snap.val();
           Object.keys(allOrdersObj).forEach(key => {
@@ -334,17 +395,39 @@ const ProfileManager = {
                             (userPhone && ordPhone && (ordPhone.includes(userPhone) || userPhone.includes(ordPhone)));
 
             if (isMatch) {
-              ordersMap.set(ordId, ord);
+              liveOrdersMap.set(ordId, ord);
             }
           });
         }
       } catch (e) {
-        console.warn("Global orders scan fallback notice:", e);
+        console.warn("Global orders scan notice:", e);
       }
     }
 
-    const mergedOrders = Array.from(ordersMap.values());
-    this.renderUserOrders(mergedOrders);
+    let finalOrders = [];
+
+    if (isFirebaseConnected) {
+      // Firebase DB is active & authoritative: overwrite local cache with live DB records
+      finalOrders = Array.from(liveOrdersMap.values());
+      try {
+        localStorage.setItem("nd_my_orders", JSON.stringify(finalOrders));
+      } catch (e) {}
+    } else {
+      // Offline fallback: read local storage orders
+      try {
+        const localOrdersRaw = localStorage.getItem("nd_my_orders") || localStorage.getItem("nd_user_orders");
+        if (localOrdersRaw) {
+          const parsed = JSON.parse(localOrdersRaw);
+          if (Array.isArray(parsed)) {
+            finalOrders = parsed;
+          }
+        }
+      } catch (e) {
+        console.warn("Local storage orders fallback notice:", e);
+      }
+    }
+
+    this.renderUserOrders(finalOrders);
   },
 
   renderUserOrders(orders) {
@@ -359,7 +442,9 @@ const ProfileManager = {
     if (!orders || orders.length === 0) {
       listContainer.innerHTML = `
         <div style="text-align: center; padding: 2.5rem 1rem; background-color: var(--bg-primary); border-radius: var(--radius-md); border: 1px dashed var(--border-color);">
-          <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🛍️</div>
+          <div style="margin-bottom: 0.75rem;">
+            <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="var(--brand-blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+          </div>
           <h4 style="font-weight: 700; color: var(--text-main); margin-bottom: 0.25rem;">${isAr ? 'لا توجد طلبيات بعد' : 'No orders found'}</h4>
           <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1rem;">${isAr ? 'لم تقم بإنشاء أي طلبية حتى الآن.' : 'You haven\'t placed any orders yet.'}</p>
           <a href="products.html" class="btn btn-primary btn-sm">${isAr ? 'تسوق الآن' : 'Shop Products'}</a>
@@ -403,14 +488,15 @@ const ProfileManager = {
               <span class="track-badge ${badgeClass}">${statusText}</span>
             </div>
             <div style="font-size: 0.85rem; color: var(--text-secondary);">
-              <span>📅 ${dateStr}</span> &bull; 
+              <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px; margin-right: 3px;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>${dateStr}</span> &bull; 
               <span style="font-weight: 700; color: var(--brand-blue);">${totalStr}</span>
             </div>
           </div>
 
           <div>
             <a href="track.html?id=${encodeURIComponent(orderId)}" class="btn btn-secondary btn-sm" style="display: flex; align-items: center; gap: 6px;">
-              🔍 <span>${isAr ? 'تتبع الطلب' : 'Track Order'}</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <span>${isAr ? 'تتبع الطلب' : 'Track Order'}</span>
             </a>
           </div>
         </div>

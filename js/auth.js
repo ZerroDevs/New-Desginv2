@@ -148,43 +148,45 @@ const AuthManager = {
       overlay.setAttribute("role", "dialog");
       overlay.setAttribute("aria-modal", "true");
       overlay.innerHTML = `
-        <div class="modal-card">
+        <div class="modal-card modal-window">
           <button type="button" class="modal-close-btn" id="authModalClose" onclick="AuthManager.closeModal()">&times;</button>
           <div class="auth-tabs">
             <button type="button" class="auth-tab active" id="authTabLogin" data-i18n="authLoginTab">Sign In</button>
             <button type="button" class="auth-tab" id="authTabSignup" data-i18n="authSignupTab">Create Account</button>
           </div>
-          <div id="authModalAlert" class="form-alert" style="display: none;"></div>
-          <form id="loginForm">
-            <div class="nd-form-group">
-              <label>Email</label>
-              <input type="email" id="loginEmail" class="nd-input" required />
-            </div>
-            <div class="nd-form-group">
-              <label>Password</label>
-              <input type="password" id="loginPassword" class="nd-input" required />
-            </div>
-            <button type="submit" class="btn btn-primary btn-full" id="loginSubmitBtn" data-i18n="authLoginBtn">Sign In</button>
-          </form>
-          <form id="signupForm" style="display: none;">
-            <div class="nd-form-group">
-              <label>Full Name</label>
-              <input type="text" id="signupName" class="nd-input" required />
-            </div>
-            <div class="nd-form-group">
-              <label>Email</label>
-              <input type="email" id="signupEmail" class="nd-input" required />
-            </div>
-            <div class="nd-form-group">
-              <label>Password</label>
-              <input type="password" id="signupPassword" class="nd-input" required />
-            </div>
-            <div class="nd-form-group">
-              <label>Confirm Password</label>
-              <input type="password" id="signupConfirm" class="nd-input" required />
-            </div>
-            <button type="submit" class="btn btn-primary btn-full" id="signupSubmitBtn" data-i18n="authSignupBtn">Create Account</button>
-          </form>
+          <div class="auth-form-body" style="padding: 1.75rem;">
+            <div id="authModalAlert" class="form-alert" style="display: none;"></div>
+            <form id="loginForm">
+              <div class="nd-form-group">
+                <label>Email</label>
+                <input type="email" id="loginEmail" class="nd-input" required />
+              </div>
+              <div class="nd-form-group">
+                <label>Password</label>
+                <input type="password" id="loginPassword" class="nd-input" required />
+              </div>
+              <button type="submit" class="btn btn-primary btn-full" id="loginSubmitBtn" data-i18n="authLoginBtn">Sign In</button>
+            </form>
+            <form id="signupForm" style="display: none;">
+              <div class="nd-form-group">
+                <label>Full Name</label>
+                <input type="text" id="signupName" class="nd-input" required />
+              </div>
+              <div class="nd-form-group">
+                <label>Email</label>
+                <input type="email" id="signupEmail" class="nd-input" required />
+              </div>
+              <div class="nd-form-group">
+                <label>Password</label>
+                <input type="password" id="signupPassword" class="nd-input" required />
+              </div>
+              <div class="nd-form-group">
+                <label>Confirm Password</label>
+                <input type="password" id="signupConfirm" class="nd-input" required />
+              </div>
+              <button type="submit" class="btn btn-primary btn-full" id="signupSubmitBtn" data-i18n="authSignupBtn">Create Account</button>
+            </form>
+          </div>
         </div>
       `;
       document.body.appendChild(overlay);
@@ -451,6 +453,14 @@ const AuthManager = {
       const adminLinks = document.querySelectorAll(".user-dropdown-admin-link");
       adminLinks.forEach(el => el.style.display = "none");
     }
+
+    if (window.ProfileManager) {
+      const isLoggedIn = window.ProfileManager.checkAuthState();
+      if (isLoggedIn) {
+        window.ProfileManager.loadProfile();
+        window.ProfileManager.loadUserOrders();
+      }
+    }
   },
 
   async checkAdminRole(user) {
@@ -470,10 +480,19 @@ const AuthManager = {
         } else {
           const adminSnap = await firebase.database().ref("settings/adminEmails").once("value");
           const admins = adminSnap.val();
-          if (admins) {
-            const list = Object.values(admins).map(e => String(e).toLowerCase());
-            isAdmin = list.includes(userEmail);
-          } else {
+          if (admins && typeof admins === "object") {
+            const userKey = userEmail.replace(/\./g, ",");
+            if (admins[userKey]) {
+              isAdmin = true;
+            } else {
+              isAdmin = Object.keys(admins).some(k => {
+                const val = admins[k];
+                if (typeof val === "string") return val.toLowerCase() === userEmail;
+                if (val && typeof val === "object" && val.email) return val.email.toLowerCase() === userEmail;
+                return k.replace(/,/g, ".").toLowerCase() === userEmail;
+              });
+            }
+          } else if (!admins) {
             isAdmin = true;
           }
         }

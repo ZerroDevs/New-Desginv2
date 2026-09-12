@@ -50,14 +50,16 @@
           <input type="text" id="orderSearchInput" class="nd-input" required
             placeholder="e.g. ND-123456 or phone number" data-i18n-placeholder="trackInputPlaceholder"
             style="font-size: 1.05rem; padding: 0.85rem 1.1rem;" />
-          <button type="submit" class="btn btn-primary" style="white-space: nowrap; padding: 0 1.75rem;">
-            🔍 <span data-i18n="trackSearchBtn">Track Order</span>
+          <button type="submit" class="btn btn-primary" style="white-space: nowrap; padding: 0 1.75rem; display: flex; align-items: center; gap: 6px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <span data-i18n="trackSearchBtn">Track Order</span>
           </button>
         </form>
 
         <p style="margin-top: 0.85rem; font-size: 0.88rem; color: var(--text-secondary); display: flex; align-items: center; justify-content: center; gap: 6px; font-weight: 600;"
           data-i18n="trackNote">
-          💡 <span>Note: Please enter the Order ID without the <strong>'#'</strong> symbol (e.g.
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+          <span>Note: Please enter the Order ID without the <strong>'#'</strong> symbol (e.g.
             <strong>ND-123456</strong>).</span>
         </p>
       </div>

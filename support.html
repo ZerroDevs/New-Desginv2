@@ -95,13 +95,13 @@
       <!-- Support Tabs Navigation -->
       <nav class="support-tabs-bar" aria-label="Support Navigation">
         <button type="button" class="support-nav-tab active" data-view="new-ticket" data-i18n="supportTabNew">
-          ✍️ Open New Ticket / فتح تذكرة
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -1px; margin-right: 4px;"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg> Open New Ticket / فتح تذكرة
         </button>
         <button type="button" class="support-nav-tab" data-view="my-tickets" data-i18n="supportTabMy">
-          📋 My Tickets / تذاكري
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -1px; margin-right: 4px;"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg> My Tickets / تذاكري
         </button>
         <button type="button" class="support-nav-tab" data-view="track-ticket" data-i18n="supportTabTrack">
-          🔍 Track Ticket / تتبع رقم التذكرة
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -1px; margin-right: 4px;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg> Track Ticket / تتبع رقم التذكرة
         </button>
       </nav>
 
@@ -163,7 +163,7 @@
             </div>
 
             <button type="submit" class="btn btn-primary" id="ticketSubmitBtn" style="padding: 0.85rem 2rem; font-weight: 700; width: 100%;">
-              <span data-i18n="supportSubmitBtn">Submit Ticket</span> 🚀 / <span style="font-family: Cairo, sans-serif;">إرسال التذكرة</span>
+              <span data-i18n="supportSubmitBtn">Submit Ticket</span> / <span style="font-family: Cairo, sans-serif;">إرسال التذكرة</span>
             </button>
           </form>
         </div>
@@ -174,7 +174,7 @@
         <div id="myTicketsContainer">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
             <h2 style="font-size: 1.25rem; font-weight: 800;" data-i18n="supportMyTitle">My Support Tickets</h2>
-            <button type="button" class="btn btn-secondary btn-sm" onclick="SupportSystem.loadMyTickets()">🔄 Refresh</button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="SupportSystem.loadMyTickets()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -1px; margin-right: 4px;"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg> Refresh</button>
           </div>
           <div id="myTicketsList">
             <!-- Dynamically populated -->

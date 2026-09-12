@@ -10,7 +10,9 @@ const DEFAULT_STORE_INFO = {
   whatsapp: "+218924295050",
   returnDays: "3", // مدة الاسترداد تلاتة أيام
   deliveryTripoli: "نفس اليوم / Same Day", // اي طلبية داخل طرابلس توصيل نفس اليوم
-  deliveryOutside: "2-3 أيام / 2-3 Days" // برا طرابلس 2-3
+  deliveryOutside: "2-3 أيام / 2-3 Days", // برا طرابلس 2-3
+  bankIban: "LY32024005010265803020501",
+  bankAccountTitle: "ALTASMEM ALJADED ALALME COMPANY"
 };
 
 const StoreInfoManager = {

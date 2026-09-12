@@ -67,6 +67,8 @@ const CartManager = {
   },
 
   openCheckoutModal() {
+    if (this.items.length === 0) return;
+
     let modal = document.getElementById("ndCheckoutModal");
     if (!modal) {
       modal = document.createElement("div");
@@ -75,10 +77,18 @@ const CartManager = {
       document.body.appendChild(modal);
     }
 
+    this.currentReceiptDataUrl = null;
     const isAr = typeof I18nManager !== "undefined" && I18nManager.currentLang === "ar";
     const subtotal = this.calculateSubtotal();
     const formattedTotal = typeof CurrencyManager !== "undefined" ? CurrencyManager.format(subtotal) : `${subtotal} LYD`;
     const curSymbol = (typeof CurrencyManager !== "undefined" && CurrencyManager.currentCurrency) ? CurrencyManager.currentCurrency : "LYD";
+
+    const bankIban = (typeof StoreInfoManager !== "undefined" && StoreInfoManager.data && StoreInfoManager.data.bankIban)
+      ? StoreInfoManager.data.bankIban
+      : "LY32024005010265803020501";
+    const bankAccountTitle = (typeof StoreInfoManager !== "undefined" && StoreInfoManager.data && StoreInfoManager.data.bankAccountTitle)
+      ? StoreInfoManager.data.bankAccountTitle
+      : "ALTASMEM ALJADED ALALME COMPANY";
 
     modal.innerHTML = `
       <div class="nd-checkout-modal-content">
@@ -100,9 +110,32 @@ const CartManager = {
                 </div>
               </div>
               <button type="button" class="btn btn-secondary btn-sm" id="chkCurrencyToggleBtn" onclick="CartManager.toggleCheckoutCurrency()" style="display: flex; align-items: center; gap: 5px; font-weight: 700; border-radius: var(--radius-full); padding: 5px 12px;">
-                <span>💱</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 10h14l-4-4"></path><path d="M17 14H3l4 4"></path></svg>
                 <span id="chkCurrencyLabel">${curSymbol}</span>
               </button>
+            </div>
+
+            <!-- Bank Transfer & IBAN Details Card -->
+            <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.9rem 1rem; margin-bottom: 1rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                <span style="font-weight: 700; font-size: 0.88rem; color: var(--text-main); display: flex; align-items: center; gap: 6px;">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M8 10v11M12 10v11M16 10v11M20 10v11"></path></svg>
+                  <span>${isAr ? "بيانات التحويل البنكي / Bank Transfer" : "Bank Transfer Info"}</span>
+                </span>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="CartManager.copyBankIban('${bankIban}')" style="padding: 2px 10px; font-size: 0.78rem; display: flex; align-items: center; gap: 4px;" id="chkCopyIbanBtn">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+                  <span id="chkCopyIbanLabel">${isAr ? "نسخ IBAN" : "Copy IBAN"}</span>
+                </button>
+              </div>
+
+              <div style="background: var(--bg-main); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0.6rem 0.8rem; margin-bottom: 0.4rem; font-family: monospace; font-weight: 800; color: var(--brand-blue); font-size: 0.92rem; letter-spacing: 0.5px; word-break: break-all;" dir="ltr">
+                ${bankIban}
+              </div>
+
+              <div style="font-size: 0.8rem; color: var(--text-muted);">
+                <span>${isAr ? "اسم الحساب:" : "Account Holder:"}</span>
+                <strong style="color: var(--text-main); font-weight: 700;">${bankAccountTitle}</strong>
+              </div>
             </div>
 
             <div class="nd-form-group">
@@ -116,8 +149,40 @@ const CartManager = {
             </div>
 
             <div class="nd-form-group">
+              <label>${I18nManager ? I18nManager.t("authEmail") : (isAr ? "البريد الإلكتروني (اختياري)" : "Email Address (Optional)")}</label>
+              <input type="email" id="chkEmail" placeholder="${isAr ? 'name@example.com' : 'e.g. name@example.com'}" class="nd-input" />
+            </div>
+
+            <div class="nd-form-group">
               <label>${I18nManager ? I18nManager.t("checkoutAddress") : (isAr ? "المدينة وعنوان التوصيل" : "City & Delivery Address")} *</label>
               <input type="text" id="chkAddress" required placeholder="${isAr ? 'مثال: طرابلس - النوفليين / بنغازي' : 'e.g. Tripoli, Al-Noufleen'}" class="nd-input" />
+            </div>
+
+            <!-- Upload Receipt Image (Optional / Recommended) -->
+            <div class="nd-form-group">
+              <label style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span>${isAr ? "إرفاق إيصال التحويل (اختياري / موصى به)" : "Payment Receipt (Optional / Recommended)"}</span>
+                <span style="font-size: 0.75rem; color: var(--brand-blue); font-weight: 700; display: inline-flex; align-items: center; gap: 4px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg> ${isAr ? "صورة الإيصال" : "Receipt Photo"}</span>
+              </label>
+
+              <input type="file" id="chkReceiptFile" accept="image/*" style="display: none;" onchange="CartManager.handleReceiptFileSelect(event)" />
+              
+              <div id="chkReceiptDropZone" onclick="document.getElementById('chkReceiptFile').click()" style="border: 2px dashed var(--border-color); border-radius: var(--radius-md); padding: 0.85rem; text-align: center; cursor: pointer; background: var(--bg-secondary); transition: all 0.2s ease;">
+                <div id="chkReceiptPlaceholder">
+                  <div style="margin-bottom: 0.3rem;"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--brand-blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg></div>
+                  <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-main);">${isAr ? "انقر لاختيار أو رفع صورة إيصال التحويل" : "Click to select or upload transfer receipt"}</div>
+                  <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 2px;">${isAr ? "يدعم لقطات الشاشة والصور من جهازك" : "Supports screenshots and gallery images"}</div>
+                </div>
+
+                <div id="chkReceiptPreviewBox" style="display: none; align-items: center; justify-content: space-between; gap: 0.75rem;">
+                  <img id="chkReceiptPreviewImg" src="" alt="Receipt Preview" style="width: 48px; height: 48px; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: #fff;" />
+                  <div style="text-align: ${isAr ? 'right' : 'left'}; flex: 1; min-width: 0;">
+                    <div style="font-size: 0.82rem; font-weight: 700; color: #10b981;">✓ ${isAr ? "تم إرفاق صورة الإيصال" : "Receipt attached ✓"}</div>
+                    <div id="chkReceiptFileName" style="font-size: 0.72rem; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">receipt.jpg</div>
+                  </div>
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); CartManager.clearReceiptFile();" style="color: var(--error); padding: 4px 8px; font-size: 0.8rem;" title="Remove Receipt">✕</button>
+                </div>
+              </div>
             </div>
 
             <div class="nd-form-group">
@@ -159,17 +224,107 @@ const CartManager = {
       if (profileData) {
         const nameInput = document.getElementById("chkName");
         const phoneInput = document.getElementById("chkPhone");
+        const emailInput = document.getElementById("chkEmail");
         const addressInput = document.getElementById("chkAddress");
         const notesInput = document.getElementById("chkNotes");
 
+        const authUser = (typeof AuthManager !== "undefined" && AuthManager.currentUser) ? AuthManager.currentUser : null;
+
         if (nameInput && profileData.fullName) nameInput.value = profileData.fullName;
         if (phoneInput && profileData.phone) phoneInput.value = profileData.phone;
+        if (emailInput) {
+          emailInput.value = profileData.email || (authUser ? authUser.email : "");
+        }
         if (addressInput && profileData.address) addressInput.value = profileData.address;
         if (notesInput && profileData.notes) notesInput.value = profileData.notes;
       }
     } catch (e) {
       console.warn("Profile auto-fill skipped:", e);
     }
+  },
+
+  handleReceiptFileSelect(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+
+    this.compressReceiptImage(file).then(dataUrl => {
+      this.currentReceiptDataUrl = dataUrl;
+      const placeholder = document.getElementById("chkReceiptPlaceholder");
+      const previewBox = document.getElementById("chkReceiptPreviewBox");
+      const previewImg = document.getElementById("chkReceiptPreviewImg");
+      const fileNameEl = document.getElementById("chkReceiptFileName");
+
+      if (placeholder) placeholder.style.display = "none";
+      if (previewBox) previewBox.style.display = "flex";
+      if (previewImg) previewImg.src = dataUrl;
+      if (fileNameEl) fileNameEl.textContent = file.name || "receipt.jpg";
+    }).catch(err => {
+      console.warn("Receipt compress error:", err);
+    });
+  },
+
+  clearReceiptFile() {
+    this.currentReceiptDataUrl = null;
+    const fileInput = document.getElementById("chkReceiptFile");
+    if (fileInput) fileInput.value = "";
+
+    const placeholder = document.getElementById("chkReceiptPlaceholder");
+    const previewBox = document.getElementById("chkReceiptPreviewBox");
+
+    if (placeholder) placeholder.style.display = "block";
+    if (previewBox) previewBox.style.display = "none";
+  },
+
+  compressReceiptImage(file, maxWidth = 1000, maxHeight = 1000, quality = 0.82) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        const img = new Image();
+        img.onload = () => {
+          let width = img.width;
+          let height = img.height;
+
+          if (width > maxWidth || height > maxHeight) {
+            if (width / height > maxWidth / maxHeight) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            } else {
+              width = Math.round((width * maxHeight) / height);
+              height = maxHeight;
+            }
+          }
+
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL("image/jpeg", quality));
+        };
+        img.onerror = reject;
+        img.src = evt.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  },
+
+  copyBankIban(iban) {
+    if (!iban) return;
+    navigator.clipboard.writeText(iban).then(() => {
+      const label = document.getElementById("chkCopyIbanLabel");
+      const isAr = typeof I18nManager !== "undefined" && I18nManager.currentLang === "ar";
+      if (label) {
+        const origText = label.textContent;
+        label.textContent = isAr ? "تم النسخ ✓" : "Copied! ✓";
+        setTimeout(() => { label.textContent = origText; }, 2000);
+      }
+      if (window.AppCoordinator && AppCoordinator.showToast) {
+        AppCoordinator.showToast(isAr ? "تم نسخ رقم IBAN إلى الحافظة ✓" : "IBAN copied to clipboard! ✓");
+      }
+    }).catch(err => {
+      console.warn("Copy IBAN error:", err);
+    });
   },
 
   toggleCheckoutCurrency() {
@@ -196,26 +351,65 @@ const CartManager = {
     document.body.style.overflow = "";
   },
 
-  handleCheckoutSubmit(e) {
+  async handleCheckoutSubmit(e) {
     e.preventDefault();
 
     const name = document.getElementById("chkName").value.trim();
     const phone = document.getElementById("chkPhone").value.trim();
+    const email = document.getElementById("chkEmail") ? document.getElementById("chkEmail").value.trim() : "";
     const address = document.getElementById("chkAddress").value.trim();
     const notes = document.getElementById("chkNotes").value.trim();
 
     if (!name || !phone || !address) return;
 
     const btn = document.getElementById("chkSubmitBtn");
-    if (btn) btn.disabled = true;
-
     const isAr = typeof I18nManager !== "undefined" && I18nManager.currentLang === "ar";
+
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = `<div class="spinner" style="width: 14px; height: 14px; border: 2px solid white; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; margin-right: 6px;"></div><span>${isAr ? "جارٍ حفظ الطلب والإرسال..." : "Saving order & sending..."}</span>`;
+    }
+
     const orderNum = "ND-" + Math.floor(100000 + Math.random() * 900000);
     const subtotal = this.calculateSubtotal();
     const formattedTotal = typeof CurrencyManager !== "undefined" ? CurrencyManager.format(subtotal) : `${subtotal} LYD`;
     const currency = (typeof CurrencyManager !== "undefined" && CurrencyManager.currentCurrency) ? CurrencyManager.currentCurrency : "LYD";
 
     const authUser = (typeof AuthManager !== "undefined" && AuthManager.currentUser) ? AuthManager.currentUser : null;
+    const userEmail = email || (authUser ? authUser.email : "");
+
+    // Persist inputted user profile details to local storage and DB
+    if (typeof ProfileManager !== "undefined" && ProfileManager.updateUserProfile) {
+      ProfileManager.updateUserProfile({
+        fullName: name,
+        phone: phone,
+        email: userEmail,
+        address: address,
+        notes: notes,
+        preferredCurrency: currency
+      });
+    } else {
+      try {
+        const raw = localStorage.getItem("nd_user_profile");
+        const p = raw ? JSON.parse(raw) : {};
+        if (name) p.fullName = name;
+        if (phone) p.phone = phone;
+        if (userEmail) p.email = userEmail;
+        if (address) p.address = address;
+        if (notes) p.notes = notes;
+        if (currency) p.preferredCurrency = currency;
+        localStorage.setItem("nd_user_profile", JSON.stringify(p));
+      } catch (e) {}
+    }
+
+    const bankIban = (typeof StoreInfoManager !== "undefined" && StoreInfoManager.data && StoreInfoManager.data.bankIban)
+      ? StoreInfoManager.data.bankIban
+      : "LY32024005010265803020501";
+    const bankAccountTitle = (typeof StoreInfoManager !== "undefined" && StoreInfoManager.data && StoreInfoManager.data.bankAccountTitle)
+      ? StoreInfoManager.data.bankAccountTitle
+      : "ALTASMEM ALJADED ALALME COMPANY";
+
+    const hasReceipt = !!this.currentReceiptDataUrl;
 
     const orderData = {
       orderId: orderNum,
@@ -224,7 +418,7 @@ const CartManager = {
       date: new Date().toLocaleDateString(),
       status: "pending",
       userId: authUser ? authUser.uid : null,
-      email: authUser ? authUser.email : "",
+      email: userEmail,
       name: name,
       customerName: name,
       phone: phone,
@@ -232,6 +426,9 @@ const CartManager = {
       address: address,
       customerAddress: address,
       notes: notes || "",
+      bankIban: bankIban,
+      bankAccountTitle: bankAccountTitle,
+      receiptImage: this.currentReceiptDataUrl || null,
       items: this.items.map(item => ({
         id: item.id || "",
         name: item.name || "",
@@ -248,16 +445,21 @@ const CartManager = {
       language: isAr ? "ar" : "en"
     };
 
-    // Save order to Firebase Realtime Database
+    // Save order to Firebase Realtime Database with async await to prevent network cancel on page redirect
     try {
       if (typeof firebase !== "undefined" && firebase.database) {
         if (!firebase.apps.length && typeof APP_CONFIG !== "undefined") {
           firebase.initializeApp(APP_CONFIG.firebase);
         }
-        firebase.database().ref("orders/" + orderNum).set(orderData);
+        const db = firebase.database();
+        const saves = [db.ref("orders/" + orderNum).set(orderData)];
         if (orderData.userId) {
-          firebase.database().ref("users/" + orderData.userId + "/orders/" + orderNum).set(orderData);
+          saves.push(db.ref("users/" + orderData.userId + "/orders/" + orderNum).set(orderData));
         }
+
+        // Wait up to 3 seconds for Firebase acknowledgment before continuing
+        const timeoutPromise = new Promise(resolve => setTimeout(resolve, 3000));
+        await Promise.race([Promise.all(saves), timeoutPromise]);
       }
     } catch (err) {
       console.warn("Firebase order save notice:", err);
@@ -309,28 +511,36 @@ const CartManager = {
     // Compose WhatsApp message
     let waMessage = "";
     if (isAr) {
-      waMessage = `مرحباً، أود تأكيد الطلب التالي من متجر New Desgin 🛍️\n\n` +
-        ` رقم الطلب: #${orderNum}\n` +
-        ` الاسم: ${name}\n` +
-        ` الهاتف: ${phone}\n` +
-        ` العنوان: ${address}\n` +
-        (notes ? `📝 ملاحظات: ${notes}\n` : "") +
-        `\n المنتجات المطلوبة:\n${itemsListText}\n\n` +
-        (hasUnspecifiedVariant ? `💡 تنبيه: يرجى توضيح تفاصيل المقاس واللون للمنتجات غير المحددة في المحادثة.\n\n` : "") +
-        ` المجموع الإجمالي: ${formattedTotal}\n\n` +
-        ` تتبع حالة طلبك من هنا:\n${window.location.origin}/track.html?id=${orderNum}\n\n` +
+      waMessage = `مرحباً، أود تأكيد الطلب التالي من متجر New Desgin\n\n` +
+        `رقم الطلب: #${orderNum}\n` +
+        `الاسم: ${name}\n` +
+        `الهاتف: ${phone}\n` +
+        `العنوان: ${address}\n` +
+        (notes ? `ملاحظات: ${notes}\n` : "") +
+        `\nمعلومات التحويل البنكي:\n` +
+        `IBAN: ${bankIban}\n` +
+        `اسم الحساب: ${bankAccountTitle}\n` +
+        (hasReceipt ? `إيصال التحويل: تم إرفاق صورة الإيصال مع الطلب عبر الموقع ✓\n` : "") +
+        `\nالمنتجات المطلوبة:\n${itemsListText}\n\n` +
+        (hasUnspecifiedVariant ? `تنبيه: يرجى توضيح تفاصيل المقاس واللون للمنتجات غير المحددة في المحادثة.\n\n` : "") +
+        `المجموع الإجمالي: ${formattedTotal}\n\n` +
+        `تتبع حالة طلبك من هنا:\n${window.location.origin}/track.html?id=${orderNum}\n\n` +
         `شكراً لكم!`;
     } else {
-      waMessage = `Hello, I would like to confirm a new order from New Desgin 🛍️\n\n` +
-        ` Order ID: #${orderNum}\n` +
-        ` Name: ${name}\n` +
-        ` Phone: ${phone}\n` +
-        ` Address: ${address}\n` +
-        (notes ? `📝 Notes: ${notes}\n` : "") +
-        `\n Ordered Items:\n${itemsListText}\n\n` +
-        (hasUnspecifiedVariant ? `💡 Note: Please specify size & color preference for items marked above in this chat.\n\n` : "") +
-        ` Total Amount: ${formattedTotal}\n\n` +
-        ` Track your order status here:\n${window.location.origin}/track.html?id=${orderNum}\n\n` +
+      waMessage = `Hello, I would like to confirm a new order from New Desgin\n\n` +
+        `Order ID: #${orderNum}\n` +
+        `Name: ${name}\n` +
+        `Phone: ${phone}\n` +
+        `Address: ${address}\n` +
+        (notes ? `Notes: ${notes}\n` : "") +
+        `\nBank Transfer Details:\n` +
+        `IBAN: ${bankIban}\n` +
+        `Account: ${bankAccountTitle}\n` +
+        (hasReceipt ? `Receipt: Payment receipt photo attached with order on website ✓\n` : "") +
+        `\nOrdered Items:\n${itemsListText}\n\n` +
+        (hasUnspecifiedVariant ? `Note: Please specify size & color preference for items marked above in this chat.\n\n` : "") +
+        `Total Amount: ${formattedTotal}\n\n` +
+        `Track your order status here:\n${window.location.origin}/track.html?id=${orderNum}\n\n` +
         `Thank you!`;
     }
 
@@ -380,11 +590,11 @@ const CartManager = {
         </p>
 
         <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-          <a href="${waUrl}" target="_blank" class="btn btn-primary btn-full" style="background: #25D366; border-color: #25D366; color: white;">
-            💬 ${I18nManager ? I18nManager.t("openWhatsAppBtn") : (isAr ? "فتح محادثة الواتساب" : "Open WhatsApp Chat")}
+          <a href="${waUrl}" target="_blank" class="btn btn-primary btn-full" style="background: #25D366; border-color: #25D366; color: white; display: flex; align-items: center; justify-content: center; gap: 6px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg> ${I18nManager ? I18nManager.t("openWhatsAppBtn") : (isAr ? "فتح محادثة الواتساب" : "Open WhatsApp Chat")}
           </a>
-          <a href="track.html?id=${orderId}" class="btn btn-secondary btn-full">
-            🔍 ${I18nManager ? I18nManager.t("trackOrderBtn") : (isAr ? "تتبع حالة الطلب" : "Track Order Status")}
+          <a href="track.html?id=${orderId}" class="btn btn-secondary btn-full" style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg> ${I18nManager ? I18nManager.t("trackOrderBtn") : (isAr ? "تتبع حالة الطلب" : "Track Order Status")}
           </a>
           <button type="button" class="btn btn-tertiary" onclick="document.getElementById('ndOrderSuccessModal').classList.remove('active')">
             ${isAr ? "إغلاق" : "Close"}

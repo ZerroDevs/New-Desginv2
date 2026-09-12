@@ -311,7 +311,7 @@ const AppCoordinator = {
         sizesGroup.style.display = "block";
         sizesContainer.innerHTML = `
           <div style="background: rgba(14, 165, 233, 0.08); border: 1px solid rgba(14, 165, 233, 0.25); border-radius: var(--radius-md); padding: 0.75rem 0.85rem; color: var(--brand-blue); font-size: 0.82rem; font-weight: 700; line-height: 1.4;">
-            ${typeof I18nManager !== "undefined" ? I18nManager.t("productNoSizeNotice") : (isArabic ? "💬 ملاحظة: لا يلزم اختيار مقاس لهذا المنتج — سيتم تحديد التفاصيل مباشرة مع خدمة العملاء في محادثة الواتساب." : "💬 Note: No size selection required for this product — details will be confirmed directly in WhatsApp chat.")}
+            ${typeof I18nManager !== "undefined" ? I18nManager.t("productNoSizeNotice") : (isArabic ? "ملاحظة: لا يلزم اختيار مقاس لهذا المنتج — سيتم تحديد التفاصيل مباشرة مع خدمة العملاء في محادثة الواتساب." : "Note: No size selection required for this product — details will be confirmed directly in WhatsApp chat.")}
           </div>
         `;
       }

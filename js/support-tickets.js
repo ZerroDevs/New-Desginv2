@@ -28,7 +28,38 @@
 
     init() {
       this.bindEvents();
+      this.autoFillFromProfile();
       this.loadMyTickets();
+    },
+
+    autoFillFromProfile() {
+      try {
+        let profileData = null;
+        if (typeof ProfileManager !== "undefined" && ProfileManager.getProfile) {
+          profileData = ProfileManager.getProfile();
+        } else {
+          const raw = localStorage.getItem("nd_user_profile");
+          if (raw) profileData = JSON.parse(raw);
+        }
+
+        const authUser = (typeof AuthManager !== "undefined" && AuthManager.currentUser) ? AuthManager.currentUser : null;
+        const nameInput = document.getElementById("ticketName");
+        const contactInput = document.getElementById("ticketContact");
+
+        if (nameInput && !nameInput.value) {
+          const nameVal = (profileData && profileData.fullName) ? profileData.fullName : (authUser ? (authUser.displayName || "") : "");
+          if (nameVal) nameInput.value = nameVal;
+        }
+
+        if (contactInput && !contactInput.value) {
+          const contactVal = (profileData && (profileData.phone || profileData.email)) 
+            ? (profileData.phone || profileData.email) 
+            : (authUser ? (authUser.email || "") : "");
+          if (contactVal) contactInput.value = contactVal;
+        }
+      } catch (e) {
+        console.warn("Support auto-fill notice:", e);
+      }
     },
 
     bindEvents() {
@@ -68,7 +99,9 @@
         pane.classList.toggle("active", pane.id === `view-${viewId}`);
       });
 
-      if (viewId === "my-tickets") {
+      if (viewId === "new-ticket") {
+        this.autoFillFromProfile();
+      } else if (viewId === "my-tickets") {
         this.loadMyTickets();
       }
     },
@@ -83,6 +116,27 @@
       if (!name || !contact || !subject || !message) {
         this.notify("Please fill in all required fields.", "error");
         return;
+      }
+
+      // Update user profile in local storage and DB with contact info
+      try {
+        const updateData = { fullName: name };
+        if (contact.includes("@")) {
+          updateData.email = contact;
+        } else {
+          updateData.phone = contact;
+        }
+
+        if (typeof ProfileManager !== "undefined" && ProfileManager.updateUserProfile) {
+          ProfileManager.updateUserProfile(updateData);
+        } else {
+          const raw = localStorage.getItem("nd_user_profile");
+          const p = raw ? JSON.parse(raw) : {};
+          Object.assign(p, updateData);
+          localStorage.setItem("nd_user_profile", JSON.stringify(p));
+        }
+      } catch (e) {
+        console.warn("Support profile update notice:", e);
       }
 
       if (typeof firebase === "undefined" || !firebase.database) {
@@ -132,7 +186,7 @@
         .finally(() => {
           if (submitBtn) {
             submitBtn.disabled = false;
-            submitBtn.textContent = "Submit Ticket 🚀";
+            submitBtn.textContent = "Submit Ticket";
           }
         });
     },
@@ -189,9 +243,9 @@
       });
 
       const statusBadges = {
-        open: `<span class="ticket-status-pill open">🟢 Open</span>`,
-        replied: `<span class="ticket-status-pill replied">💬 Replied</span>`,
-        closed: `<span class="ticket-status-pill closed">🔒 Closed</span>`
+        open: `<span class="ticket-status-pill open">Open</span>`,
+        replied: `<span class="ticket-status-pill replied">Replied</span>`,
+        closed: `<span class="ticket-status-pill closed">Closed</span>`
       };
 
       const statusBadge = statusBadges[ticket.status] || statusBadges.open;
@@ -206,7 +260,7 @@
         <h4 class="ticket-card-title">${ticket.subject}</h4>
         <p class="ticket-card-snippet">${(ticket.message || "").substring(0, 90)}${(ticket.message || "").length > 90 ? "..." : ""}</p>
         <div class="ticket-card-bottom">
-          <span class="ticket-date">📅 ${dateStr}</span>
+          <span class="ticket-date"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px; margin-right:3px;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>${dateStr}</span>
           ${hasReply ? `<span class="ticket-reply-flag">Admin Replied ✓</span>` : `<span style="font-size: 0.75rem; color: var(--text-muted);">${ticket.category || 'General'}</span>`}
         </div>
       `;
@@ -260,9 +314,9 @@
 
       if (headerEl) {
         const statusMap = {
-          open: "🟢 Open",
-          replied: "💬 Replied",
-          closed: "🔒 Closed"
+          open: "Open",
+          replied: "Replied",
+          closed: "Closed"
         };
         headerEl.innerHTML = `
           <div>
@@ -283,7 +337,7 @@
           return `
             <div class="chat-bubble-wrap ${isAdmin ? 'admin-wrap' : 'customer-wrap'}">
               <div class="chat-bubble ${isAdmin ? 'bubble-admin' : 'bubble-customer'}">
-                <div class="chat-bubble-sender">${isAdmin ? '🛡️ New Desgin Support' : (m.name || 'You')}</div>
+                <div class="chat-bubble-sender">${isAdmin ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px; margin-right:3px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> New Desgin Support' : (m.name || 'You')}</div>
                 <div class="chat-bubble-text">${m.text}</div>
                 <div class="chat-bubble-time">${time}</div>
               </div>

@@ -14,12 +14,16 @@ const translations = {
     navProfile: "Profile",
     navLogin: "Login / Sign Up",
     navLogout: "Logout",
+    authLogout: "Logout",
     navAccount: "My Account",
     profileFormTitle: "Personal & Delivery Information",
     profilePreferredCurrency: "Preferred Currency",
     saveProfileBtn: "Save Changes",
     toastProfileSaved: "Profile updated successfully!",
     profileOrdersTitle: "My Orders",
+    profileAuthRequiredTitle: "Account Sign In Required",
+    profileAuthRequiredDesc: "Please sign up or sign in using your account to view your personal profile and manage your orders.",
+    profileAuthSignInBtn: "Sign In / Sign Up",
     announcement: "FREE EXPRESS DELIVERY ON ORDERS OVER $150 — SOLID MINIMAL AESTHETICS",
 
     // Hero
@@ -167,8 +171,8 @@ const translations = {
     profileShoesSizeLabel: "Shoes Size",
     profileSizeNone: "Not Specified",
     profileSizeOtherOption: "Other (Specify Custom)",
-    productNoSizeNotice: "💬 Note: No size selection required for this product — details will be confirmed directly in WhatsApp chat.",
-    productNoColorNotice: "💬 Note: Color selection for this product will be confirmed directly in WhatsApp chat.",
+    productNoSizeNotice: "Note: No size selection required for this product — details will be confirmed directly in WhatsApp chat.",
+    productNoColorNotice: "Note: Color selection for this product will be confirmed directly in WhatsApp chat.",
     waSizeColorInChat: "(Size/Color to be confirmed in chat)",
     footerReturnLabel: "Return:",
     footerDays: "days",
@@ -248,7 +252,22 @@ const translations = {
     err404Title: "Page Not Found",
     err404Desc: "The page or product you were looking for doesn't exist, has been moved, or is temporarily unavailable.",
     err404CatalogBtn: "Explore Catalog",
-    err404SupportBtn: "Customer Support"
+    err404SupportBtn: "Customer Support",
+
+    // Admin Roles & Team Management
+    roleOwner: "Owner",
+    roleFounder: "Founder",
+    roleAdministrator: "Administrator",
+    roleSupport: "Support",
+    roleOwnerDesc: "Primary store owner. Immutable & un-editable by anyone.",
+    roleFounderDesc: "Full admin rights. Assigned only by Owner.",
+    roleAdminDesc: "Full panel management, catalog & team operations.",
+    roleSupportDesc: "Ticket replies & order view-only. No catalog/order editing.",
+    teamTitle: "Team Management & Access Roles",
+    teamSubtitle: "Manage team members, grant permissions, and customize access roles. Roles and permissions are synchronized live in Firebase Realtime Database.",
+    teamHierarchyTitle: "Role Permission Hierarchy:",
+    teamAddNewTitle: "Grant Team Access",
+    teamGrantBtn: "Grant Access"
   },
 
   ar: {
@@ -261,6 +280,7 @@ const translations = {
     navProfile: "الملف الشخصي",
     navLogin: "تسجيل الدخول / حساب جديد",
     navLogout: "تسجيل الخروج",
+    authLogout: "تسجيل الخروج",
     navAccount: "حسابي",
     profileFormTitle: "البيانات الشخصية وعنوان التوصيل",
     profilePreferredCurrency: "العملة المفضلة",
@@ -272,10 +292,13 @@ const translations = {
     profileShoesSizeLabel: "مقاس الأحذية",
     profileSizeNone: "غير محدد (اختياري)",
     profileSizeOtherOption: "مقاس آخر (كتابة مخصصة)",
-    productNoSizeNotice: "💬 ملاحظة: لا يلزم اختيار مقاس لهذا المنتج — سيتم تحديد التفاصيل مباشرة مع خدمة العملاء في محادثة الواتساب.",
-    productNoColorNotice: "💬 ملاحظة: سيتم تحديد اختيار اللون معكم مباشرة في محادثة الواتساب.",
+    productNoSizeNotice: "ملاحظة: لا يلزم اختيار مقاس لهذا المنتج — سيتم تحديد التفاصيل مباشرة مع خدمة العملاء في محادثة الواتساب.",
+    productNoColorNotice: "ملاحظة: سيتم تحديد اختيار اللون معكم مباشرة في محادثة الواتساب.",
     waSizeColorInChat: "(سيتم تحديد المقاس/اللون في محادثة الواتساب)",
     profileOrdersTitle: "طلبياتي",
+    profileAuthRequiredTitle: "يرجى تسجيل الدخول أو إنشاء حساب",
+    profileAuthRequiredDesc: "يرجى تسجيل الدخول أو إنشاء حساب جديد لعرض وإدارة ملفك الشخصي وطلباتك بكل سهولة.",
+    profileAuthSignInBtn: "تسجيل الدخول / إنشاء حساب",
     announcement: "توصيل سريع ومجاني للطلبات فوق 150$ — تصاميم عصرية بألوان ثابتة",
 
     // Hero
@@ -493,7 +516,22 @@ const translations = {
     err404Title: "الصفحة غير موجودة",
     err404Desc: "الصفحة أو المنتج الذي تبحث عنه غير موجود، أو تم نقله، أو غير متاح مؤقتاً.",
     err404CatalogBtn: "تصفح الكتالوج",
-    err404SupportBtn: "خدمة العملاء"
+    err404SupportBtn: "خدمة العملاء",
+
+    // Admin Roles & Team Management
+    roleOwner: "المالك",
+    roleFounder: "مؤسس",
+    roleAdministrator: "مسؤول",
+    roleSupport: "خدمة العملاء",
+    roleOwnerDesc: "صاحب المتجر الرئيسي. لا يمكن تعديله أو حذفه من أي شخص.",
+    roleFounderDesc: "صلاحيات إدارية كاملة. يتم تعيينه فقط من قبل المالك.",
+    roleAdminDesc: "إدارة كاملة للمتجر والمنتجات والطلبات وأعضاء الفريق.",
+    roleSupportDesc: "الرد على التذاكر وعرض الطلبات فقط بدون تعديل المنتجات أو الطلبات.",
+    teamTitle: "إدارة أعضاء الفريق وصلاحيات الأدوار",
+    teamSubtitle: "إدارة أعضاء الفريق، وتعيين الصلاحيات، وتخصيص الأدوار الإدارية مباشرة عبر قاعدة البيانات.",
+    teamHierarchyTitle: "هيكلية صلاحيات الأدوار الإدارية:",
+    teamAddNewTitle: "إضافة عضو جديد للفريق",
+    teamGrantBtn: "منح الصلاحية"
   }
 };
 

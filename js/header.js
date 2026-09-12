@@ -141,10 +141,10 @@ const SiteHeader = {
           <div class="mobile-settings-block">
             <div class="auth-state-logged-in" style="display: none; flex-direction: column; gap: 0.5rem; margin-bottom: 0.75rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color);">
               <a href="profile.html" class="btn btn-secondary btn-sm" style="display: flex; align-items: center; justify-content: center; gap: 6px;">
-                👤 <span data-i18n="navProfile">Profile</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> <span data-i18n="navProfile">Profile</span>
               </a>
               <a href="admin.html" class="btn btn-primary btn-sm user-dropdown-admin-link" style="display: none; align-items: center; justify-content: center; gap: 6px;">
-                🛡️ <span>Admin Panel</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> <span>Admin Panel</span>
               </a>
             </div>
             <div class="mobile-setting-row">

@@ -1353,24 +1353,28 @@ textarea:focus {
   visibility: visible;
 }
 
-.modal-window {
+.modal-window,
+.modal-card {
   background-color: var(--modal-bg);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 20px 30px -10px rgba(11, 25, 44, 0.4), 0 10px 15px -5px rgba(11, 25, 44, 0.2);
   width: 100%;
-  max-width: 500px;
+  max-width: 480px;
   position: relative;
   overflow: hidden;
   transform: translateY(20px);
   transition: transform var(--transition-normal);
+  padding: 0;
 }
 
-.modal-overlay.active .modal-window {
+.modal-overlay.active .modal-window,
+.modal-overlay.active .modal-card {
   transform: translateY(0);
 }
 
-.modal-window.modal-wide {
+.modal-window.modal-wide,
+.modal-card.modal-wide {
   max-width: 780px;
 }
 

@@ -57,10 +57,22 @@ const AdminController = {
           this.verifyAdminAccess(user);
         }
       });
+
+      // Listen for language changes to update role labels dynamically
+      document.querySelectorAll(".lang-selector").forEach(select => {
+        select.addEventListener("change", () => this.onLanguageChange());
+      });
     } catch (e) {
       console.error("Firebase init error in Admin:", e);
       this.showNotification("Error initializing Firebase: " + e.message, "error");
     }
+  },
+
+  onLanguageChange() {
+    if (this.currentUser) {
+      this.updateAdminHeader(this.currentUser);
+    }
+    this.renderAdminEmailsList();
   },
 
   verifyAdminAccess(user) {
@@ -83,12 +95,23 @@ const AdminController = {
         const hasAdminList = data && Object.keys(data).length > 0;
         let isAuthorized = false;
 
+        const cleanUserEmail = user.email.toLowerCase().trim();
+        const userEmailKey = cleanUserEmail.replace(/\./g, ",");
+
         // Is it the owner?
-        if (this.ownerEmail && this.ownerEmail === user.email.toLowerCase()) {
+        if (this.ownerEmail && this.ownerEmail === cleanUserEmail) {
           isAuthorized = true;
         } else if (hasAdminList) {
-          const emailValues = Object.values(data).map(e => (typeof e === "string" ? e.toLowerCase() : ""));
-          isAuthorized = emailValues.includes(user.email.toLowerCase());
+          if (data[userEmailKey]) {
+            isAuthorized = true;
+          } else {
+            isAuthorized = Object.keys(data).some(k => {
+              const val = data[k];
+              if (typeof val === "string") return val.toLowerCase() === cleanUserEmail;
+              if (val && typeof val === "object" && val.email) return val.email.toLowerCase() === cleanUserEmail;
+              return k.replace(/,/g, ".").toLowerCase() === cleanUserEmail;
+            });
+          }
         } else {
           // First-time setup
           isAuthorized = true;
@@ -107,9 +130,7 @@ const AdminController = {
           this.loadOrders();
           this.loadAnnouncementSettings();
 
-          // Restore last open tab
-          const savedTab = localStorage.getItem("adminCurrentTab") || "dashboard";
-          this.switchTab(savedTab);
+          this.applyRolePermissions(user);
         } else {
           this.isAdmin = false;
           this.showGateScreen("unauthorized");
@@ -159,6 +180,58 @@ const AdminController = {
     }
   },
 
+  getUserRoleInfo(email) {
+    const normEmail = (email || "").toLowerCase();
+    const hasI18n = typeof I18nManager !== "undefined";
+
+    if (this.ownerEmail && normEmail === this.ownerEmail.toLowerCase()) {
+      return {
+        role: "owner",
+        title: hasI18n ? I18nManager.t("roleOwner") : "Owner",
+        rank: 1,
+        bg: "#f59e0b",
+        color: "#ffffff",
+        svg: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l3 12h14l3-12-6 7-4-5-4 5-6-7z"></path></svg>`
+      };
+    }
+
+    const emailKey = normEmail.replace(/\./g, ",");
+    const entry = this.adminEmails ? this.adminEmails[emailKey] : null;
+    let r = "administrator";
+    if (entry && typeof entry === "object" && entry.role) {
+      r = entry.role.toLowerCase();
+    }
+
+    if (r === "founder") {
+      return {
+        role: "founder",
+        title: hasI18n ? I18nManager.t("roleFounder") : "Founder",
+        rank: 2,
+        bg: "#6366f1",
+        color: "#ffffff",
+        svg: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`
+      };
+    } else if (r === "support") {
+      return {
+        role: "support",
+        title: hasI18n ? I18nManager.t("roleSupport") : "Support",
+        rank: 4,
+        bg: "#10b981",
+        color: "#ffffff",
+        svg: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>`
+      };
+    }
+
+    return {
+      role: "administrator",
+      title: hasI18n ? I18nManager.t("roleAdministrator") : "Administrator",
+      rank: 3,
+      bg: "#0284c7",
+      color: "#ffffff",
+      svg: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>`
+    };
+  },
+
   updateAdminHeader(user) {
     const emailEl = document.getElementById("currentAdminEmail");
     const avatarEl = document.getElementById("currentAdminAvatar");
@@ -166,15 +239,52 @@ const AdminController = {
     if (emailEl) emailEl.textContent = user.email;
     if (avatarEl) avatarEl.textContent = user.email.charAt(0).toUpperCase();
     if (roleEl) {
-      if (this.ownerEmail && user.email.toLowerCase() === this.ownerEmail.toLowerCase()) {
-        roleEl.textContent = "Owner";
-        roleEl.style.color = "var(--admin-blue)";
-        roleEl.style.fontWeight = "700";
+      const info = this.getUserRoleInfo(user.email);
+      roleEl.innerHTML = `
+        <span style="font-size: 0.75rem; background-color: ${info.bg}; color: ${info.color}; padding: 3px 8px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px; font-weight: 700;">
+          ${info.svg} ${info.title}
+        </span>
+      `;
+    }
+  },
+
+  applyRolePermissions(user) {
+    if (!user || !user.email) return;
+    const info = this.getUserRoleInfo(user.email);
+    const isSupport = info.role === "support";
+
+    // Filter sidebar navigation buttons for Support role
+    document.querySelectorAll(".sidebar-nav .nav-item").forEach(btn => {
+      const tab = btn.getAttribute("data-tab");
+      if (isSupport && tab !== "orders" && tab !== "support-tickets") {
+        btn.style.display = "none";
       } else {
-        roleEl.textContent = "Administrator";
-        roleEl.style.color = "";
-        roleEl.style.fontWeight = "";
+        btn.style.display = "flex";
       }
+    });
+
+    // Filter mobile bottom nav items if present
+    document.querySelectorAll(".admin-bottom-nav-item").forEach(btn => {
+      const tab = btn.getAttribute("data-tab");
+      if (isSupport && tab !== "orders" && tab !== "support-tickets") {
+        btn.style.display = "none";
+      } else {
+        btn.style.display = "flex";
+      }
+    });
+
+    // Hide "+ Add New Product" button for Support
+    const addProdBtn = document.getElementById("openAddProductBtn");
+    if (addProdBtn) {
+      addProdBtn.style.display = isSupport ? "none" : "inline-flex";
+    }
+
+    // Force tab fallback if current active tab is forbidden for Support
+    const savedTab = localStorage.getItem("adminCurrentTab") || "dashboard";
+    if (isSupport && savedTab !== "orders" && savedTab !== "support-tickets") {
+      this.switchTab("orders");
+    } else {
+      this.switchTab(savedTab);
     }
   },
 
@@ -279,6 +389,15 @@ const AdminController = {
   },
 
   switchTab(tabName) {
+    const currentEmail = this.currentUser ? this.currentUser.email : "";
+    const info = this.getUserRoleInfo(currentEmail);
+
+    if (info.role === "support") {
+      if (tabName !== "orders" && tabName !== "support-tickets") {
+        tabName = "orders";
+      }
+    }
+
     this.currentTab = tabName;
     localStorage.setItem("adminCurrentTab", tabName);
     document.querySelectorAll(".sidebar-nav .nav-item").forEach(btn => {
@@ -299,6 +418,7 @@ const AdminController = {
         dashboard: "Dashboard Overview",
         products: "Products Management",
         currency: "Currency & Exchange Rates",
+        orders: "Orders Management",
         "store-info": "Store Info & Policies",
         "support-tickets": "Customer Support Tickets",
         admins: "Admin Access & Security",
@@ -332,6 +452,9 @@ const AdminController = {
       if (emptyState) emptyState.style.display = "none";
       if (!tableBody) return;
 
+      const currentUserInfo = this.getUserRoleInfo(this.currentUser ? this.currentUser.email : "");
+      const isSupportRole = currentUserInfo.role === "support";
+
       tableBody.innerHTML = productIds.map(id => {
         const p = this.products[id];
         const isVisible = p.visible !== false;
@@ -363,9 +486,11 @@ const AdminController = {
             </td>
             <td>
               <div class="table-actions">
-                <button type="button" class="btn btn-secondary btn-sm" onclick="AdminController.openEditProductModal('${id}')" title="Edit Product">✏️ Edit</button>
-                <button type="button" class="btn btn-secondary btn-sm" onclick="AdminController.toggleProductVisibility('${id}')" title="Toggle Visibility">${isVisible ? '👁️' : '🚫'}</button>
-                <button type="button" class="btn btn-danger btn-sm" onclick="AdminController.deleteProduct('${id}')" title="Delete Product">🗑️</button>
+                ${!isSupportRole ? `
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="AdminController.openEditProductModal('${id}')" title="Edit Product" style="display: inline-flex; align-items: center; gap: 4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg> Edit</button>
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="AdminController.toggleProductVisibility('${id}')" title="Toggle Visibility" style="display: inline-flex; align-items: center;">${isVisible ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>' : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>'}</button>
+                  <button type="button" class="btn btn-danger btn-sm" onclick="AdminController.deleteProduct('${id}')" title="Delete Product" style="display: inline-flex; align-items: center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+                ` : `<span style="font-size: 0.8rem; color: var(--text-muted);">View Only</span>`}
               </div>
             </td>
           </tr>
@@ -608,6 +733,12 @@ const AdminController = {
   },
 
   openAddProductModal() {
+    const userInfo = this.getUserRoleInfo(this.currentUser ? this.currentUser.email : "");
+    if (userInfo.role === "support") {
+      this.showNotification("Support accounts are view-only and cannot add products.", "error");
+      return;
+    }
+
     this.editingProductId = null;
     this.currentMainPhoto = "";
     this.currentExtraPhotos = [];
@@ -621,6 +752,12 @@ const AdminController = {
   },
 
   openEditProductModal(id) {
+    const userInfo = this.getUserRoleInfo(this.currentUser ? this.currentUser.email : "");
+    if (userInfo.role === "support") {
+      this.showNotification("Support accounts are view-only and cannot edit products.", "error");
+      return;
+    }
+
     const p = this.products[id];
     if (!p) return;
 
@@ -835,6 +972,8 @@ const AdminController = {
       const elReturn = document.getElementById("storeReturnDays");
       const elTripoli = document.getElementById("storeDeliveryTripoli");
       const elOutside = document.getElementById("storeDeliveryOutside");
+      const elBankIban = document.getElementById("storeBankIban");
+      const elBankTitle = document.getElementById("storeBankAccountTitle");
 
       if (elPhone && data.phone) elPhone.value = data.phone;
       if (elEmail && data.email) elEmail.value = data.email;
@@ -842,6 +981,8 @@ const AdminController = {
       if (elReturn && data.returnDays) elReturn.value = data.returnDays;
       if (elTripoli && data.deliveryTripoli) elTripoli.value = data.deliveryTripoli;
       if (elOutside && data.deliveryOutside) elOutside.value = data.deliveryOutside;
+      if (elBankIban) elBankIban.value = data.bankIban || "LY32024005010265803020501";
+      if (elBankTitle) elBankTitle.value = data.bankAccountTitle || "ALTASMEM ALJADED ALALME COMPANY";
     });
   },
 
@@ -857,12 +998,14 @@ const AdminController = {
           returnDays: document.getElementById("storeReturnDays").value.trim(),
           deliveryTripoli: document.getElementById("storeDeliveryTripoli").value.trim(),
           deliveryOutside: document.getElementById("storeDeliveryOutside").value.trim(),
+          bankIban: (document.getElementById("storeBankIban") ? document.getElementById("storeBankIban").value.trim() : "LY32024005010265803020501"),
+          bankAccountTitle: (document.getElementById("storeBankAccountTitle") ? document.getElementById("storeBankAccountTitle").value.trim() : "ALTASMEM ALJADED ALALME COMPANY"),
           updatedAt: Date.now()
         };
 
         this.db.ref("settings/storeInfo").set(payload)
           .then(() => {
-            this.showNotification("Store policies & contact info saved to Firebase! ✓", "success");
+            this.showNotification("Store policies & bank info saved to Firebase! ✓", "success");
           })
           .catch(err => {
             this.showNotification("Error saving store info: " + err.message, "error");
@@ -902,9 +1045,9 @@ const AdminController = {
         });
 
         const statusBadges = {
-          open: `<span class="status-badge visible">🟢 Open</span>`,
-          replied: `<span class="status-badge" style="color: var(--success); background-color: rgba(16, 185, 129, 0.15);">💬 Replied</span>`,
-          closed: `<span class="status-badge hidden">🔒 Closed</span>`
+          open: `<span class="status-badge visible">Open</span>`,
+          replied: `<span class="status-badge" style="color: var(--success); background-color: rgba(16, 185, 129, 0.15);">Replied</span>`,
+          closed: `<span class="status-badge hidden">Closed</span>`
         };
 
         return `
@@ -919,7 +1062,7 @@ const AdminController = {
             <td>${statusBadges[t.status] || t.status}</td>
             <td style="font-size: 0.8rem; color: var(--text-muted);">${date}</td>
             <td>
-              <button type="button" class="btn btn-secondary btn-sm" onclick="AdminController.openTicketModal('${t.key}')">💬 View & Reply</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="AdminController.openTicketModal('${t.key}')" style="display: inline-flex; align-items: center; gap: 4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg> View & Reply</button>
             </td>
           </tr>
         `;
@@ -986,7 +1129,7 @@ const AdminController = {
       return `
         <div class="chat-bubble-wrap ${isAdmin ? 'customer-wrap' : 'admin-wrap'}">
           <div class="chat-bubble ${isAdmin ? 'bubble-customer' : 'bubble-admin'}" style="max-width: 90%;">
-            <div class="chat-bubble-sender">${isAdmin ? '🛡️ New Desgin Admin' : (m.name || 'Customer')}</div>
+            <div class="chat-bubble-sender">${isAdmin ? 'New Desgin Admin' : (m.name || 'Customer')}</div>
             <div class="chat-bubble-text">${m.text}</div>
             <div class="chat-bubble-time">${time}</div>
           </div>
@@ -1122,32 +1265,110 @@ const AdminController = {
     if (!container) return;
 
     const keys = Object.keys(this.adminEmails);
+    const currentEmail = this.currentUser ? this.currentUser.email : "";
+    const currentUserInfo = this.getUserRoleInfo(currentEmail);
+    const hasI18n = typeof I18nManager !== "undefined";
+
+    // Populate Add New Admin Role select dynamically based on currentUser rank
+    const newRoleSelect = document.getElementById("newAdminRole");
+    if (newRoleSelect) {
+      let optionsHtml = "";
+      if (currentUserInfo.rank <= 1) {
+        optionsHtml += `<option value="founder">${hasI18n ? I18nManager.t("roleFounder") : "Founder / مؤسس"}</option>`;
+      }
+      optionsHtml += `<option value="administrator">${hasI18n ? I18nManager.t("roleAdministrator") : "Administrator / مسؤول"}</option>`;
+      optionsHtml += `<option value="support">${hasI18n ? I18nManager.t("roleSupport") : "Support / خدمة العملاء"}</option>`;
+      newRoleSelect.innerHTML = optionsHtml;
+    }
+
     if (keys.length === 0) {
-      container.innerHTML = `<p style="color: var(--text-muted); font-size: 0.9rem;">No administrators registered yet.</p>`;
+      container.innerHTML = `<p style="color: var(--text-muted); font-size: 0.9rem;">No team members registered yet.</p>`;
       return;
     }
 
     container.innerHTML = keys.map(key => {
-      const emailVal = this.adminEmails[key];
-      // emailVal is either the email string (new UID-keyed) or an email string (old dot-keyed)
-      const displayEmail = typeof emailVal === "string" ? emailVal : key;
-      const isCurrent = this.currentUser && this.currentUser.uid === key;
-      const isOwner = this.ownerEmail && displayEmail.toLowerCase() === this.ownerEmail.toLowerCase();
+      const entry = this.adminEmails[key];
+      const displayEmail = (typeof entry === "object" && entry.email) ? entry.email : (typeof entry === "string" ? entry : key.replace(/,/g, "."));
+      const targetInfo = this.getUserRoleInfo(displayEmail);
+      const isCurrent = currentEmail.toLowerCase() === displayEmail.toLowerCase();
+      const isTargetOwner = targetInfo.role === "owner";
+
+      // Hierarchy rule: Higher rank can edit role if current user rank is lower number than target user rank AND target is not owner AND not self
+      const canManageTarget = (currentUserInfo.rank < targetInfo.rank) && !isCurrent && !isTargetOwner;
+
+      let roleBadgeOrSelectHtml = `
+        <span style="font-size: 0.75rem; background-color: ${targetInfo.bg}; color: ${targetInfo.color}; padding: 3px 8px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px; font-weight: 700;">
+          ${targetInfo.svg} ${targetInfo.title}
+        </span>
+      `;
+
+      if (canManageTarget) {
+        roleBadgeOrSelectHtml = `
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <select onchange="AdminController.updateUserRole('${key}', this.value)" class="form-input" style="padding: 2px 6px; font-size: 0.78rem; font-weight: 700; width: auto; height: 28px;">
+              ${currentUserInfo.rank <= 1 ? `<option value="founder" ${targetInfo.role === 'founder' ? 'selected' : ''}>${hasI18n ? I18nManager.t("roleFounder") : "Founder"}</option>` : ''}
+              ${currentUserInfo.rank <= 3 ? `<option value="administrator" ${targetInfo.role === 'administrator' ? 'selected' : ''}>${hasI18n ? I18nManager.t("roleAdministrator") : "Administrator"}</option>` : ''}
+              <option value="support" ${targetInfo.role === 'support' ? 'selected' : ''}>${hasI18n ? I18nManager.t("roleSupport") : "Support"}</option>
+            </select>
+          </div>
+        `;
+      }
 
       return `
-        <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; background-color: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-md); margin-bottom: 0.5rem;">
-          <div style="display: flex; align-items: center; gap: 0.75rem;">
-            <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--admin-blue);"></span>
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; background-color: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-md); margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+          <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+            <span style="width: 8px; height: 8px; border-radius: 50%; background-color: ${targetInfo.bg};"></span>
             <strong>${displayEmail}</strong>
-            ${isOwner ? '<span style="font-size: 0.75rem; background-color: #f59e0b; color: #fff; padding: 2px 6px; border-radius: 4px;" title="Store Owner">Owner 👑</span>' : ''}
+            ${roleBadgeOrSelectHtml}
             ${isCurrent ? '<span style="font-size: 0.75rem; background-color: var(--admin-blue); color: #fff; padding: 2px 6px; border-radius: 4px;">You</span>' : ''}
           </div>
           <div>
-            ${(!isCurrent && !isOwner) ? `<button type="button" class="btn btn-danger btn-sm" onclick="AdminController.removeAdminEmail('${key}')">Remove</button>` : ''}
+            ${canManageTarget ? `<button type="button" class="btn btn-danger btn-sm" onclick="AdminController.removeAdminEmail('${key}')">Remove</button>` : ''}
           </div>
         </div>
       `;
     }).join("");
+  },
+
+  updateUserRole(key, newRole) {
+    const entry = this.adminEmails[key];
+    const displayEmail = (typeof entry === "object" && entry.email) ? entry.email : (typeof entry === "string" ? entry : key.replace(/,/g, "."));
+    const currentEmail = this.currentUser ? this.currentUser.email : "";
+    const currentUserInfo = this.getUserRoleInfo(currentEmail);
+    const targetInfo = this.getUserRoleInfo(displayEmail);
+
+    if (targetInfo.role === "owner") {
+      this.showNotification("The store owner's role cannot be modified.", "error");
+      this.renderAdminEmailsList();
+      return;
+    }
+
+    if (currentEmail.toLowerCase() === displayEmail.toLowerCase()) {
+      this.showNotification("You cannot edit your own role.", "error");
+      this.renderAdminEmailsList();
+      return;
+    }
+
+    if (currentUserInfo.rank >= targetInfo.rank) {
+      this.showNotification("Only higher-ranked administrators can edit this member's role.", "error");
+      this.renderAdminEmailsList();
+      return;
+    }
+
+    if (newRole === "founder" && currentUserInfo.rank > 1) {
+      this.showNotification("Only the Store Owner can assign the Founder role.", "error");
+      this.renderAdminEmailsList();
+      return;
+    }
+
+    this.db.ref("settings/adminEmails/" + key).set({
+      email: displayEmail,
+      role: newRole
+    }).then(() => {
+      this.showNotification(`Updated role for ${displayEmail} to ${newRole.toUpperCase()}! ✓`, "success");
+    }).catch(err => {
+      this.showNotification("Failed to update role: " + err.message, "error");
+    });
   },
 
   bindAdminEmailEvents() {
@@ -1156,18 +1377,35 @@ const AdminController = {
       addAdminForm.addEventListener("submit", (e) => {
         e.preventDefault();
         const input = document.getElementById("newAdminEmail");
+        const roleSelect = document.getElementById("newAdminRole");
         const email = input.value.trim().toLowerCase();
+        const role = roleSelect ? roleSelect.value : "administrator";
 
         if (!email || !email.includes("@")) {
           this.showNotification("Please enter a valid email address.", "error");
           return;
         }
 
-        // Key: replace ALL dots with commas — matches Firebase rules .replace('.', ',')
+        const currentEmail = this.currentUser ? this.currentUser.email : "";
+        const currentUserInfo = this.getUserRoleInfo(currentEmail);
+
+        if (currentUserInfo.rank > 3) {
+          this.showNotification("Support accounts cannot grant team access.", "error");
+          return;
+        }
+
+        if (role === "founder" && currentUserInfo.rank > 1) {
+          this.showNotification("Only the Store Owner can assign the Founder role.", "error");
+          return;
+        }
+
         const emailKey = email.replace(/\./g, ",");
-        this.db.ref("settings/adminEmails/" + emailKey).set(email)
+        this.db.ref("settings/adminEmails/" + emailKey).set({
+          email: email,
+          role: role
+        })
           .then(() => {
-            this.showNotification(`Admin access granted to ${email}! ✓`, "success");
+            this.showNotification(`Team access (${role.toUpperCase()}) granted to ${email}! ✓`, "success");
             input.value = "";
           })
           .catch(err => this.showNotification(err.message, "error"));
@@ -1176,21 +1414,34 @@ const AdminController = {
   },
 
   removeAdminEmail(key) {
-    const emailToRemove = this.adminEmails[key];
-    const displayEmail = typeof emailToRemove === "string" ? emailToRemove : key;
+    const entry = this.adminEmails[key];
+    const displayEmail = (typeof entry === "object" && entry.email) ? entry.email : (typeof entry === "string" ? entry : key.replace(/,/g, "."));
+    const currentEmail = this.currentUser ? this.currentUser.email : "";
+    const currentUserInfo = this.getUserRoleInfo(currentEmail);
+    const targetInfo = this.getUserRoleInfo(displayEmail);
 
-    if (this.ownerEmail && displayEmail.toLowerCase() === this.ownerEmail.toLowerCase()) {
+    if (targetInfo.role === "owner") {
       this.showNotification("The store owner cannot be removed.", "error");
       return;
     }
 
-    if (!confirm(`Are you sure you want to revoke admin permissions for ${displayEmail}?`)) {
+    if (currentEmail.toLowerCase() === displayEmail.toLowerCase()) {
+      this.showNotification("You cannot remove your own account.", "error");
+      return;
+    }
+
+    if (currentUserInfo.rank >= targetInfo.rank) {
+      this.showNotification("Only higher-ranked administrators can remove this member.", "error");
+      return;
+    }
+
+    if (!confirm(`Are you sure you want to revoke permissions for ${displayEmail}?`)) {
       return;
     }
 
     this.db.ref("settings/adminEmails/" + key).remove()
       .then(() => {
-        this.showNotification("Administrator access removed.", "info");
+        this.showNotification("Team member access removed.", "info");
       })
       .catch(err => this.showNotification(err.message, "error"));
   },
@@ -1401,6 +1652,9 @@ const AdminController = {
 
     if (emptyState) emptyState.style.display = "none";
 
+    const currentRoleInfo = this.getUserRoleInfo(this.currentUser ? this.currentUser.email : "");
+    const isSupportRole = currentRoleInfo.role === "support";
+
     tbody.innerHTML = entries.map(([key, order]) => {
       const orderId = order.orderId || key;
       const status = (order.status || "pending").toLowerCase();
@@ -1412,9 +1666,14 @@ const AdminController = {
       const itemsCount = (order.items || []).reduce((sum, i) => sum + (i.quantity || 1), 0);
       const itemsSummaryText = (order.items || []).map(i => `${i.nameAr || i.name} (${i.quantity}x)`).join(", ");
 
+      const hasReceipt = !!order.receiptImage;
+
       return `
         <tr>
-          <td><strong style="font-family: monospace; color: var(--admin-blue);">#${orderId}</strong></td>
+          <td>
+            <strong style="font-family: monospace; color: var(--admin-blue);">#${orderId}</strong>
+            ${hasReceipt ? `<div style="margin-top: 2px;"><span class="badge" style="background: rgba(16,185,129,0.15); color: #10b981; font-size: 0.72rem; padding: 2px 6px; display: inline-flex; align-items: center; gap: 3px;" title="Payment Receipt Attached"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg> Receipt ✓</span></div>` : ''}
+          </td>
           <td style="font-size: 0.85rem; color: var(--text-muted);">${dateStr}</td>
           <td>
             <div style="font-weight: 700; color: var(--text-main);">${order.customerName || "—"}</div>
@@ -1428,19 +1687,19 @@ const AdminController = {
           </td>
           <td><strong style="color: var(--brand-blue);">${parseFloat(order.finalTotal || order.total || 0).toFixed(2)} ${currencySymbol}</strong></td>
           <td>
-            <select class="form-input" style="padding: 4px 8px; font-size: 0.82rem; width: auto; font-weight: 700;" onchange="AdminController.updateOrderStatus('${orderId}', this.value)">
-              <option value="pending" ${status === 'pending' ? 'selected' : ''}>⏳ Pending / قيد الانتظار</option>
-              <option value="processing" ${status === 'processing' ? 'selected' : ''}>⚙️ Processing / قيد التنفيذ</option>
-              <option value="shipped" ${status === 'shipped' ? 'selected' : ''}>🚚 Shipped / تم الشحن</option>
-              <option value="delivered" ${status === 'delivered' || status === 'completed' ? 'selected' : ''}>🎉 Delivered / تم التوصيل</option>
-              <option value="canceled" ${status === 'canceled' || status === 'cancelled' ? 'selected' : ''}>❌ Canceled / ملغاة</option>
+            <select class="form-input" style="padding: 4px 8px; font-size: 0.82rem; width: auto; font-weight: 700;" ${isSupportRole ? 'disabled title="Support accounts cannot edit order status"' : ''} onchange="AdminController.updateOrderStatus('${orderId}', this.value)">
+              <option value="pending" ${status === 'pending' ? 'selected' : ''}>Pending / قيد الانتظار</option>
+              <option value="processing" ${status === 'processing' ? 'selected' : ''}>Processing / قيد التنفيذ</option>
+              <option value="shipped" ${status === 'shipped' ? 'selected' : ''}>Shipped / تم الشحن</option>
+              <option value="delivered" ${status === 'delivered' || status === 'completed' ? 'selected' : ''}>Delivered / تم التوصيل</option>
+              <option value="canceled" ${status === 'canceled' || status === 'cancelled' ? 'selected' : ''}>Canceled / ملغاة</option>
             </select>
           </td>
           <td>
             <div style="display: flex; gap: 4px;">
-              <button type="button" class="btn btn-secondary btn-sm" onclick="AdminController.generateInvoice('${orderId}')" title="Print Invoice / الفاتورة">🖨️</button>
-              <button type="button" class="btn btn-secondary btn-sm" onclick="AdminController.viewOrderDetails('${orderId}')" title="View Details / التفاصيل">👁️</button>
-              <button type="button" class="btn btn-secondary btn-sm" onclick="AdminController.deleteOrder('${orderId}')" title="Delete Order / حذف" style="color: var(--error);">🗑️</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="AdminController.generateInvoice('${orderId}')" title="Print Invoice / الفاتورة"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg></button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="AdminController.viewOrderDetails('${orderId}')" title="View Details / التفاصيل"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+              ${!isSupportRole ? `<button type="button" class="btn btn-secondary btn-sm" onclick="AdminController.deleteOrder('${orderId}')" title="Delete Order / حذف" style="color: var(--error);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>` : ''}
             </div>
           </td>
         </tr>
@@ -1450,26 +1709,78 @@ const AdminController = {
 
   updateOrderStatus(orderId, newStatus) {
     if (!this.db) return;
-    this.db.ref("orders/" + orderId + "/status").set(newStatus)
-      .then(() => {
+    const currentRoleInfo = this.getUserRoleInfo(this.currentUser ? this.currentUser.email : "");
+    if (currentRoleInfo.role === "support") {
+      this.showNotification("Support accounts are view-only for order management and cannot alter order status.", "error");
+      this.renderOrdersTable();
+      return;
+    }
+    const targetOrder = this.orders ? this.orders[orderId] : null;
+    const userId = targetOrder ? (targetOrder.userId || targetOrder.uid) : null;
+
+    const updates = [this.db.ref("orders/" + orderId + "/status").set(newStatus)];
+    if (userId) {
+      updates.push(this.db.ref(`users/${userId}/orders/${orderId}/status`).set(newStatus));
+    }
+
+    this.db.ref("users").once("value").then(snap => {
+      if (snap.exists()) {
+        const usersObj = snap.val();
+        Object.keys(usersObj).forEach(uKey => {
+          if (usersObj[uKey] && usersObj[uKey].orders && usersObj[uKey].orders[orderId]) {
+            updates.push(this.db.ref(`users/${uKey}/orders/${orderId}/status`).set(newStatus));
+          }
+        });
+      }
+      return Promise.all(updates);
+    }).then(() => {
+      this.showNotification(`Order #${orderId} status updated to ${newStatus}! ✓`, "success");
+    }).catch(err => {
+      Promise.all(updates).then(() => {
         this.showNotification(`Order #${orderId} status updated to ${newStatus}! ✓`, "success");
-      })
-      .catch(err => {
-        this.showNotification("Failed to update status: " + err.message, "error");
+      }).catch(e => {
+        this.showNotification("Failed to update status: " + e.message, "error");
       });
+    });
   },
 
   deleteOrder(orderId) {
+    const currentRoleInfo = this.getUserRoleInfo(this.currentUser ? this.currentUser.email : "");
+    if (currentRoleInfo.role === "support") {
+      this.showNotification("Support accounts cannot delete orders.", "error");
+      return;
+    }
+
     if (!confirm(`Are you sure you want to permanently delete order #${orderId}?`)) return;
     if (!this.db) return;
 
-    this.db.ref("orders/" + orderId).remove()
-      .then(() => {
+    const targetOrder = this.orders ? this.orders[orderId] : null;
+    const userId = targetOrder ? (targetOrder.userId || targetOrder.uid) : null;
+
+    const deletes = [this.db.ref("orders/" + orderId).remove()];
+    if (userId) {
+      deletes.push(this.db.ref(`users/${userId}/orders/${orderId}`).remove());
+    }
+
+    this.db.ref("users").once("value").then(snap => {
+      if (snap.exists()) {
+        const usersObj = snap.val();
+        Object.keys(usersObj).forEach(uKey => {
+          if (usersObj[uKey] && usersObj[uKey].orders && usersObj[uKey].orders[orderId]) {
+            deletes.push(this.db.ref(`users/${uKey}/orders/${orderId}`).remove());
+          }
+        });
+      }
+      return Promise.all(deletes);
+    }).then(() => {
+      this.showNotification(`Order #${orderId} deleted successfully from database.`, "success");
+    }).catch(err => {
+      Promise.all(deletes).then(() => {
         this.showNotification(`Order #${orderId} deleted successfully.`, "success");
-      })
-      .catch(err => {
-        this.showNotification("Failed to delete order: " + err.message, "error");
+      }).catch(e => {
+        this.showNotification("Failed to delete order: " + e.message, "error");
       });
+    });
   },
 
   viewOrderDetails(orderId) {
@@ -1487,35 +1798,16 @@ const AdminController = {
     const currencySymbol = order.currency === "USD" || order.currency === "$" ? "$" : "د.ل";
 
     const itemsHtml = (order.items || []).map(item => `
-      <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px dashed var(--border-color);">
         <div>
-          <strong style="color: var(--text-main);">${item.nameAr || item.name}</strong>
-          <div style="font-size: 0.8rem; color: var(--text-muted);">
-            ${item.size ? 'Size: ' + item.size : ''} ${item.color ? '· Color: ' + item.color : ''}
-          </div>
+          <strong style="color: var(--text-main); font-size: 0.92rem;">${item.nameAr || item.name}</strong>
+          <div style="font-size: 0.8rem; color: var(--text-muted);">Qty: ${item.quantity} | Size: ${item.size || 'N/A'} | Color: ${item.color || 'N/A'}</div>
         </div>
-        <div style="text-align: right;">
-          <div>${item.quantity}x @ ${parseFloat(item.price).toFixed(2)} ${currencySymbol}</div>
-          <strong style="color: var(--brand-blue);">${(item.quantity * parseFloat(item.price)).toFixed(2)} ${currencySymbol}</strong>
-        </div>
+        <div style="font-weight: 700; color: var(--brand-blue); font-size: 0.92rem;">${(parseFloat(item.price || 0) * (item.quantity || 1)).toFixed(2)} ${currencySymbol}</div>
       </div>
     `).join("");
 
     modalContent.innerHTML = `
-      <div style="margin-bottom: 1.25rem;">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; background: var(--bg-secondary); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
-          <div>
-            <div style="font-size: 0.8rem; color: var(--text-muted);">Customer Name</div>
-            <strong style="color: var(--text-main); font-size: 0.95rem;">${order.customerName || '—'}</strong>
-          </div>
-          <div>
-            <div style="font-size: 0.8rem; color: var(--text-muted);">Phone Number</div>
-            <strong style="color: var(--text-main); font-size: 0.95rem;" dir="ltr">${order.customerPhone || '—'}</strong>
-          </div>
-          <div>
-            <div style="font-size: 0.8rem; color: var(--text-muted);">Delivery Address</div>
-            <strong style="color: var(--text-main); font-size: 0.95rem;">${order.customerAddress || '—'}</strong>
-          </div>
           <div>
             <div style="font-size: 0.8rem; color: var(--text-muted);">Order Date</div>
             <strong style="color: var(--text-main); font-size: 0.95rem;">${dateStr}</strong>
@@ -1523,6 +1815,18 @@ const AdminController = {
         </div>
         ${order.notes ? `<div style="margin-top: 0.75rem; font-size: 0.88rem; background: rgba(14,165,233,0.08); padding: 8px 12px; border-radius: var(--radius-sm);"><strong>Notes:</strong> ${order.notes}</div>` : ''}
       </div>
+
+      ${order.receiptImage ? `
+        <div style="margin-bottom: 1.25rem; padding: 1rem; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-md);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <strong style="color: var(--text-main); font-size: 0.92rem; display: flex; align-items: center; gap: 6px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg> Payment Receipt / إيصال التحويل البنكي:</strong>
+            <span style="font-size: 0.8rem; color: #10b981; font-weight: 700;">Uploaded</span>
+          </div>
+          <a href="${order.receiptImage}" target="_blank" title="Click to view full size">
+            <img src="${order.receiptImage}" alt="Payment Receipt" style="max-width: 100%; max-height: 320px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); object-fit: contain; display: block; margin: 0 auto; background: #fff;" />
+          </a>
+        </div>
+      ` : ''}
 
       <h4 style="font-size: 1rem; margin-bottom: 0.5rem; color: var(--text-main);">Ordered Products</h4>
       <div style="margin-bottom: 1.25rem;">
@@ -1535,7 +1839,7 @@ const AdminController = {
       </div>
 
       <div style="margin-top: 1.25rem; display: flex; justify-content: flex-end; gap: 0.75rem;">
-        <button type="button" class="btn btn-secondary" onclick="AdminController.generateInvoice('${orderId}')">🖨️ Print Invoice</button>
+        <button type="button" class="btn btn-secondary" onclick="AdminController.generateInvoice('${orderId}')" style="display: inline-flex; align-items: center; gap: 6px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg> Print Invoice</button>
         <button type="button" class="btn btn-primary" onclick="document.getElementById('adminOrderDetailsModal').classList.remove('active')">Close</button>
       </div>
     `;
@@ -1685,8 +1989,8 @@ const AdminController = {
 </head>
 <body>
     <div class="print-actions">
-        <button class="print-btn" onclick="window.print()">🖨️ طباعة الفاتورة / Print</button>
-        <button class="close-btn" onclick="window.close()">❌ إغلاق / Close</button>
+        <button class="print-btn" onclick="window.print()">طباعة الفاتورة / Print</button>
+        <button class="close-btn" onclick="window.close()">إغلاق / Close</button>
     </div>
 
     <div class="invoice-card">
@@ -1696,7 +2000,7 @@ const AdminController = {
                 <img src="${storeLogo}" class="store-logo" alt="${storeName}" onerror="this.style.display='none'">
                 <div>
                     <div class="store-title">${storeName}</div>
-                    <div class="store-sub">📞 ${storePhone} &nbsp;|&nbsp; ✉️ ${storeEmail}</div>
+                    <div class="store-sub">${storePhone} &nbsp;|&nbsp; ${storeEmail}</div>
                 </div>
             </div>
             <div class="inv-badge-box">
@@ -1709,16 +2013,16 @@ const AdminController = {
         <!-- Meta Information -->
         <div class="inv-meta-grid">
             <div class="meta-item">
-                <div class="meta-item-label">👤 بيانات العميل</div>
+                <div class="meta-item-label">بيانات العميل</div>
                 <div class="meta-item-val">${order.customerName || order.name || 'عميل محترم'}</div>
                 <div style="font-size: 0.82rem; color: #64748b; font-weight: 600; margin-top: 2px;" dir="ltr">${order.customerPhone || order.phone || ''}</div>
             </div>
             <div class="meta-item">
-                <div class="meta-item-label">📍 عنوان التوصيل</div>
+                <div class="meta-item-label">عنوان التوصيل</div>
                 <div class="meta-item-val">${order.customerAddress || order.address || 'طرابلس، ليبيا'}</div>
             </div>
             <div class="meta-item">
-                <div class="meta-item-label">📅 تاريخ ووقت الطلب</div>
+                <div class="meta-item-label">تاريخ ووقت الطلب</div>
                 <div class="meta-item-val">${formattedDate}</div>
                 <div style="font-size: 0.82rem; color: #64748b; font-weight: 600; margin-top: 2px;">${formattedTime}</div>
             </div>
@@ -1750,12 +2054,12 @@ const AdminController = {
             <div class="inv-summary-container">
                 ${order.notes ? `
                 <div class="notes-card">
-                    <strong>📝 ملاحظات العميل:</strong>
+                    <strong>ملاحظات العميل:</strong>
                     <div>${order.notes}</div>
                 </div>
                 ` : `
                 <div class="notes-card" style="background: #f8fafc; border-color: #e2e8f0; color: #64748b;">
-                    <strong>💳 طريقة الدفع:</strong>
+                    <strong>طريقة الدفع:</strong>
                     <div>الدفع عند الاستلام (Cash on Delivery)</div>
                 </div>
                 `}
@@ -1788,7 +2092,7 @@ const AdminController = {
 
         <!-- Footer -->
         <div class="inv-footer">
-            <div class="inv-footer-text">شكراً لشرائكم من ${storeName} ✨</div>
+            <div class="inv-footer-text">شكراً لشرائكم من ${storeName}</div>
             <div class="inv-footer-sub">${storeName} • أرقى تشكيلات الملابس والأزياء الفاخرة | تواصلوا معنا دائماً عبر الواتساب</div>
         </div>
     </div>
